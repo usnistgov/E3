@@ -33,13 +33,15 @@ def dRateRealCalc(dRateNorm, inflationRate):
 
 
 def recurEscalationRateCorrection(analysisType, recurrenceVariabilityRateType, recurrenceVariabilityRateValues, \
-    time = None): #! do we need inflationRate as input?
+    time = None): #! do we need inflationRate as input? <- A: probably a global var.
+                # realdiscountrate, nominaldiscountrate, inflationrate <- from Analysis Class. Higher lvl variables that are independent (above) all
     """
     Purpose: Returns the escalation rate, when there is a discrepancy between 
     chosen analysis and provided escalation rates.
     Note: Escalation rate is for nominal, but analysis is in real dollars - or vice versa.
     """
-    # TODO: if escalation rate is required to be in real dollars:
+    # TODO: if escalation rate is required to be in real dollars: <- 'Escalation rate': rate at which cost that is recurring over time. (how price is changing over time)
+    # 'escalation rate' depends on BCN benefit or cost value  == 'recurrence' parameters from the BCN Object
         if isinstance(recurrenceVariabilityRateValues, float):
             e = (1 + recurrenceVariabilityRateValues) / (1 + inflationRate) - 1
             return e
@@ -76,7 +78,7 @@ def quantEscalationCalc(quantityVariabilityRateType, quantityVariabilityRateValu
     return e 
 
 
-def spv(recurrenceVariabilityRateValues, discountRate, time):
+def spv(recurrenceVariabilityRateValues, discountRate, time): # 
     """
     Purpose: Return multiplier to convert a future value to present value.
     """
@@ -85,15 +87,16 @@ def spv(recurrenceVariabilityRateValues, discountRate, time):
     elif isinstance(recurrenceVariabilityRateValues, list) and all(isinstance(x, float) for x in \
         recurrenceVariabilityRateValues):
         prod = 1
-        for i in range(1, time + 1): #! what is unit for time? (currently assumed as int)
+        for i in range(1, time + 1): #! what is unit for time? (currently assumed as int) A: 'time' is an int type. can either be year, or combination of YMD
             prod *= (1 + recurrenceVariabilityRateValues[i])
 
         SPV = 1 / (1 + discountRate) * prod
         return SPV
 
-def discValueCalc(value, spv): #! do we need time as input?
+def discValueCalc(value, spv): #! do we need time as input? A: 'value' is from BCN Class <- Josh & David will discuss. may have to include some var.
+    # Probably: initial recurrence should be added to the BCN Class.
     #? if there exist no instance where we need spv value w/o calling SPV, then we may fold spv() & discValueCalc() into single function
-    discValue = spv[time] * value
+    discValue = spv[time] * value # dateOfOccurence from BCN OBject
     return discValue
 
 # ! Inconsistent documentation - should we include presentValueCalc() & escalatedQuantCalc specified in functions?
@@ -113,7 +116,7 @@ def escalatedQuantCalc(quantity, quantityVariabilityRateType, quantityVariabilit
     elif isinstance(quantityVariabilityRateValues, list) and all(isinstance(x, float) for x in \
         quantityVariabilityRateValues) and time: # time input is required
         mult = 1
-        for i in range(1, time+1): #! what is unit for time? (currently assumed as int)
+        for i in range(1, time+1): #! what is unit for time? (currently assumed as int) A. Yes time is always 'int' type.
             mult *= (1 + quantityVariabilityRateValues[i])
 
         escQuantVal = mult * quantity
