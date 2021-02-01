@@ -1,3 +1,0 @@
-
-
-from .alternative import PriceHistory

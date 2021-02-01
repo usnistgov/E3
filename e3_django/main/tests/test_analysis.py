@@ -8,7 +8,7 @@ def Analysis():
     return ParseDict({
       "analysisType": '',
       "projType": "",
-      "objToReport" : [""], #! Var Type is specified as: List of Strings, but Format says: {FlowSummary, MeasureSummary}, ...  => list or dict?
+      "objToReport" : [""], #! Var Type is specified as: List of Strings, but Format says: {FlowSummary, MeasureSummary}, ...  => (o) 'list' or (x) dict?
       "studyPreiod": 1,
       "baseDate": # date,
       "serviceDate": # date,
