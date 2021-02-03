@@ -1,0 +1,1 @@
+This folder is designed to hold input templates and example input files to be used in unit tests.
