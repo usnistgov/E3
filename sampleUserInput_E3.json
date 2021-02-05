@@ -11,6 +11,7 @@
     "outputRealBool": false,
     "interestRate": 1.1,
     "dRateReal": 1.1,
+    "dRateNom": 1.1,
     "inflationRate": 1.1,
     "Marr": 1.1,
     "reinvestRate": 1.1,

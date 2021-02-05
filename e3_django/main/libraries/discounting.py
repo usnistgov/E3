@@ -42,6 +42,7 @@ def recurEscalationRateCorrection(analysisType, recurrenceVariabilityRateType, r
     """
     # TODO: if escalation rate is required to be in real dollars: <- 'Escalation rate': rate at which cost that is recurring over time. (how price is changing over time)
     # 'escalation rate' depends on BCN benefit or cost value  == 'recurrence' parameters from the BCN Object
+    if False: # placeholder
         if isinstance(recurrenceVariabilityRateValues, float):
             e = (1 + recurrenceVariabilityRateValues) / (1 + inflationRate) - 1
             return e
@@ -54,6 +55,7 @@ def recurEscalationRateCorrection(analysisType, recurrenceVariabilityRateType, r
             return e_time
 
     # TODO: elif escalation rate is required to be in nominal dollars:
+    if False: # placeholder
         if instance(recurrenceVariabilityRateValues, float):
             E = (1 + I) * (1 + recurrenceVariabilityRateValues) - 1
             return E

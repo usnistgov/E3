@@ -1,9 +1,6 @@
-import .validateAndRead as vr
-import .cashFlows as cf 
-from ../models import bcn
+from ..  import libraries.validateRead as vr
 
-# does this need to be wrapped in a Main class
-
+"""
 def bcnLevelFlows(userObjects):
     # generate bcn level flows
     for obj in userObjects:
@@ -18,14 +15,23 @@ def bcnLevelFlows(userObjects):
             bcnObject.bcnSubType, bcnObject.bcnTag,
             bcnNonDiscFlow, bcnDiscFlow, quantList,
             bcnObject.quantUnit
-        )  # is this replacing the bcnObject
+        )  
+"""
 
 def main(inputFile):
-    # validate and read
-    vr.validateFile(inputFile)
-    objectList = vr.readFile(inputFile)
-    userObjects = vr.generateUserObjects(objectList)
-    
-    bcnLevelFlows(userObjects)
+    # Validate file and generate user-defined objects.
+    validated_file = vr.validateFile(inputFile)
+    validated_object_list = vr.readFile(validated_file)
+    vr.generateUserObjects(validated_object_list)
 
-    # TODO rest
+    # Generate BCN level flows 
+    
+    # Generate Total Cash Flows using totalFlows from cashFlows library
+
+    # Calculate measures 
+    
+    # Write to output file
+    with open("../../sampleUserOutput_E3.json", mode='w') as f:
+        f.write(OutputInJSON) 
+
+    return
