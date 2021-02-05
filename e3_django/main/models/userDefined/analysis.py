@@ -3,11 +3,7 @@ from .. .. import libraries.discounting
 class Analysis(models.Model):
     """
     Purpose: Creates and validates Analysis objects.
-    
-    Parameters:
-    Returns:
     """
-
     # Verify data type and length as Analysis object is created.
     analysisType = models.CharField(max_length=30)
     projectType = models.CharField(max_length=30)
@@ -33,8 +29,11 @@ class Analysis(models.Model):
     #@classmethod
     #def
 
-    """ validateAnalysisObject(analysisObj):
-    Will verify as the object is created, see above
+    """ 
+    def validateAnalysisObject(analysisObj):
+
+    Purpose: Verifies that all inputs are correct required type, and in valid ranges
+    Note: Will verify as the object is created, see above
     """
 
     def validateDiscountRate(self):
@@ -44,7 +43,7 @@ class Analysis(models.Model):
             pass
         
         elif dRateNom and dRateReal and outputRealBool:
-            # using dRateReal
+            # Use dRateReal
             if not inflationRate:
                 # Update inputObjList with computed inflation rate
                 inputObjList = discounting.inflationRateCalc(dRateNom, dRateReal)
@@ -53,7 +52,7 @@ class Analysis(models.Model):
                 return inputObjList
 
         elif dRateNom and dRateReal and not outputRealBool:
-            # using dRateNom
+            # Use dRateNom
             if not inflationRate:
                 # Update inputObjList with computed inflation rate
                 inputObjList = discounting.inflationRateCalc(dRateNom, dRateReal)
