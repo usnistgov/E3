@@ -1,0 +1,108 @@
+{
+  "analysisObject": {
+    "analysisType": "type",
+    "projectType": "project",
+    "objToReport": "object",
+    "studyPeriod": 1,
+    "baseDate": "2021-02-03",
+    "serviceDate": "2021-02-03",
+    "timestepVal": "1",
+    "timestepComp": 1,
+    "outputRealBool": false,
+    "interestRate": 1.1,
+    "dRateReal": 1.1,
+    "inflationRate": 1.1,
+    "Marr": 1.1,
+    "reinvestRate": 1.1,
+    "incomeRateFed": 1.2,
+    "incomeRateOther": 1.2,
+    "noAlt": 1,
+    "location": ["gaithersburg", "providence"]
+  },
+  "alternativeObject": [
+    {
+      "altID": 1,
+      "altName": "alternative1",
+      "altBCNList": [1, 2, 3, 4, 5],
+      "baselineBool": true
+    },
+    {
+      "altID": 2,
+      "altName": "alternative2",
+      "altBCNList": [1, 2, 3, 4, 5],
+      "baselineBool": true
+    }
+  ],
+  "bcnObject": [
+    {
+      "bcnID": 1,
+      "altID": [1, 2, 3],
+      "bcnType": "type",
+      "bcnSubType": "subType",
+      "bcnName": "name",
+      "bcnTag": "tag",
+      "initialOcc": 1,
+      "bcnRealBool": true,
+      "bcnInvestBool": true,
+      "rvBool": false,
+      "recurBool": false,
+      "recurInterval": 1,
+      "recurVarRate": "rate1",
+      "recurVarValue": [1.0, 1.1, 1.2, 1.3, 1.4],
+      "recurEndDate": 2020,
+      "valuePerQ": 1.1,
+      "quant": 1.1,
+      "quantVarRate": "rate1",
+      "quantVarValue": [1.0, 1.1, 1.2, 1.3, 1.4],
+      "quantUnit": "unit1"
+    },
+    {
+      "bcnID": 1,
+      "altID": 2,
+      "bcnType": "type",
+      "bcnSubType": "subType",
+      "bcnName": "name",
+      "bcnTag": "tag",
+      "initialOcc": 1,
+      "bcnRealBool": true,
+      "bcnInvestBool": true,
+      "rvBool": false,
+      "recurBool": false,
+      "recurInterval": 2,
+      "recurVarRate": "rate2",
+      "recurVarValue": 2.0
+      "recurEndDate": 2021,
+      "valuePerQ": 1.1,
+      "quant": 1.1,
+      "quantVarRate": "rate2",
+      "quantVarValue": 2.0
+      "quantUnit": "unit2"
+    }
+  ],
+  "sensitivityObject": [
+    {
+      "globalVarBool": true,
+      "altID": 2,
+      "bcnID": 1,
+      "varName": "var1",
+      "diffType": "type1",
+      "diffVal": "value1"
+    },
+    {
+      "globalVarBool": true,
+      "altID": 2,
+      "bcnID": 2,
+      "varName": "var2",
+      "diffType": "type2",
+      "diffVal": "value2"
+    }
+  ],
+  "scenarioObject": [
+    {
+      "objectVariables": []
+    },
+    {
+      "objectVariables": []
+    }
+  ]
+}
