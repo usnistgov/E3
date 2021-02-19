@@ -1,5 +1,5 @@
 from django.db import models
-from .. .. import libraries.discounting
+from ../../libraries import discounting
 class Analysis(models.Model):
     """
     Purpose: Creates and validates Analysis objects.
@@ -8,20 +8,25 @@ class Analysis(models.Model):
     analysisType = models.CharField(max_length=30)
     projectType = models.CharField(max_length=30)
     objToReport = models.CharField(max_length=30)
+
     studyPeriod = models.IntegerField()
     baseDate = models.DateTimeField(auto_now_add=True)
     serviceDate = models.DateTimeField(auto_now_add=True)
     timestepVal = models.CharField(max_length=30)
     timestepComp = models.IntegerField()
+
     outputRealBool = models.BooleanField(default=False)
+
     interestRate = models.DecimalField(max_digits=7, decimal_places=2)
     dRateReal = models.DecimalField(max_digits=7, decimal_places=2)
     dRateNom = models.DecimalField(max_digits=7, decimal_places=2)
     inflationRate = models.DecimalField(max_digits=7, decimal_places=2)
+
     Marr = models.DecimalField(max_digits=7, decimal_places=2)
     reinvestRate = models.DecimalField(max_digits=7, decimal_places=2)
     incomeRateFed = models.DecimalField(max_digits=7, decimal_places=2)
     incomeRateOther = models.DecimalField(max_digits=7, decimal_places=2)
+    
     noAlt = models.IntegerField()
     # location =  
     # ?: How to check if data field is a list?

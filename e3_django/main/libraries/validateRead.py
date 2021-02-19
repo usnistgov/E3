@@ -1,14 +1,15 @@
 from types import SimpleNamespace
 import json
-import .discounting as discounting
+import discounting as discounting
 import .flows as flows
-from .userDefined import (alternative, analysis, bcn, scenario, sensitivity)
+from ../models/userDefined import (alternative, analysis, bcn, scenario, sensitivity)
 
 
 def validateFile(dataFile):
     """
     This requires ELDST's help to set up, may be housed in another library. 
-    ! For now, ignore.
+    Output: Boolean, indicating if file is valid.
+    ! For now, ignore this
     """
     return 
 
@@ -18,23 +19,31 @@ def readFile(inputJSONFile):
     Purpose: if file is properly validated, parse json into separate data list 
     for each user defined object type.
     """
-    if validateFile(inputJSONFile): 
+    if validateFile(inputJSONFile): # file is valid
         res = json.loads(inputJSONFile, object_hook=lambda d: SimpleNamespace(**d))
-        analysisObj, alternativeObj, bcnObj, sensitivityObj, scenarioObj = res.analysisObject, res.alternativeObject, \
-            res.bcnObject, res.sensitivityObject, scenarioObject
+        analysisObj, alternativeObj, bcnObj, sensitivityObj, scenarioObj = \
+            res.analysisObject, res.alternativeObject, res.bcnObject, res.sensitivityObject, scenarioObject # load into user-defined objects
 
-        objectList = [analysisObj, alternativeObj, bcnObj, sensitivityObj, scenarioObj] # List containing each User-Defined Object 
+        objectList = [analysisObj, alternativeObj, bcnObj, sensitivityObj, scenarioObj] # List containing each user-defined object
+    else:
+        raise Exception('File is not valid')
 
     # Verify consistency of discounting input
     if discounting.checkDiscounting(): # ? Call to checkDiscounting()? where is this function defined
         pass
 
-    else:
-        # Call to Discounting Library to fill in missing information
-        # Add missing information to appropriate place in list for the object(s) in question
+    else: # Call to Discounting Library to fill in missing information
+          # Add missing information to appropriate place in list for the object(s) in question
         pass
        
-    # if some object(s) miss required elements / contain invalid entries: 
+    if all(objectList) and (analysisObj.analysisType and analysisObj.projectType and analysisObj.objToReport, analysisObj.studyPeriod,\
+        analysisObj.baseDate, analysisObj.serviceDate, analysisObj.timestepVal, analysisObj.timestepComp, analysisObj.outputRealBool,\
+        analysisObj.interestRate, analysisObj.dRateReal, analysisObj.dRateNom, analysisObj.inflationRate, analysisObj.Marr, analysisObj.reinvestRate,\
+        analysisObj.incomeRateFed, analysisObj.incomeRateOther, analysisObj.noAlt, analysisObj.location) \
+        and (alternativeObj.altID, alternativeObj.altName, alternativeObj.altBCNList, alternativeObj.baselineBool)
+
+        return objectList 
+    else: #some object(s) miss required elements / contain invalid entries: 
         raise Exception('Invalid entries provided, or objects missing required elements')
 
     return objectList # All required information are provided in objectList
