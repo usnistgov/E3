@@ -1,4 +1,5 @@
-from ../models/bcn as bcn
+sys.path.insert(1, '/e3_django/main/models/userDefined')
+import (alternative, analysis, bcn, scenario, sensitivity)
 
 def blankFlow(studyPeriod, timestepValue):
     timestepCount = studyPeriod / timestepValue

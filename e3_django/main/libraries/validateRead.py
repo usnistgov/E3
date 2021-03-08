@@ -1,8 +1,10 @@
 from types import SimpleNamespace
 import json
 import discounting as discounting
-import .flows as flows
-from ../models/userDefined import (alternative, analysis, bcn, scenario, sensitivity)
+import cashFlow as flows
+import sys
+sys.path.insert(1, '/e3_django/main/models/userDefined')
+import (alternative, analysis, bcn, scenario, sensitivity)
 
 
 def validateFile(dataFile):
@@ -11,7 +13,8 @@ def validateFile(dataFile):
     Output: Boolean, indicating if file is valid.
     ! For now, ignore this
     """
-    return 
+    console.log("File was successfully validated")
+    return True
 
 
 def readFile(inputJSONFile):
@@ -34,23 +37,23 @@ def readFile(inputJSONFile):
 
     else: # Call to Discounting Library to fill in missing information
           # Add missing information to appropriate place in list for the object(s) in question
+          # ?: This part is checked upon Object creation - is discounting.checkDiscounting necessary in this case?
         pass
        
     if all(objectList) and (analysisObj.analysisType and analysisObj.projectType and analysisObj.objToReport, analysisObj.studyPeriod,\
         analysisObj.baseDate, analysisObj.serviceDate, analysisObj.timestepVal, analysisObj.timestepComp, analysisObj.outputRealBool,\
-        analysisObj.interestRate, analysisObj.dRateReal, analysisObj.dRateNom, analysisObj.inflationRate, analysisObj.Marr, analysisObj.reinvestRate,\
-        analysisObj.incomeRateFed, analysisObj.incomeRateOther, analysisObj.noAlt, analysisObj.location) \
+        analysisObj.interestRate, analysisObj.dRateReal, analysisObj.dRateNom, analysisObj.inflationRate, analysisObj.Marr, \
+        analysisObj.reinvestRate, analysisObj.incomeRateFed, analysisObj.incomeRateOther, analysisObj.noAlt, analysisObj.location) \
         and (alternativeObj.altID, alternativeObj.altName, alternativeObj.altBCNList, alternativeObj.baselineBool)
 
         return objectList 
+
     else: #some object(s) miss required elements / contain invalid entries: 
         raise Exception('Invalid entries provided, or objects missing required elements')
 
-    return objectList # All required information are provided in objectList
 
 
 def generateUserObjects(objectList):
-    
     """
     Purpose: Call to Class constructors, with User-Defined Objects, and validates as constructed.
     Parameter: objectList (list): output object from readFile().
