@@ -1,0 +1,29 @@
+“userInput” :
+[ {
+	“analysisObject” : 
+	{
+		”analysisType”: “LCCA”,
+		“projectType”: “Buildings”,
+		“objToReport”: {FlowSummary, MeasureSummary},
+		“studyPeriod”: 10,
+		“baseDate”: 2012-04-23T18:25:43.511Z,
+		“serviceDate”: 2013-04-23T18:25:43.511Z,
+		“timestepVal”: “Year”,
+		“timestepComp”: 1,
+		“outputRealBool”: True,
+		“interestRate”: 0.03,
+		“dRateReal”: {},
+		“dRateNom: 0.236,
+		“inflationRate”: 0.03,
+		“Marr”: 0.04,
+		“reinvestRate”: 0.05,
+		“incomeRateFed”: {},
+		“incomeRateOther”: {},
+		“location”: [“United States”,””,””,”Maryland”,””,””,”20879”,””]
+	}
+} ]
+
+	
+
+
+	
