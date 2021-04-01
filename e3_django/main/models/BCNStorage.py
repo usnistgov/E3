@@ -66,10 +66,10 @@ class BCNStorage(models.Model):
         return 
 
 
-	def updateSensFlows(newSensFlowNonDisc, newSensFlowDisc, newSensFlowQuant):
+	def updateSensFlows(self, newSensFlowNonDisc, newSensFlowDisc, newSensFlowQuant):
         # TODO: Updates the sensitivity flows with the input flows
         return
 
-    def updateUncFlows(newUncFlowNonDisc, newUncFlowDisc, newUncFlowQuant):
+    def updateUncFlows(self, newUncFlowNonDisc, newUncFlowDisc, newUncFlowQuant):
         # TODO: Updates the uncertainty flows with input flows
         return

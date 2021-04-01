@@ -1,3 +1,22 @@
+from django.test import TestCase
+from main.models.userDefined.analysis import Analysis
+
+class ModelsTestCase(TestCase):
+      def test_create_analysis_object(self):
+            """Analysis object is successfully created"""
+            print("called")
+            analysis = Analysis.objects.create(
+              projectType='type1', 
+              interestRate=0.25, 
+              dRateNom=0.25,
+              inflationRate=0.25,
+              incomeRateFed=0.25,
+              incomeRateOther=0.25,
+              #location=[]
+              )
+            analysis.save()
+            self.assertTrue(True)
+"""
 import pytest
 
 from ..models import analysis
@@ -27,3 +46,4 @@ def Analysis():
       "baseAlt": 1,
       "location": ["Country", "Region", "Division", "State", "County", "City", "ZIP", "address"]
     })
+"""

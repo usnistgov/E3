@@ -1,9 +1,8 @@
 from django.db import models
-sys.path.insert(1, '/e3_django/main/libraries')
-import validateRead
-from .. import AlternativeSummary
+from main.libraries import validateRead
+from .. import alternativeSummary
 
-class Analysis(models.Model):
+class Alternative(models.Model):
     """
     Purpose: Creates and validates Analysis objects.
     """
@@ -15,7 +14,7 @@ class Analysis(models.Model):
 
 
     @classmethod
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
         """
         Purpose: Standard class constructor method. Create object based off of list of inputs developed from json string
         in addition to the above checking methods provided by models. Class variables are provided in the following table. 
@@ -27,7 +26,7 @@ class Analysis(models.Model):
         return 
 
     
-    def validateAlternativeObject(objectList):
+    def validateAlternativeObject(self, objectList):
         boolCount = 0
 
         for bcnObject in objectList.bcnObject:

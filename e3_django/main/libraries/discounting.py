@@ -4,9 +4,8 @@ Purpose: The Discounting Library serves two purposes.
 2. Provides a check that all required information for discounting is present in the user input.
 """
 # import files
-import validateRead as vr
-sys.path.insert(1, '/e3_django/main/models')
-import (totalRequiredFlows, totalOptionalFlows)
+from main.libraries import validateRead as vr
+from main.models import totalRequiredFlows, totalOptionalFlows
 
 
 def inflationRateCalc(dRateNorm, dRateReal):
@@ -48,7 +47,7 @@ def recurEscalationRateCorrection(analysisType, recurrenceVariabilityRateType, r
     # TODO: if escalation rate is required to be in real dollars: <- 'Escalation rate': rate at which cost that is recurring over time. (how price is changing over time)
     # 'escalation rate' depends on BCN benefit or cost value  == 'recurrence' parameters from the BCN Object
 
-    if analysisType = 'real': # placeholder - how to check type of escalation rate (real vs. nominal)?
+    if analysisType == 'real': # placeholder - how to check type of escalation rate (real vs. nominal)?
         if isinstance(recurrenceVariabilityRateValues, float):
             e = (1 + recurrenceVariabilityRateValues) / (1 + inflationRate) - 1
             return e
@@ -61,7 +60,7 @@ def recurEscalationRateCorrection(analysisType, recurrenceVariabilityRateType, r
             return e_time
 
     # TODO: elif escalation rate is required to be in nominal dollars:
-    if analysisType = 'nominal': # placeholder
+    if analysisType == 'nominal': # placeholder
         if instance(recurrenceVariabilityRateValues, float):
             E = (1 + I) * (1 + recurrenceVariabilityRateValues) - 1
             return E

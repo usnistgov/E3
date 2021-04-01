@@ -1,10 +1,8 @@
 from types import SimpleNamespace
 import json
-import discounting as discounting
-import cashFlow as flows
-import sys
-sys.path.insert(1, '/e3_django/main/models/userDefined')
-import (alternative, analysis, bcn, scenario, sensitivity)
+from main.libraries import discounting
+from main.libraries import cashFlow as flows
+from main.models.userDefined import alternative, analysis, bcn, scenario, sensitivity
 
 
 def validateFile(dataFile):
@@ -44,7 +42,7 @@ def readFile(inputJSONFile):
         analysisObj.baseDate, analysisObj.serviceDate, analysisObj.timestepVal, analysisObj.timestepComp, analysisObj.outputRealBool,\
         analysisObj.interestRate, analysisObj.dRateReal, analysisObj.dRateNom, analysisObj.inflationRate, analysisObj.Marr, \
         analysisObj.reinvestRate, analysisObj.incomeRateFed, analysisObj.incomeRateOther, analysisObj.noAlt, analysisObj.location) \
-        and (alternativeObj.altID, alternativeObj.altName, alternativeObj.altBCNList, alternativeObj.baselineBool)
+        and (alternativeObj.altID, alternativeObj.altName, alternativeObj.altBCNList, alternativeObj.baselineBool):
 
         return objectList 
 

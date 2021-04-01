@@ -1,8 +1,8 @@
-sys.path.insert(1, '/e3_django/main/libraries')
-import cashFlow
+from main.libraries import cashFlow
 from .userDefined import bcn
+from django.db import models
 
-class TotalOptionalFlows(models.Model):
+class AlternativeSummary(models.Model):
     """
     Purpose: Stores total cash flows for a single altID-tag combination.
     """
@@ -25,18 +25,18 @@ class TotalOptionalFlows(models.Model):
 	quantUnits – list of strings ith index is the unit for the ith element in quantSum
 	MARR – taken directly from Analysis object
 	"""
-	deltaQuant = models.JSONField()
-	nsDeltaQuant = models.JSONField()
-	nsPercQuant = models.JSONField()
-	nsElasticityQuant = models.JSONField()
+    deltaQuant = models.JSONField()
+    nsDeltaQuant = models.JSONField()
+    nsPercQuant = models.JSONField()
+    nsElasticityQuant = models.JSONField()
 
 
     @classmethod
-	def __init__(self):
-		self.bcnType = bcn.bcnType # bcn.bcnType variable stored here for convenience
-		self.bcnSubType = bcn.bcnSubType # bcn.bcnSubType variable stored here for convenience
+    def __init__(self):
+        self.bcnType = bcn.bcnType # bcn.bcnType variable stored here for convenience
+        self.bcnSubType = bcn.bcnSubType # bcn.bcnSubType variable stored here for convenience
 		
-		if not all(isinstance(x, float) for x in self.quantSum):
+        if not all(isinstance(x, float) for x in self.quantSum):
             raise Exception("Incorrect data type: quantSum must be a list of floats")
         
         if not all(isinstance(x, float) for x in self.deltaQuant):
@@ -48,17 +48,17 @@ class TotalOptionalFlows(models.Model):
         if not all(isinstance(x, float) for x in self.nsPercQuant):
             raise Exception("Incorrect data type: nsPercQuant must be a list of floats")
 
-		if not all(isinstance(x, float) for x in self.nsElasticityQuant):
+        if not all(isinstance(x, float) for x in self.nsElasticityQuant):
             raise Exception("Incorrect data type: nsElasticityQuant must be a list of floats")
 
-		return
+        return
 
 
 
-	def updateMeasure(measureName, flow):
+    def updateMeasure(self, measureName, flow):
 		# Based on measureName (string with the exact same name as the variable without 
 		# the enclosing brackets if they exist) reset current measure to the input measure.
 		# ?: which variable orresponds to this?
 
 		# self.x = flow
-		return
+        return

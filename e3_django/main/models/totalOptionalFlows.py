@@ -1,6 +1,6 @@
-sys.path.insert(1, '/e3_django/main/libraries')
-import cashFlow
-from .userDefined import bcn
+from django.db import models
+from main.libraries import cashFlow
+from main.models.userDefined import bcn
 
 class TotalOptionalFlows(models.Model):
     """
@@ -15,46 +15,43 @@ class TotalOptionalFlows(models.Model):
     #bcnTag = – bcn.tag, user defined tag to set up custom groups of bcn objects
     totTagFlowDisc = models.JSONField()
     totTagQ = models.JSONField()
-    quatnUnits = models.CharField()
+    quatnUnits = models.CharField(max_length=30)
 
 
-	def __init__(self):
-
-		self.bcnType = bcn.bcnType # bcn.bcnType variable stored here for convenience
-		self.bcnSubType = bcn.bcnSubType # bcn.bcnSubType variable stored here for convenience
+    def __init__(self):
+        #self.bcnType = bcn.bcnType # bcn.bcnType variable stored here for convenience
+        #self.bcnSubType = bcn.bcnSubType # bcn.bcnSubType variable stored here for convenience
 		
-		if not all(isinstance(x, float) for x in self.totTagFlowDisc):
+        if not all(isinstance(x, float) for x in self.totTagFlowDisc):
             raise Exception("Incorrect data type: totTagFlowDisc must be a list of floats")
         
         if not all(isinstance(x, float) for x in self.totTagQ):
             raise Exception("Incorrect data type: totTagQ must be a list of floats")
 
-		return
+        return
 
 
+    def addFlow(self, cashFlowBool, flow):
+        """
+        Purpose: Based on cashFlowBool, add input flow to current flow values.
+        """
+        if cashFlowBool == True:
+            self.totTagFlowDisc += flow
 
-	def addFlow(cashFlowBool, flow):
-		"""
-		Purpose: Based on cashFlowBool, add input flow to current flow values.
-		"""
-		if cashFlowBool == True:
-			self.totTagFlowDisc += flow
-
-		if cashFlowBool == False:
-			self.totTagQ += flow
+        if cashFlowBool == False:
+            self.totTagQ += flow
 		
-		return
+        return
 
 
+    def upadateFlow(self, cashFlowBool, flow):
+        """
+        Purpose: Based on cashFlowBool, reset current flow to the input flow value.
+        """
+        if cashFlowBool == True:
+            self.totTagFlowDisc = flow
 
-	def upadateFlow(cashFlowBool, flow):
-		"""
-		Purpose: Based on cashFlowBool, reset current flow to the input flow value.
-		"""
-		if cashFlowBool == True:
-			self.totTagFlowDisc = flow
+        elif cashFlowBool == False:
+            self.totTagQ = flow
 
-		elif cashFlowBool == False:
-			self.totTagQ = flow
-
-		return
+        return

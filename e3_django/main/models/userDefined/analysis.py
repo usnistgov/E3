@@ -1,6 +1,6 @@
 from django.db import models
-sys.path.insert(1, '/e3_django/main/libraries')
-import (validateRead, cashFlow, discounting)
+from main.libraries import validateRead, cashFlow, discounting
+from django.core.validators import MaxValueValidator, MinValueValidator
 
 class Analysis(models.Model):
     """
@@ -9,12 +9,12 @@ class Analysis(models.Model):
     # Verify data type and range as Analysis object is created (In addition to var check in __init__)
     analysisType = models.CharField(max_length=30, blank=True) # blank=True refers to unrequired var.
     projectType = models.CharField(max_length=30)
-    objToReport = models.JSONField(blank=True) # further check in __init__ constructor. See below
+    objToReport = models.JSONField(blank=True, default=list) # further check in __init__ constructor. See below
     studyPeriod = models.IntegerField(blank=True, validators = [MinValueValidator(0)])
     baseDate = models.DateTimeField(auto_now_add=True, blank=True)
     serviceDate = models.DateTimeField(auto_now_add=True) # Must be later than Base Date
-    timestepVal = models.CharField(max_length=30, blank=True, validators=[MinValueValidator(self.baseDate)])
-    timestepComp = models.IntegerField(blank=True, validators=[MaxValueValidator(self.studyPeriod), MinValueValidator(0)]) # Must be positive and less than study period
+    timestepVal = models.CharField(max_length=30, blank=True, validators=[MinValueValidator(baseDate)])
+    timestepComp = models.IntegerField(blank=True, validators=[MaxValueValidator(studyPeriod), MinValueValidator(0)]) # Must be positive and less than study period
     outputRealBool = models.BooleanField(blank=True)
     interestRate = models.DecimalField(max_digits=7, decimal_places=2) # May add check later that they're positive
     dRateReal = models.DecimalField(max_digits=7, decimal_places=2, blank=True) # May add check later that they're positive
@@ -26,23 +26,26 @@ class Analysis(models.Model):
     incomeRateOther = models.DecimalField(max_digits=7, decimal_places=2)
     #noAlt = models.IntegerField(validators = [MinValueValidator(1)]) # Included in second table (of Pseudocode 4. Analysis Class), but not in first table. Omitted for now
     #baseAlt = models.IntegerField() # Included in second table (of Pseudocode 4. Analysis Class), but not in first table. Omitted for now 
-    location = models.JSONField() # further check in __init__ constructor. See below
+    
+    #location = models.JSONField() # further check in __init__ constructor. See below
 
 
-    @classmethod
-    """
-    Purpose: Standard class constructor method. Create object based off of list of inputs developed from json string
-    in addition to the above checking methods provided by models. Class variables are provided in the following table. 
-    The STS document contains more information
-    """
-    def __init__(self):
-        if not all(isinstance(x, str) for x in self.objToReport):
-            raise Exception("Incorrect data type: objToReport must be a list of strings")
 
-        if not all(isinstance(x, float) for x in self.location):
-            raise Exception("Incorrect data type: Location must be a list of strings")
+    def save(self,  *args, **kwargs):
+        super(Analysis, self).save(*args, **kwargs)
+        """
+        Purpose: Standard class constructor method. Create object based off of list of inputs developed from json string
+        in addition to the above checking methods provided by models. Class variables are provided in the following table. 
+        The STS document contains more information
+        """
+        #if not all(isinstance(x, str) for x in self.objToReport):
+        #    raise Exception("Incorrect data type: objToReport must be a list of strings")
+
+        #if not all(isinstance(x, float) for x in self.location):
+        #    raise Exception("Incorrect data type: Location must be a list of strings")
+        
         return
- 
+        
 
     # Below method was checked upon Object creation, see above.
     """ 
@@ -51,13 +54,12 @@ class Analysis(models.Model):
         Note: Will verify as the object is created, see above
     """
 
-
+    
     def validateDiscountRate(self):
         discount_rate_vars = [self.dRateReal, self.dRateNom, self.inflationRate, self.outputRealBool]
 
-        # If outputRealBool is True, and dRateReal & inflationRate is given
+        # If outputRealBool is True, and dRateReal & inflationRate is given, OR if outputRealBool is False, and dRateReal & inflationRate is given
         if (self.outputRealBool and self.dRateReal and self.inflationRate) or \
-            # OR if outputRealBool is False, and dRateReal & inflationRate is given
             (not self.outputRealBool and self.dRateNom and self.inflationRate):
             pass
 
@@ -116,5 +118,4 @@ class Analysis(models.Model):
             return
             
         return
-
-
+    
