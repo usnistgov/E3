@@ -1,1 +1,1 @@
-This folder should contains all debug logs for the api. It's only meant for development purposes. Any logs generated for the user should be stored elsewhere
+Ignore this folder for now. It will be deleted in the next merge. If you need to store Debug logs do so in the "E3/e3_django/main/Debug" Log folder
