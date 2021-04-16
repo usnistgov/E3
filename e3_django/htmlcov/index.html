@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Coverage report</title>
+    <link rel="stylesheet" href="style.css" type="text/css">
+    <script type="text/javascript" src="jquery.min.js"></script>
+    <script type="text/javascript" src="jquery.ba-throttle-debounce.min.js"></script>
+    <script type="text/javascript" src="jquery.tablesorter.min.js"></script>
+    <script type="text/javascript" src="jquery.hotkeys.js"></script>
+    <script type="text/javascript" src="coverage_html.js"></script>
+    <script type="text/javascript">
+        jQuery(document).ready(coverage.index_ready);
+    </script>
+</head>
+<body class="indexfile">
+<div id="header">
+    <div class="content">
+        <h1>Coverage report:
+            <span class="pc_cov">50%</span>
+        </h1>
+        <img id="keyboard_icon" src="keybd_closed.png" alt="Show keyboard shortcuts" />
+        <form id="filter_container">
+            <input id="filter" type="text" value="" placeholder="filter..." />
+        </form>
+    </div>
+</div>
+<div class="help_panel">
+    <img id="panel_icon" src="keybd_open.png" alt="Hide keyboard shortcuts" />
+    <p class="legend">Hot-keys on this page</p>
+    <div>
+    <p class="keyhelp">
+        <span class="key">n</span>
+        <span class="key">s</span>
+        <span class="key">m</span>
+        <span class="key">x</span>
+        <span class="key">c</span> &nbsp; change column sorting
+    </p>
+    </div>
+</div>
+<div id="index">
+    <table class="index">
+        <thead>
+            <tr class="tablehead" title="Click to sort">
+                <th class="name left headerSortDown shortkey_n">Module</th>
+                <th class="shortkey_s">statements</th>
+                <th class="shortkey_m">missing</th>
+                <th class="shortkey_x">excluded</th>
+                <th class="right shortkey_c">coverage</th>
+            </tr>
+        </thead>
+        <tfoot>
+            <tr class="total">
+                <td class="name left">Total</td>
+                <td>387</td>
+                <td>195</td>
+                <td>0</td>
+                <td class="right" data-ratio="192 387">50%</td>
+            </tr>
+        </tfoot>
+        <tbody>
+            <tr class="file">
+                <td class="name left"><a href="e3_django___init___py.html">e3_django/__init__.py</a></td>
+                <td>0</td>
+                <td>0</td>
+                <td>0</td>
+                <td class="right" data-ratio="0 0">100%</td>
+            </tr>
+            <tr class="file">
+                <td class="name left"><a href="e3_django_settings_py.html">e3_django/settings.py</a></td>
+                <td>18</td>
+                <td>0</td>
+                <td>0</td>
+                <td class="right" data-ratio="18 18">100%</td>
+            </tr>
+            <tr class="file">
+                <td class="name left"><a href="main___init___py.html">main/__init__.py</a></td>
+                <td>0</td>
+                <td>0</td>
+                <td>0</td>
+                <td class="right" data-ratio="0 0">100%</td>
+            </tr>
+            <tr class="file">
+                <td class="name left"><a href="main_admin_py.html">main/admin.py</a></td>
+                <td>0</td>
+                <td>0</td>
+                <td>0</td>
+                <td class="right" data-ratio="0 0">100%</td>
+            </tr>
+            <tr class="file">
+                <td class="name left"><a href="main_libraries_cashFlow_py.html">main/libraries/cashFlow.py</a></td>
+                <td>24</td>
+                <td>19</td>
+                <td>0</td>
+                <td class="right" data-ratio="5 24">21%</td>
+            </tr>
+            <tr class="file">
+                <td class="name left"><a href="main_libraries_discounting_py.html">main/libraries/discounting.py</a></td>
+                <td>59</td>
+                <td>48</td>
+                <td>0</td>
+                <td class="right" data-ratio="11 59">19%</td>
+            </tr>
+            <tr class="file">
+                <td class="name left"><a href="main_libraries_validateRead_py.html">main/libraries/validateRead.py</a></td>
+                <td>26</td>
+                <td>18</td>
+                <td>0</td>
+                <td class="right" data-ratio="8 26">31%</td>
+            </tr>
+            <tr class="file">
+                <td class="name left"><a href="main_migrations___init___py.html">main/migrations/__init__.py</a></td>
+                <td>0</td>
+                <td>0</td>
+                <td>0</td>
+                <td class="right" data-ratio="0 0">100%</td>
+            </tr>
+            <tr class="file">
+                <td class="name left"><a href="main_models___init___py.html">main/models/__init__.py</a></td>
+                <td>8</td>
+                <td>6</td>
+                <td>0</td>
+                <td class="right" data-ratio="2 8">25%</td>
+            </tr>
+            <tr class="file">
+                <td class="name left"><a href="main_models_alternativeSummary_py.html">main/models/alternativeSummary.py</a></td>
+                <td>25</td>
+                <td>14</td>
+                <td>0</td>
+                <td class="right" data-ratio="11 25">44%</td>
+            </tr>
+            <tr class="file">
+                <td class="name left"><a href="main_models_sensitivitySummary_py.html">main/models/sensitivitySummary.py</a></td>
+                <td>0</td>
+                <td>0</td>
+                <td>0</td>
+                <td class="right" data-ratio="0 0">100%</td>
+            </tr>
+            <tr class="file">
+                <td class="name left"><a href="main_models_totalOptionalFlows_py.html">main/models/totalOptionalFlows.py</a></td>
+                <td>28</td>
+                <td>15</td>
+                <td>0</td>
+                <td class="right" data-ratio="13 28">46%</td>
+            </tr>
+            <tr class="file">
+                <td class="name left"><a href="main_models_totalRequiredFlows_py.html">main/models/totalRequiredFlows.py</a></td>
+                <td>40</td>
+                <td>8</td>
+                <td>0</td>
+                <td class="right" data-ratio="32 40">80%</td>
+            </tr>
+            <tr class="file">
+                <td class="name left"><a href="main_models_uncertaintySummary_py.html">main/models/uncertaintySummary.py</a></td>
+                <td>0</td>
+                <td>0</td>
+                <td>0</td>
+                <td class="right" data-ratio="0 0">100%</td>
+            </tr>
+            <tr class="file">
+                <td class="name left"><a href="main_models_userDefined_alternative_py.html">main/models/userDefined/alternative.py</a></td>
+                <td>24</td>
+                <td>13</td>
+                <td>0</td>
+                <td class="right" data-ratio="11 24">46%</td>
+            </tr>
+            <tr class="file">
+                <td class="name left"><a href="main_models_userDefined_analysis_py.html">main/models/userDefined/analysis.py</a></td>
+                <td>49</td>
+                <td>26</td>
+                <td>0</td>
+                <td class="right" data-ratio="23 49">47%</td>
+            </tr>
+            <tr class="file">
+                <td class="name left"><a href="main_models_userDefined_bcn_py.html">main/models/userDefined/bcn.py</a></td>
+                <td>41</td>
+                <td>11</td>
+                <td>0</td>
+                <td class="right" data-ratio="30 41">73%</td>
+            </tr>
+            <tr class="file">
+                <td class="name left"><a href="main_models_userDefined_scenario_py.html">main/models/userDefined/scenario.py</a></td>
+                <td>0</td>
+                <td>0</td>
+                <td>0</td>
+                <td class="right" data-ratio="0 0">100%</td>
+            </tr>
+            <tr class="file">
+                <td class="name left"><a href="main_models_userDefined_sensitivity_py.html">main/models/userDefined/sensitivity.py</a></td>
+                <td>24</td>
+                <td>11</td>
+                <td>0</td>
+                <td class="right" data-ratio="13 24">54%</td>
+            </tr>
+            <tr class="file">
+                <td class="name left"><a href="main_tests___init___py.html">main/tests/__init__.py</a></td>
+                <td>0</td>
+                <td>0</td>
+                <td>0</td>
+                <td class="right" data-ratio="0 0">100%</td>
+            </tr>
+            <tr class="file">
+                <td class="name left"><a href="main_tests_test_analysis_py.html">main/tests/test_analysis.py</a></td>
+                <td>9</td>
+                <td>4</td>
+                <td>0</td>
+                <td class="right" data-ratio="5 9">56%</td>
+            </tr>
+            <tr class="file">
+                <td class="name left"><a href="manage_py.html">manage.py</a></td>
+                <td>12</td>
+                <td>2</td>
+                <td>0</td>
+                <td class="right" data-ratio="10 12">83%</td>
+            </tr>
+        </tbody>
+    </table>
+    <p id="no_rows">
+        No items found using the specified filter.
+    </p>
+</div>
+<div id="footer">
+    <div class="content">
+        <p>
+            <a class="nav" href="https://coverage.readthedocs.io">coverage.py v5.3</a>,
+            created at 2021-04-16 07:25 -0400
+        </p>
+    </div>
+</div>
+</body>
+</html>
