@@ -1,0 +1,1 @@
+Ignore this folder for now. It will be deleted in the next merge. If you need to store Debug logs do so in the "E3/e3_django/main/Debug" Log folder
