@@ -27,3 +27,25 @@ class BCN(models.Model):
     quantVarRate  = models.CharField(null=True, max_length=30) # Docs say this is required, but input JSON misses this field
     quantVarValue  = models.JSONField(null=True)
     quantUnit     = models.CharField(null=True, max_length=30) # If blank, report blank? See (*) line 
+
+    """ 
+    @classmethod
+    Put the code in 'master' here
+    """
+
+    def updateObject(varName, newValue):
+        """
+        Purpose: use parameters to change BCN variable value.
+        """
+        self.bcnName[varName] = newValue
+        return
+
+    """
+    def updateSensFlows(newSenseFlowNonDisc, newSensFlowDisc, newSensFlowQuant):
+        Purpose: Updates sensitivity flows with the input flows
+        pass
+
+    def updateUncFlows(newUncFlowNonDisc, newUncFlowDisc, newUncFlowQuant):
+        Puspose: Updates uncertainty flows with input flows
+        pass
+    """
