@@ -71,12 +71,12 @@
       "recurBool": false,
       "recurInterval": 2,
       "recurVarRate": "rate2",
-      "recurVarValue": 2.0
+      "recurVarValue": 2.0,
       "recurEndDate": 2021,
       "valuePerQ": 1.1,
       "quant": 1.1,
       "quantVarRate": "rate2",
-      "quantVarValue": 2.0
+      "quantVarValue": 2.0,
       "quantUnit": "unit2"
     }
   ],
