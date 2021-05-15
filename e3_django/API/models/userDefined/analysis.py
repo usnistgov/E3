@@ -25,15 +25,35 @@ class Analysis(models.Model):
 	incomeRateOther	= models.JSONField(null=True, default=list)
 	location		= models.JSONField(null=True, default=dict)
 
+	
+	"""
+	Purpose: Standard class constructor method. Create object based off of list of inputs developed from json string
+	in addition to the above checking methods provided by models. Class variables are provided in the following table. 
+	The STS document contains more information
+	@classmethod
+	def __init__(self):
+		if not all(isinstance(x, str) for x in self.objToReport):
+			raise Exception("Incorrect data type: objToReport must be a list of strings")
+
+		if not all(isinstance(x, float) for x in self.location):
+			raise Exception("Incorrect data type: Location must be a list of strings")
+		return
+	"""
+ 
+
+    # Below method was checked upon Object creation, see above.
+	""" 
+    def validateAnalysisObject(analysisObj):
+        Purpose: Verifies that all inputs are correct required type, and in valid ranges
+        Note: Will verify as the object is created, see above
+    """
 
 	def validateDiscountRate(self):
 		discount_rate_vars = [self.dRateReal, self.dRateNom, self.inflationRate, self.outputRealBool]
-
 		# If outputRealBool is True, and dRateReal & inflationRate is given, OR if outputRealBool is False, and dRateReal & inflationRate is given
 		if (self.outputRealBool and self.dRateReal and self.inflationRate) or \
 		(not self.outputRealBool and self.dRateNom and self.inflationRate):
 			pass
-
 
 		# If outputReal is True, and dRateNom & dRateReal is given
 		elif dRateNom and dRateReal and outputRealBool:
@@ -41,10 +61,8 @@ class Analysis(models.Model):
 			if not inflationRate: 
 				# Update inputObjList with computed inflation rate
 				inputObjList = discounting.inflationRateCalc(dRateNom, dRateReal)
-
 				logger.warning('Warning: %s', 'Both the Real and Nominal discount rate were provided \
 					based on User input. Only the Real rate will be used in calculations', extra=d)
-                
 				return inputObjList
 
 
@@ -54,10 +72,8 @@ class Analysis(models.Model):
 			if not inflationRate:
 				# Update inputObjList with computed inflation rate
 				inputObjList = discounting.inflationRateCalc(dRateNom, dRateReal)
-
 				logger.warning('Warning: %s', 'Both the Real and Nominal discount rate were provided \
 					based on User input. Only the Nominal rate will be used in calculations', extra=d)
-                
 				return inputObjList
 
         
@@ -65,10 +81,8 @@ class Analysis(models.Model):
 		elif outputRealBool and dRateNom and inflationRate:
 			# Update inputObjList with computed real rate
 			inputObjList = discounting.dRateRealCalc(dRateNom, inflationRate)
-
 			logger.warning('Warning: %s', 'Output defined as Real but Nominal rate provided, Real \
 				rate has been calculated from available inputs and will be used in subsequent calculations')
-
 			return inputObjList
 
 
@@ -76,10 +90,8 @@ class Analysis(models.Model):
 		elif not outputRealBool and dRateReal and inflationRate:
 			# Update inputObjList with computed nominal rate
 			inputObjList = discounting.dRateNomCalc(dRateReal, inflationRate)
-
 			logger.warning('Warning: %s', 'Output defined as Nominal but Real rate provided, Nominal \
 				rate has been calculated from available inputs and will be used in subsequent calculations')
-            
 			return inputObjList
         
 
@@ -87,5 +99,5 @@ class Analysis(models.Model):
 		elif outputRealBool and dRateReal and not inflationRate:
 			# Call to discounting library
 			return
-            
 		return
+

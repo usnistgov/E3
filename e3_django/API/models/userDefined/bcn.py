@@ -29,8 +29,24 @@ class BCN(models.Model):
     quantUnit     = models.CharField(null=True, max_length=30) # If blank, report blank? See (*) line 
 
     """ 
+    Purpose: Standard class constructor method. Create object based off of list of inputs developed from json string
+        in addition to the above checking methods provided by models. Class variables are provided in the following table. 
+        The STS document contains more information
     @classmethod
-    Put the code in 'master' here
+    def __init__(self):
+        if not all(isinstance(x, str) for x in self.bcnTag):
+            raise Exception("Incorrect data type: bcnTag must be a list of strings")
+
+        if not all(isinstance(x, float) for x in self.recurVarValue):
+            raise Exception("Incorrect data type: recurVarValue must be a list of floats")
+
+        if not all(isinstance(x, float) for x in self.quantVarValue):
+            raise Exception("Incorrect data type: quantVarValue must be a list of floats")
+        
+        # (*) If blank, reports blank.
+        if self.quantUnit == "":
+            logger.warning('Warning: %s', 'The quantity unit supplied is blank.', extra=d)
+        return 
     """
 
     def updateObject(varName, newValue):
@@ -40,12 +56,15 @@ class BCN(models.Model):
         self.bcnName[varName] = newValue
         return
 
-    """
+
     def updateSensFlows(newSenseFlowNonDisc, newSensFlowDisc, newSensFlowQuant):
+        """
         Purpose: Updates sensitivity flows with the input flows
+        """
         pass
 
     def updateUncFlows(newUncFlowNonDisc, newUncFlowDisc, newUncFlowQuant):
+        """
         Puspose: Updates uncertainty flows with input flows
+        """
         pass
-    """

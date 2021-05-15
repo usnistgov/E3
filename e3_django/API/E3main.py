@@ -1,15 +1,15 @@
 ## imports everything. Imports are in order of their earliest call in main (not including debug mode calls
 import validateRead
 import json
-from .models import cashFlows
-from .models.userDefined import bcn
-from .models.userDefined import analysis
-from .models import bcnStorage
-from .models.userDefined import alternative
-from .models import totalRequiredFlows
-from .models import totalOptionalFlows
-from .models import measures
-from .models import alternativeSummary
+import /models/cashFlows
+import /models/userDefined/bcn
+import /models/userDefined/analysis
+import /models/bcnStorage
+import /models/userDefined/alternative
+import /models/totalRequiredFlows
+import /models/totalOptionalFlows
+import /models/measures
+import /models/alternativeSummary
 
 ## Main-runs everything. Annotate any added code and keep new variable names clear or explicitly defined annotations
 def main():
@@ -23,13 +23,11 @@ def main():
     ## Script to get JSON string from user input. Script not written yet so output for now "userInput" needs to be defined manually for debugging purposes
     ## This script will also do some basic checks on input to verify there are no invalid characters. SOme validate and read calls will need to be made here
     userInput = " "
-    if debugMode == 1:
-        mainDebugLog.write("User Input/n-------------------------------------/n" + userInput + "/n") 
+    mainDebugLog.write("User Input/n-------------------------------------/n" + userInput + "/n") if debugMode == 1
     
     ## Parse JSON string. parsedInput will be a list of dictionaries with keynames corresponding to variable names in the JSON file
     parsedInput = json.loads(userInput)
-    if debugMode == 1:
-        mainDebugLog.write("JSON Dictionary/n-------------------------------------/n" + parsedInput + "/n") 
+    mainDebugLog.write("JSON Dictionary/n-------------------------------------/n" + parsedInput + "/n") if debugMode == 1
 
     ## Generate input strings for user defined object construction. parsedInput.items will return a list of the tuples then the for loop generates the list in a form usable for input. For inputs with multiple objects
     ## a subList is generated for each object is generated and then appended to the full list. For now I have this in main. I'll eventually make the "for" loops their own function to keep main clean and avoid difficulties debugging
@@ -71,39 +69,26 @@ def main():
         scenarioList.append(sublist)
 
     ## Optional Log
-    if debugMode == 1:
-        mainDebugLog.write("Analysis List/n-------------------------------------/n" + analysisList + "/n") 
-        mainDebugLog.write("Alternative List/n-------------------------------------/n" + alternativeList + "/n") 
-        mainDebugLog.write("BCN List/n-------------------------------------/n" + bcnList + "/n") 
-        mainDebugLog.write("Sensitivity List/n-------------------------------------/n" + sensitivityList + "/n") 
-        mainDebugLog.write("Scenario List/n-------------------------------------/n" + scenarioList + "/n") 
+    mainDebugLog.write("Analysis List/n-------------------------------------/n" + analysisList + "/n") if debugMode == 1
+    mainDebugLog.write("Alternative List/n-------------------------------------/n" + alternativeList + "/n") if debugMode == 1
+    mainDebugLog.write("BCN List/n-------------------------------------/n" + bcnList + "/n") if debugMode == 1
+    mainDebugLog.write("Sensitivity List/n-------------------------------------/n" + sensitivityList + "/n") if debugMode == 1
+    mainDebugLog.write("Scenario List/n-------------------------------------/n" + scenarioList + "/n") if debugMode == 1
     
     ## Calls constructors. This should generate all user defined objects through the call to generateUserObjects
     validateRead.generateUserObjects(analysisList,alternativeList,bcnList,sensitivityList,scenarioList)
 
-    ## Optional Log 
-    if debugMode == 1:
-        mainDebugLog.write("ObjectList/n-------------------------------------/n") 
-        mainDebugLog.write("Analysis Objects/n-------------------------------------/n" + analysis.dir() + "/n") 
-        mainDebugLog.write("Alternative Objects/n-------------------------------------/n")
-    if debugMode == 1: 
-        for alt in alternative._registry: 
-            mainDebugLog.write(alt.dir() + "/n")               ## Double check the inline syntax to make sure this works
-    if debugMode == 1:
-        mainDebugLog.write("BCN Objects/n-------------------------------------/n") 
-    if debugMode == 1: 
-        for bcn in bcn._registry: 
-            mainDebugLog.write(bcn.dir() + "/n")
-    if debugMode == 1:
-        mainDebugLog.write("Alternative Objects/n-------------------------------------/n") 
-    if debugMode == 1: 
-        for sens in sensitivity._registry: 
-            mainDebugLog.write(sens.dir() + "/n")
-    if debugMode == 1:
-        mainDebugLog.write("Alternative Objects/n-------------------------------------/n") 
-    if debugMode == 1: 
-        for unc in uncertainty._registry: 
-            mainDebugLog.write(unc.dir() + "/n")
+   ## Optional Log 
+    mainDebugLog.write("ObjectList/n-------------------------------------/n") if debugMode == 1
+    mainDebugLog.write("Analysis Objects/n-------------------------------------/n" + analysis.dir() + "/n") if debugMode == 1
+    mainDebugLog.write("Alternative Objects/n-------------------------------------/n") if debugMode == 1
+    if debugMode == 1: for alt in alternative._registry: mainDebugLog.write(alt.dir() + "/n")               ## Double check the inline syntax to make sure this works
+    mainDebugLog.write("BCN Objects/n-------------------------------------/n") if debugMode == 1
+    if debugMode == 1: for bcn in bcn._registry: mainDebugLog.write(bcn.dir() + "/n")
+    mainDebugLog.write("Alternative Objects/n-------------------------------------/n") if debugMode == 1
+    if debugMode == 1: for sens in sensitivity._registry: mainDebugLog.write(sens.dir() + "/n")
+    mainDebugLog.write("Alternative Objects/n-------------------------------------/n") if debugMode == 1
+    if debugMode == 1: for unc in uncertainty._registry: mainDebugLog.write(unc.dir() + "/n")
 
     ## Loop through all bcn instances and generate all associated bcnStorage objects. May need to add _registry = [] in the class definitionsto make the class iterable or make a metaclass. Either works but the following
     ## assumes a registry is used. The first call generates the cash and quantity flows for the bcn, the second generates the bcnStorage object for the associated bcn. Considering this process is repeated for the sensitivity
@@ -114,11 +99,8 @@ def main():
         bcnStorage(bcn.ID,bcn.bcnName,bcn.altID,bcn.type,bcn.subtype,bcn.tag,bcnNonDiscFlow,bcnDiscFlow,bcn.quantList,bcn.quantUnit)
 
     ## Optional Log
-    if debugMode == 1:
-        mainDebugLog.write("BCN Storage Objects/n-------------------------------------/n") 
-    if debugMode == 1: 
-        for bcnStore in bcnStoraget._registry: 
-            mainDebugLog.write(bcnStore.dir() + "/n")
+    mainDebugLog.write("BCN Storage Objects/n-------------------------------------/n") if debugMode == 1
+     if debugMode == 1: for bcnStore in bcnStoraget._registry: mainDebugLog.write(bcnStore.dir() + "/n")
 
     ## Generate the total flows for each alternative. First the list of all altIDs is generated. This is done by loopting through the alternative registry (or a metaclass can be used). The code then loops through the bcnStorage registry
     ## to sum all items related to a particular alternative. From there the code generates the totalRequiredFlows and totalOptionalFlows objects for each alternative via the call to cashFlows. altIDList will be used often.
@@ -127,19 +109,13 @@ def main():
         altIDList.append(alt.altID)
 
     for altID in altIDList:
-        cashFlows.append(bcnStorage._registry,altID)
+        cashFlows.(bcnStorage._registry,altID)
 
     ##c Optional Log  
-    if debugMode == 1:
-        mainDebugLog.write("Total Required Flows Objects/n-------------------------------------/n") 
-    if debugMode == 1: 
-        for totRFlow in bcnStoraget._registry: 
-            mainDebugLog.write(totRFlow.dir() + "/n")
-    if debugMode == 1:
-        mainDebugLog.write("Total Optional Flows Objects/n-------------------------------------/n") 
-    if debugMode == 1: 
-        for TotOFlow in bcnStoraget._registry: 
-            mainDebugLog.write(totOFlow.dir() + "/n")
+    mainDebugLog.write("Total Required Flows Objects/n-------------------------------------/n") if debugMode == 1
+    if debugMode == 1: for totRFlow in bcnStoraget._registry: mainDebugLog.write(totRFlow.dir() + "/n")
+    mainDebugLog.write("Total Optional Flows Objects/n-------------------------------------/n") if debugMode == 1
+    if debugMode == 1: for TotOFlow in bcnStoraget._registry: mainDebugLog.write(totOFlow.dir() + "/n")
     
     ## Calculate measures.
     ## FInd altID corresponding to baseline (make its own function?)
@@ -179,10 +155,3 @@ def main():
 
     ## Close log file
     debugLogMain.close()
-
-
-
-
-
-
-            

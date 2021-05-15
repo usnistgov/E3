@@ -2,8 +2,7 @@ from django.db import models
 
 class TotalOptionalFlows(models.Model):
 	"""
-	Purpose: Initializes an AlternativeSummary object
-	"""
+	Purpose: Initializes an TotalOptionalFlows object
 	# Verify data types and length as Object is created
 	altID = models.IntegerField()
 	sensBool = models.BooleanField()
@@ -14,20 +13,21 @@ class TotalOptionalFlows(models.Model):
 	totalTagFlowDisc = models.JSONField()
 	totTagQ = models.JSONField()
 	quantUnits = models.CharField(max_length=30)
+	"""
 
-
+	
 	def __init__(self):
 		self.bcnType = bcn.bcnType
 		self.bcnSubType = bcnSubType	
-
+		
 		if not all(isinstance(x, float) for x in self.totTagFlowDisc):
 			raise Exception("Incorrect data type: totTagFlowDisc must be a list of floats")
 		
 		if not all(isinstance(x, float) for x in self.totTagQ):
 			raise Exception("Incorrect data type: totTagQ must be a list of floats")
 			return
-
-		
+	
+	
 	def addFlow(cashFlowBool, flow):
 		"""
 		Purpose: Based on cashFlowBool, add input flow to current flow values.
@@ -38,7 +38,7 @@ class TotalOptionalFlows(models.Model):
 			self.totTagQ += flow
 		return
 
-
+	
 	def updateFlow(cashFlowBool, flow):
 		"""
 		Purpose: Based on cashFlowBool, reset current flow to the input flow value.

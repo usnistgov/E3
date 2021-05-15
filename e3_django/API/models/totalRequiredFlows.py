@@ -3,7 +3,7 @@ from django.db import models
 class TotalRequiredFlows(models.Model):
 	"""
 	Purpose: Initializes an AlternativeSummary object
-	"""
+	
 	# Verify data type and length as Object is created.
 	altID = models.IntegerField()
 	sensBool = models.BooleanField(default=False)
@@ -28,8 +28,9 @@ class TotalRequiredFlows(models.Model):
 	totBenefitsDirDisc  = models.JSONField()
 	totBenefitsIndDisc  = models.JSONField()
 	totBenefitsExtDisc  = models.JSONField()
-
+	"""
 	
+	# @classmethod
 	def __init__(self): # TODO: Need to check that JSONFields are list of 'floats'.
 		"""
 		Purpose: Standard class constructor method. Create object based off of list of inputs developed from json string
@@ -42,25 +43,30 @@ class TotalRequiredFlows(models.Model):
 			if not all(isinstance(x, int) for x in self.var):
 				raise Exception("Incorrect data type Error. Check your inputs are floats")
 
-	def addFlow(flowName, flow):
+	def addFlow(self, flowName, flow):
 		"""
 		Purpose: Based on provided flowName, adds the flow to the appropriate variable. 
 		Note: flowName must be a string with the same name as the variable, 
 		without the enclosing brackets.
 		"""
-		pass
+		self.flowName.append(flow)		
 
-	def updateFlow(flowName, flow):
+
+	def updateFlow(self, flowName, flow):
 		"""
 		Purpose: Based on provided flowName, resets current flow to the input flow.
 		Note: flowName must be a string with the same name as the variable,
 		without the enclosing brackets.
 		"""
-		pass
+		self.flowName = flow
 
-	def updateAllFlows(flowsList):
+
+	def updateAllFlows(self, flowsList): # fowsList is a list of lists, outer list is length of however 
+        # many list variables there are in the class (20) (list of 20 lists 'totsCostNonDisc->totBenefitsExtDisc', 
+        # internal lists will be of length studyLength + 1)
 		"""
 		Purpose: Updates all flows in the flowList simultaneously.
 		Note: Input order is the same as order that variables appear in the object.
 		"""
-		pass
+		for i, var in enumerate(self.varList):
+			self.var = flowsList[i]
