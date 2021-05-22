@@ -4,9 +4,11 @@ Purpose: The Discounting Library serves two purposes.
 2. Provides a check that all required information for discounting is present in the user input.
 """
 # import files
-from main.libraries import validateRead as vr
-from main.models import totalRequiredFlows, totalOptionalFlows
+import validateRead as vr
+#from .models import totalRequiredFlows, totalOptionalFlows
 
+def printDiscounting():
+    print('Discounting')
 
 def inflationRateCalc(dRateNorm, dRateReal):
     """

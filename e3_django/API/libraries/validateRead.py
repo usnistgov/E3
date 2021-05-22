@@ -1,58 +1,67 @@
 import json
-from API.libraries import discounting
-from API.libraries import cashFlow 
-from API.models.userDefined import alternative, analysis, bcn, scenario, sensitivity
+import discounting 
+from API.models.userDefined import analysis
+from .. import alternativeSummary
+#from ..models.userDefined import alternative, bcn, scenario, sensitivity
+
 from types import SimpleNamespace
+import logging
+
+logger = logging.getLogger(__name__)
+
 
 def validateFile(dataFile):
     """
     This requires ELDST's help to set up, may be housed in another library. 
-    Output: Boolean, indicating if file is valid.
-    ! For now, ignore this
+    Output: Boolean, indicating if file is valid. For now, ignore this.
     """
-    print("File was successfully validated.")
     return True
+
 
 def readFile(inputJSONFile):
     """
     Purpose: if file is properly validated, parse json into separate data list 
     for each user defined object type.
     """
-    if validateFile(inputJSONFile): # file is valid
+    if validateFile(inputJSONFile): # Check that file is valid
         res = json.loads(inputJSONFile, object_hook=lambda d: SimpleNamespace(**d))
-        analysisObj, alternativeObj, bcnObj, sensitivityObj, scenarioObj = \
-            res.analysisObject, res.alternativeObject, res.bcnObject, res.sensitivityObject, scenarioObject # load into user-defined objects
+        analysisObj, alternativeObj, bcnObj, scenarioObj, sensitivityObj  = \
+            res.analysisObject, res.alternativeObject, res.bcnObject, res.scenarioObject, res.sensitivityObject # load into user-defined objects
 
-        objectList = [analysisObj, alternativeObj, bcnObj, sensitivityObj, scenarioObj] # List containing each user-defined object
+        objectList = [analysisObj, alternativeObj, bcnObj, scenarioObj, sensitivityObj] # List containing each user-defined object
     else:
-        raise Exception('File is not valid')
+        raise Exception('Err: File is not valid')
 
     # Verify consistency of discounting input
-    if discounting.checkDiscounting(): # ? Call to checkDiscounting()? where is this function defined
+    if validateDiscountRate() is True: # Call to validateDiscountRate()? where is this function defined
+        # If discounting input is valid: pass.
         pass
 
-    else:
+    else: # discounting input is NOT valid:
         # Call to Discounting Library to fill in missing information
-        # Add missing information to appropriate place in list for the object(s) in question
-        # ?: This part is checked upon Object creation - is discounting.checkDiscounting necessary in this case?
-        pass
+        # I.e., add missing information to appropriate place in list for the object(s) in question
+        if not analysisObj.inflationRate:
+            analysisObj.inflationRate = discounting.inflationRateCalc(analysisObj.dRateNorm, analysisObj.dRateReal)
+        
+        if not analysisObj.dRateNorm:
+            analysisObj.dRateNorm = discounting.dRateNomCalc(analysisObj.inflationRate, analysisObj.dRateReal)
+        
+        if not analysisObj.dRateReal:
+            analysisObj.dRateReal = discounting.dRateRealCalc(analysisObj.dRateNorm, analysisObj.inflationRate)
 
-    if all(objectList) and (analysisObj.analysisType and analysisObj.projectType and analysisObj.objToReport, analysisObj.studyPeriod,\
-        analysisObj.baseDate, analysisObj.serviceDate, analysisObj.timestepVal, analysisObj.timestepComp, analysisObj.outputRealBool,\
-        analysisObj.interestRate, analysisObj.dRateReal, analysisObj.dRateNom, analysisObj.inflationRate, analysisObj.Marr, \
-        analysisObj.reinvestRate, analysisObj.incomeRateFed, analysisObj.incomeRateOther, analysisObj.noAlt, analysisObj.location) \
-        and (alternativeObj.altID, alternativeObj.altName, alternativeObj.altBCNList, alternativeObj.baselineBool):
+    return generateUserObjects(objectList) 
 
-        return objectList 
 
-    else: 
-        #some object(s) miss required elements / contain invalid entries: 
-        raise Exception('Invalid entries provided, or objects missing required elements')
+def validateDiscountRate():
+    # Purpose: Verifies the consistency of discounting input.
+    return True
+
 
 def generateUserObjects(objectList):
     """
-    Purpose: Call to Class constructors, with User-Defined Objects, and validates as constructed.
-    Parameter: objectList (list): output object from readFile().
+    Purpose: Call to Class constructors with User-Defined Objects, and validates as constructed.
+    Parameter: objectList (array): output object from readFile().
+    Output: list of user-defined objects if all inputs are proper, else raises Exception
 
     Note: validation is currently a separate method in each User Class below:
         1. Analysis Class
@@ -60,12 +69,25 @@ def generateUserObjects(objectList):
         3. BCN Class
         4. Scenario Class
         5. Sensitivity Class)
-
     """
-    Alternative(objectList[0])
-    Analysis(objectList[1])
-    BCN(objectList[2])
-    Scenario(objectList[3])
-    Sensitivity(objectList[4])
-    return
+    try: analysisObj = analysis.Analysis(objectList[0])
+    except: logger.error('Error: %s', 'Invalid entries provided or missing required elements in Analysis Object.')
+    
+    try: alternativeObj = analysis.Alternative(objectList[1])
+    except: logger.warning('Warning: %s', 'Invalid entries provided or missing required elements in Alternative Object.')
+   
+    try: bcnObj = analysis.BCN(objectList[2])
+    except: logger.warning('Warning: %s', 'Invalid entries provided or missing required elements in BCN Object.')
+    
+    try: scenarioObj = analysis.Scenario(objectList[3])
+    except: logger.warning('Warning: %s', 'Invalid entries provided or missing required elements in Scenario Object.')
+
+    try: sensitivityObj = analysis.Sensitivity(objectList[4])
+    except: logger.warning('Warning: %s', 'Invalid entries provided or missing required elements in Sensitivity Object.')
+    
+
+    if analysisObj and alternativeObj and bcnObj and scenarioObj and sensitivityObj:
+        return analysisObj, alternativeObj, bcnObj, scenarioObj, sensitivityObj
+    else:
+        logger.warning('Warning: %s', 'Some objects were not generated. Please check messages to update inputs.')
 
