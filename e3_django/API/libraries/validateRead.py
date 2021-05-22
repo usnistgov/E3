@@ -1,5 +1,5 @@
 import json
-import discounting 
+import discounting as discounting
 from API.models.userDefined import analysis
 from .. import alternativeSummary
 #from ..models.userDefined import alternative, bcn, scenario, sensitivity
