@@ -42,12 +42,13 @@ class BCN(models.Model):
         return super().__init__(*args, **kwargs)
 
 
-    def validateBCNObject(self, obj):
+    def validateBCNObject(self, objectList):
         """
         Purpose: Verifies that all inputs are correct required data types and in valid range. 
 		Note: Does NOT actually create or return the BCN object.
 		Return: null
         """
+        obj = objectList.bcnObject
         try:
             BCN.objects.create(bcnID=obj.bcnID, altID=obj.altID, bcnType=obj.bcnType, bcnSubType=obj.bcnSubType, bcnName=obj.bcnName, \
                 bcnTag=obj.bcnTag, initialOcc=obj.initialOcc, rvBool=obj.rvBool, bcnRealBool=obj.bcnRealBool, bcnInvestBool=obj.bcnInvestBool, \
@@ -121,7 +122,7 @@ class BCN(models.Model):
         if self.quantUnit == "":
             logger.warning('Warning: %s', 'The quantity unit supplied is blank.', extra=d)
 
-        print("All inputs checked and verified. BCN object can be created.")
+        print("All inputs checked and verified. If no Err messages, BCN object can be created.")
         
         return
 

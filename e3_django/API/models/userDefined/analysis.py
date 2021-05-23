@@ -41,12 +41,13 @@ class Analysis(models.Model):
 		return super().__init__(*args, **kwargs)
 
 
-	def validateAnalysisObject(self, obj):
+	def validateAnalysisObject(self, objectList):
 		"""
 		Purpose: Verifies that all inputs are correct required data types and in valid range. 
 		Note: Does NOT actually create or return the Analysis object.
 		Return: null
 		"""
+		obj = objectList.analysisObject
 		try:
 			Analysis.objects.create(analysisType=obj.analysisType, projectType=obj.projectType, objToReport=obj.objToReport, \
 				studyPeriod=obj.studyPeriod, baseDate=obj.baseDate, serviceDate=obj.serviceDate, timestepVal=obj.timestepVal, \
@@ -84,7 +85,7 @@ class Analysis(models.Model):
 		except:
 			logger.error("Error: %s", "Invalid input for Analysis object. Check that they are correct data type and in range.")
 
-		print("All inputs checked and verified. Analysis object can be created.")
+		print("All inputs checked and verified. If no Err messages, Analysis object can be created.")
 
 		return
     
