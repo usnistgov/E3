@@ -4,7 +4,7 @@ Purpose: The Discounting Library serves two purposes.
 2. Provides a check that all required information for discounting is present in the user input.
 """
 # import files
-import validateRead as vr
+from . import validateRead as vr
 #from .models import totalRequiredFlows, totalOptionalFlows
 
 
@@ -38,7 +38,7 @@ def dRateRealCalc(dRateNorm, inflationRate):
     return dRateReal
 
 
-def recurEscalationRateCorrection(analysisType, recurrenceVariabilityRateType, recurrenceVariabilityRateValues, time = None): 
+def recurEscalationRateCorrection(analysisType, inflationRate, recurrenceVariabilityRateType, recurrenceVariabilityRateValues, time = None): 
     # realdiscountrate, nominaldiscountrate, inflationrate <- from Analysis Class. 
     #Higher lvl variables that are independent (above) all
     """
@@ -105,7 +105,7 @@ def quantEscalationCalc(quantityVariabilityRateType, quantityVariabilityRateValu
             raise Exception("Err: Positive integer time is required for calculation")
 
         e_time = [0] * (time + 1)
-        for i, val in enumerate(recurrenceVariabilityRateValues):
+        for i, val in enumerate(quantityVariabilityRateValues):
             e_time[i] = (1 + val) / 1 - 1
 
         return e_time

@@ -1,7 +1,7 @@
 import json
-import discounting as discounting
+from . import discounting as discounting
 from API.models.userDefined import analysis
-from .. import alternativeSummary
+from ..models import alternativeSummary
 #from ..models.userDefined import alternative, bcn, scenario, sensitivity
 
 from types import SimpleNamespace
