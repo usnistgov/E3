@@ -35,5 +35,5 @@ class SensitivityTest(TestCase):
 		#self.assertTrue(isinstance(created2, Sensitivity))
 		#print("\nNew Sensitivity object was created.")
 
-		print("> Passed Sensitivity tests!")
+		print(">>> Passed Sensitivity tests!")
 		

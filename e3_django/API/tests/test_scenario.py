@@ -14,4 +14,4 @@ class ScenarioTest(TestCase):
 		self.assertTrue(isinstance(created, Scenario))
 		print("\nNew Scenario object was created.")
 
-		print("> Passed Scenario tests!")
+		print(">>> Passed Scenario tests!")

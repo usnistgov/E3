@@ -28,4 +28,4 @@ class AlternativeTest(TestCase):
 		created2 = self.model_create2()
 		self.assertTrue(isinstance(created2, Alternative))
 		print("New Alternative object was created.")
-		print("> Passed Alternative tests!")
+		print(">>> Passed Alternative tests!\n")

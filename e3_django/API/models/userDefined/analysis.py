@@ -58,7 +58,7 @@ class Analysis(models.Model):
 			if not all(isinstance(x, str) for x in obj.objToReport):
 				logger.error("Err: %s", "all elements in objToReport field must be of string type.")
 
-			elif not all(isinstance(x, str) for x in obj.location):
+			if not all(isinstance(x, str) for x in obj.location):
 				logger.error("Err: %s", "all elements in location field must be of string type.")
 
 

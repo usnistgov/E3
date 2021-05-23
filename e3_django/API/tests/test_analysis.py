@@ -27,10 +27,8 @@ class AnalysisTest(TestCase):
 			incomeRateOther = None,
 			location = ["United States", "", "", "Maryland", "", "", "20879", ""],
 			)
-		print("Res: ", res)
-		print("res.analysisType", res.analysisType)
+		print("Analysis Type: ", res.analysisType)
 
-		print("#################")
 		#res.validateAnalysisObject()
 		
 		return res
@@ -40,4 +38,4 @@ class AnalysisTest(TestCase):
 		created = self.model_create()
 		self.assertTrue(isinstance(created, Analysis))
 		print("\nNew Analysis object was created.")
-		print("> Passed Analysis tests!")
+		print(">>> Passed Analysis tests!")

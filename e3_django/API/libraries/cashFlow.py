@@ -1,40 +1,66 @@
-from main.models.userDefined import alternative, analysis, bcn, scenario, sensitivity
-
+"""
+Purpose: The CashFlow Library derives the cash flows for individual BCNs and the total
+cash flows for alternatives, ultimately constructing the Total Cash Flows objects.
+"""
+# import files
+from . import discounting as discounting
 
 def blankFlow(studyPeriod, timestepValue):
+    """
+    Purpose: Initializes a blank cash flow list to store data
+    """
     timestepCount = studyPeriod / timestepValue
-    return #zeroes(timestepCount + 1)
+    arr = [0] * (timestepCount + 1)
+    return arr
 
 
-def bcnFlow(bcnObject, studyPeriod, timestepCount):
-    if bcnObject.recurBool == False:
-        bcnFlowNonRecur(bcnObject, discountRate)
+def bcnFlow(discountRate, bcnObject, studyPeriod, timestepCount):
+    """
+    Purpose: Begins construction of cash flows for a given BCN
+    """
+    if not bcnObject.recurBool:
+        bcnFlowNonRecur(bcnObject, discountRate, studyPeriod, timestepCount)
     else:
-        bcnFlowNonRecur(bcnObject, discountRate)
+        bcnFlowRecur(bcnObject, discountRate, studyPeriod, timestepCount)
 
 
-def bcnFlowNonRecur(bcnObject, discountRate):
+def bcnFlowNonRecur(discountRate, bcnObject, studyPeriod, timestepValue):
+    """
+    Purpose: Completes construction of flows for non-recurring BCNs
+    """
     bcnFlowNonDisc = blankFlow(studyPeriod, timestepValue)
     bcnFlowDisc = blankFlow(studyPeriod, timestepValue)
     quantList = blankFlow(studyPeriod, timestepValue)
 
-
     if not bcnObject.valuePerQ:
         return bcnFlowNonDisc, bcnFlowDisc
+
     if bcnObject.quantVarValue:
-        return
-        # quantEsc = 
-    def escalatedQuantCalc(quantity, quantVarRateType, quantVarValue, initialOcc):
+        quantEsc = discounting.quantEscalationCalc(quantVarRateType, quantVarValue, initialOcc)
 
         return bcnFlowNonDisc, bcnFlowDisc, quantList
 
     return
 
 
-def bcnFlowRecur(bcnObject, discountRate, timestep):
+def bcnFlowRecur(discountRate, bcnObject, timestep):
+    """
+    Purpose: Completes construction of flows for recurring BCNs
+    """
     bcnFlowNonDisc = blankFlow(studyPeriod, timestepValue)
     bcnFlowDisc = blankFlow(studyPeriod, timestepValue)
     recurList = blankFlow(studyPeriod, timestepValue)
     quantList = blankFlow(studyPeriod, timestepValue)
 
-    
+
+def rvCalc(bcnObject, value, timestep=None):
+    """
+    Purpose: Calculates the residual values of a BCN
+    """
+    pass
+
+def totalFlows(bcnObjectList, altID):
+    """
+    Purpose: Calculates the total flows for an alternative
+    """
+    pass

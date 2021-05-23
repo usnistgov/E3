@@ -8,7 +8,7 @@ class BCN(models.Model):
     """
     Purpose: Initializes a BCN object, verifies data fields.
     """
-    bcnID         = models.IntegerField(null=False, unique=True)
+    bcnID         = models.IntegerField(unique=True)
     altID         = models.JSONField(null=False, default=list)
     bcnType       = models.CharField(null=False, max_length=30)
     bcnSubType    = models.CharField(null=True, max_length=30)
@@ -62,10 +62,10 @@ class BCN(models.Model):
             if not all(isinstance(x, str) for x in obj.bcnTag):
                 logger.error("Err: %s", "all elements in bcnTag field must be of string type.")
 
-            elif not all(isinstance(x, float) for x in obj.recurVarValue):
+            if not all(isinstance(x, float) for x in obj.recurVarValue):
                 logger.error("Err: %s", "all elements in recurVarValue field must be of float type.")
 
-            elif not all(isinstance(x, float) for x in obj.quantVarValue):
+            if not all(isinstance(x, float) for x in obj.quantVarValue):
                 logger.error("Err: %s", "all elements in quantVarValue field must be of float type.")
 
             # Based on chosen bcnType, check that all required inputs are included.
