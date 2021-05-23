@@ -41,11 +41,10 @@ class Analysis(models.Model):
 		return super().__init__(*args, **kwargs)
 
 
-    # Below method was checked upon Object creation, see above.
 	def validateAnalysisObject(self, obj):
 		"""
 		Purpose: Verifies that all inputs are correct required data types and in valid range. 
-		Note: Does NOT actually create or return the Analysis object
+		Note: Does NOT actually create or return the Analysis object.
 		Return: null
 		"""
 		try:
@@ -54,38 +53,39 @@ class Analysis(models.Model):
 				timestepComp=obj.timestepComp, outputRealBool=obj.outputRealBool, interestRate=obj.interestRate, dRateReal=obj.dRateReal, \
 				dRateNom=obj.dRateNom, reinvestRate=obj.reinvestRate, incomeRateFed=obj.incomeRateFed, incomeRateOther=obj.incomeRateOther, 
 				location=obj.location)
+
 			if not all(isinstance(x, str) for x in obj.objToReport):
 				logger.error("Err: %s", "all elements in objToReport field must be of string type.")
 
 			elif not all(isinstance(x, str) for x in obj.location):
 				logger.error("Err: %s", "all elements in location field must be of string type.")
+
+
+			# Based on chosen analysisType, check that all required inputs are included.
+			if self.analysisType == 'LCCA':
+				print("Analysis type is LCCA.")
+				# Check here that all required inputs for LCCA is included. Else, raise Err: Invalid input for Analysis object using 'LCCA' type.
 				
+			elif self.analysisType == 'BCA':
+				print("Analysis type is BCA")
+				# Check here that all required inputs for BCA is included. Else, raise Err: Invalid input for Analysis object using 'BCA' type.
+
+			elif self.analysisType == 'Cost-Loss':
+				print("Analysis type is Cost-Loss")
+				# Check here that all required inputs for Cost-Loss is included. Else, raise Err: Invalid input for Analysis object using 'Cost-Loss' type.
+
+			elif self.anslysisType == 'Profit Maximization':
+				print("Analysis type is profit Maximization")
+				# Check here that all required inputs for Profit Maximization is included. Else, raise Err: Invalid input for Analysis object using 'Profit Maximization' type.
+
 			else:
-				print("All inputs checked and verified. Analysis object can be created.")
+				logger.info("Analysis type is default")
 
 		except:
 			logger.error("Error: %s", "Invalid input for Analysis object. Check that they are correct data type and in range.")
 
-		if self.analysisType == 'LCCA':
-			print("Analysis type is LCCA.")
-    		# Check here that all required inputs for LCCA is included. Else, raise Err: Invalid input for Analysis object using 'LCCA' type.
-			
-		elif self.analysisType == 'BCA':
-			print("Analysis type is BCA")
-			# Check here that all required inputs for BCA is included. Else, raise Err: Invalid input for Analysis object using 'BCA' type.
+		print("All inputs checked and verified. Analysis object can be created.")
 
-		elif self.analysisType == 'Cost-Loss':
-			print("Analysis type is Cost-Loss")
-			# Check here that all required inputs for Cost-Loss is included. Else, raise Err: Invalid input for Analysis object using 'Cost-Loss' type.
-
-		elif self.anslysisType == 'Profit Maximization':
-			print("Analysis type is profit Maximization")
-			# Check here that all required inputs for Profit Maximization is included. Else, raise Err: Invalid input for Analysis object using 'Profit Maximization' type.
-
-		else:
-			print("Analysis type is default")
-			# Other
-			
 		return
     
 
