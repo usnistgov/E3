@@ -19,9 +19,9 @@ def bcnFlow(discountRate, bcnObject, studyPeriod, timestepCount):
     Purpose: Begins construction of cash flows for a given BCN
     """
     if not bcnObject.recurBool:
-        bcnFlowNonRecur(bcnObject, discountRate, studyPeriod, timestepCount)
+        bcnFlowNonRecur(discountRate, bcnObject, studyPeriod, timestepCount)
     else:
-        bcnFlowRecur(bcnObject, discountRate, studyPeriod, timestepCount)
+        bcnFlowRecur(discountRate, bcnObject, timestepCount)
 
 
 def bcnFlowNonRecur(discountRate, bcnObject, studyPeriod, timestepValue):
