@@ -10,12 +10,12 @@ class TotalOptionalFlows(models.Model):
 	altID = models.IntegerField(null=False, default=None)
 	sensBool = models.BooleanField(default=False)
 	uncBool = models.BooleanField(default=False)
-	bcnType  = models.CharField(null=False, max_length=30)
+	bcnType  = models.CharField(null=False, max_length=30, default="")
 	bcnSubType = models.CharField(null=True, max_length=30)
 	bcnTag = models.JSONField(null=True, default=list) 
 	totalTagFlowDisc = models.JSONField(default=list)
 	totTagQ = models.JSONField(default=list)
-	quantUnits = models.CharField(max_length=30)
+	quantUnits = models.CharField(max_length=30, default="dollars")
 
 	
 	def __init__(self, *args, **kwargs):
