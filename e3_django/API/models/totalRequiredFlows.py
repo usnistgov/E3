@@ -53,7 +53,12 @@ class TotalRequiredFlows(models.Model):
 		"""
 		obj = totalReqFlowsObject
 		try:
-			TotalRequiredFlows.objects.create()
+			TotalRequiredFlows.objects.create(altID=obj.altID, baselineBool=obj.baselineBool, sensBool=obj.sensBool, uncBool=obj.uncBool, \
+				totalCostNonDisc=obj.totalCostNonDisc, totCostDisc=obj.totCostDisc, totCostNonDiscInv=obj.totCostNonDiscInv, totCostDiscInv=obj.totCostDiscInv, \
+				totCostNonDiscNonInv=obj.totCostNonDiscNonInv, totCostDiscNonInv=obj.totCostDiscNonInv, totBenefitsNonDisc=obj.totBenefitsNonDisc, \
+				totBenefitsDisc=obj.totBenefitsDisc, totCostDir=obj.totCostDir, totCostInd=obj.totCostInd, totCostExt=obj.totCostExt, totCostDirDisc=obj.totCostDirDisc, \
+				totCostIndDisc=obj.totCostIndDisc, totCostExtDisc=obj.totCostExtDisc, totBenefitsDir=obj.totBenefitsDir, totBenefitsInd=obj.totBenefitsInd, \
+				totBenefitsExt=obj.totBenefitsExt, totBenefitsDirDisc=obj.totBenefitsDirDisc, totBenefitsIndDisc=obj.totBenefitsIndDisc, totBenefitsExtDisc=obj.totBenefitsExtDisc)
 
 			for var in [obj.totCostNonDisc, obj.totCostDisc, obj.totCostNonDiscInv, obj.totCostDiscInv, obj.totCostNonDiscNonInv, obj.totCostDiscNonInv, \
 				obj.totBenefitsNonDisc, obj.totBenefitsDisc, obj.totCostDir, obj.totCostInd, obj.totCostExt, obj.totCostDirDisc, obj.totCostIndDisc, obj.totCostExtDisc, \
