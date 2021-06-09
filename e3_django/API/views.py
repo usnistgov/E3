@@ -1,32 +1,28 @@
-from rest_framework.viewsets import ViewSet
 from rest_framework.response import Response
-from .serializers import UploadSerializer
-import json
+from rest_framework.status import *
+from rest_framework.viewsets import ViewSet
 
-from django.http import HttpResponse
-
-class UploadViewSet(ViewSet):
-    serializer_class = UploadSerializer
-
-    def list(self, request):
-        """
-        Purpose: Sends a GET request to view main homepage.
-        """
-        return Response("GET API")
+from API.serializers import InputSerializer
 
 
+class AnalysisViewSet(ViewSet):
+    """
+    Resource to begin analysis.
+    """
     def create(self, request):
-        """
-        Purpose: Sends a POST request to upload user's input JSON file.
-        """
-        file_uploaded = request.FILES.get('file_uploaded')
-        content_type = file_uploaded.content_type
-        response = "POST API and you have uploaded a {} file".format(content_type)
-        return Response(response)
+        serializer = InputSerializer(data=request.data)
+
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
+
+        print(serializer.validated_data)
+
+        return Response(status=HTTP_202_ACCEPTED, headers={"Location": f"{request.path}queue/"})
 
 
-    def download(self, request):
-        """
-        Purpose: Sends a request to send data to user in downloadable form.
-        """
-        return Response('File downloaded')
+class QueueViewSet(ViewSet):
+    """
+    Resource to query condition of analysis job
+    """
+    def list(self, request):
+        return Response("Hello World")
