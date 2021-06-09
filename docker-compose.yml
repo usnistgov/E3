@@ -1,5 +1,5 @@
 version: "3.9"
 services:
-  api:
+  #api:
   rabbitmq:
     image: rabbitmq
