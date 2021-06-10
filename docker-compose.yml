@@ -1,5 +1,38 @@
 version: "3.9"
 services:
-  #api:
   rabbitmq:
     image: rabbitmq
+    hostname: rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: password
+      SERVICE_PORTS: 5672
+      TCP_PORTS: 5672
+    networks:
+      - proxy
+  api:
+    build: e3_django/
+    environment:
+      CELERY_INSTANCES: 2
+      BROKER_URL: "amqp://admin:password@rabbitmq:5672"
+      BACKEND_URL: "rpc://"
+    depends_on:
+      - rabbitmq
+    ports:
+      - "8000:8000"
+    networks:
+      - proxy
+  worker:
+    build: e3_django/
+    environment:
+      CELERY_INSTANCES: 2
+      BROKER_URL: "amqp://admin:password@rabbitmq:5672"
+      BACKEND_URL: "rpc://"
+    depends_on:
+      - rabbitmq
+    networks:
+      - proxy
+    command: celery -A API worker -l INFO
+networks:
+  proxy:
+    driver: bridge
