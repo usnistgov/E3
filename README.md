@@ -9,33 +9,36 @@ E3, a project at NIST, is an API that performs complex economic analysis.
 
 
 ## Getting Started
-
 Clone the repository from Github.
 
     $ git clone https://github.com/usnistgov/E3.git
     $ cd e3_django
-    
+
+
+### Run Locally
 Activate the virtualenv for your project.
-    
+
 Install project dependencies:
 
     $ pip install -r requirements.txt
-    
-    
+
 Then simply apply the migrations:
 
     $ python manage.py migrate
-    
 
 You can now run the development server:
 
     $ python manage.py runserver
-    
-    
+
+
+### Run with Docker
+Ensure that docker and docker-compose are installed on your system.
+
+Run with docker-compose:
+
+    $ docker-compose build
+    $ docker-compose up
+
+
 ## Technologies used
-Python, Django, SQLite3
-
-## Contact
-
-If you wish to contact us you can reach us at 
-    
+Python, Django, SQLite3, Docker
