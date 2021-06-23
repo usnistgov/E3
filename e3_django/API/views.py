@@ -21,7 +21,7 @@ class AnalysisViewSet(ViewSet):
         if not serializer.is_valid():
             return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
 
-        task = tasks.add.delay(5, 5)  # TODO replace with analysis call
+        task = tasks.analyze.delay(serializer.validated_data)
 
         return Response(status=HTTP_202_ACCEPTED, headers={
             "Location": request.build_absolute_uri(f"/api/v1/queue/{task.task_id}")
