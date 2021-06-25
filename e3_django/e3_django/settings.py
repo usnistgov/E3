@@ -16,8 +16,6 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
-print("Hello Django :)")
 # write startup code here; i.e. Main
 
 
@@ -31,7 +29,6 @@ SECRET_KEY = 'yzp=q+*3e--r4ie+hzgj_@2$auyfk38l4#@1jj6tgshv0)dga2jn'
 DEBUG = True
 
 ALLOWED_HOSTS = []
-
 
 # Application definition
 
@@ -47,6 +44,7 @@ INSTALLED_APPS = [
 
     # created
     'API.apps.ApiConfig',
+    'flow.apps.FlowConfig',
 ]
 
 MIDDLEWARE = [
