@@ -1,3 +1,4 @@
+import logging
 from decimal import Decimal
 from functools import reduce
 from operator import add
@@ -5,21 +6,28 @@ from operator import add
 from celery.result import AsyncResult
 from rest_framework.response import Response
 from rest_framework.status import *
-from rest_framework.viewsets import ViewSet, ModelViewSet
+from rest_framework.viewsets import ViewSet
+from rest_framework_api_key.permissions import HasAPIKey
 
 from API import tasks
-from API.serializers import InputSerializer, AlternativeSerializer, Alternative, BCN, OutputSerializer, \
+from API.serializers import InputSerializer, BCN, OutputSerializer, \
     CashFlowSerializer
 
-import logging
-
 logger = logging.getLogger(__name__)
+
+
+class UrlOrHeaderApiKey(HasAPIKey):
+    def get_key(self, request):
+        header_key = super().get_key(request)
+        return header_key if header_key else request.GET.get("key")
 
 
 class AnalysisViewSet(ViewSet):
     """
     Resource to begin analysis.
     """
+    permission_classes = [UrlOrHeaderApiKey]
+
     def create(self, request):
         serializer = InputSerializer(data=request.data)
 
@@ -44,9 +52,9 @@ class AnalysisViewSet(ViewSet):
 
         task = tasks.analyze.delay(serializer.validated_data)
 
-        output = OutputSerializer(CashFlowSerializer())
+        # output = OutputSerializer(CashFlowSerializer())
 
-        logger.log(output.data)
+        # logger.log(output.data)
 
         return Response(status=HTTP_202_ACCEPTED, headers={
             "Location": request.build_absolute_uri(f"/api/v1/queue/{task.task_id}")
