@@ -14,7 +14,7 @@ def analyze(input):
     :return: The json output created by the analysis.
     """
 
-    return {}
+    return []
 
 
 @shared_task

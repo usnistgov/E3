@@ -1,10 +1,15 @@
+from decimal import Decimal
+from functools import reduce
+from operator import add
+
 from celery.result import AsyncResult
 from rest_framework.response import Response
 from rest_framework.status import *
 from rest_framework.viewsets import ViewSet, ModelViewSet
 
 from API import tasks
-from API.serializers import InputSerializer
+from API.serializers import InputSerializer, AlternativeSerializer, Alternative, BCN, OutputSerializer, \
+    CashFlowSerializer
 
 import logging
 
@@ -21,7 +26,27 @@ class AnalysisViewSet(ViewSet):
         if not serializer.is_valid():
             return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
 
+        bcns = [BCN(25, **args) for args in serializer.validated_data["bcnObjects"]]
+
+        for bcn in bcns:
+            logger.info(bcn)
+            logger.info(bcn.discount(Decimal(0.06)))
+
+        for alt in serializer.validated_data["alternativeObjects"]:
+            flows = map(lambda x: x.discount(Decimal(0.06)), filter(lambda x: x.bcnID in alt["altBCNList"], bcns))
+            logger.info(list(reduce(lambda x, y: map(add, x, y), flows)))
+
+        #logger.info(serializer.validated_data["alternativeObjects"])
+
+        #for alt in serializer.validated_data["alternativeObjects"]:
+        #    logger.info(Alternative(alt).altID)
+
+
         task = tasks.analyze.delay(serializer.validated_data)
+
+        output = OutputSerializer(CashFlowSerializer())
+
+        logger.log(output.data)
 
         return Response(status=HTTP_202_ACCEPTED, headers={
             "Location": request.build_absolute_uri(f"/api/v1/queue/{task.task_id}")

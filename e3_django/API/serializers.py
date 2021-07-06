@@ -1,48 +1,27 @@
-from rest_framework.serializers import *
+from __future__ import annotations
+
+import logging
+from decimal import Decimal
+from typing import Sequence, Any
+
 from drf_compound_fields.fields import ListOrItemField
+from rest_framework.serializers import *
+
+from API.fields import ListMultipleChoiceField, BooleanOptionField
+
+logger = logging.getLogger(__name__)
 
 MAX_DIGITS = 20
 DECIMAL_PLACES = 5
 
-
-class BooleanOptionField(Field):
-    default_error_messages = {
-        'none': 'Original value cannot be None.',
-        'invalid': 'Input must be a valid option.'
-    }
-
-    def __init__(self, true_values, false_values, required=False):
-        super().__init__(required=required)
-
-        self.original_value = None
-
-        true_values.add(True)
-        self.true_values = true_values
-
-        false_values.add(False)
-        self.false_values = false_values
-
-    def to_representation(self, value):
-        if self.original_value is None:
-            self.fail("none")
-
-        return f"{self.original_value}"
-
-    def to_internal_value(self, data):
-        self.original_value = data
-
-        if data in self.true_values:
-            return True
-        elif data in self.false_values:
-            return False
-        else:
-            self.fail("invalid")
+CostType = Decimal
 
 
 class AnalysisSerializer(Serializer):
     analysisType = ChoiceField(["LCC", "BCA", "Cost-Loss", "Profit Maximization", "Other"], required=True)
-    projectType = ChoiceField(["Buildings", "Infrastructure", "Resilience", "Manufacturing Process", "Other"], required=False)
-    objToReport = MultipleChoiceField(
+    projectType = ChoiceField(["Buildings", "Infrastructure", "Resilience", "Manufacturing Process", "Other"],
+                              required=False)
+    objToReport = ListMultipleChoiceField(
         ["FlowSummary", "MeasureSummary", "SensitivitySummary", "UncertaintySummary", "IRRSummary"],
         required=True
     )
@@ -83,9 +62,16 @@ class AlternativeSerializer(Serializer):
     baselineBool = BooleanField(required=False)
 
 
+class Alternative:
+    def __init__(self, *args, **kwargs):
+        for key, value in args[0].items():
+            logger.info(f"Key: {key}, Value: {value}")
+            setattr(self, key, value)
+
+
 class BCNSerializer(Serializer):
     bcnID = IntegerField(min_value=0, required=True)
-    altID = ListField(child=IntegerField(min_value=0, required=False), required=True)
+    altID = ListField(child=IntegerField(min_value=0, required=False), required=False)
     bcnType = ChoiceField(["Benefit", "Cost", "NonMonetary", "0", "1", "2"], required=False)
     bcnSubType = ChoiceField(["Direct", "Indirect", "Externality", "0", "1", "2"], required=False)
     bcnName = CharField(required=False)
@@ -100,7 +86,7 @@ class BCNSerializer(Serializer):
     recurVarRate = ChoiceField(["Percent Delta Timestep X-1"], required=False)
     recurVarValue = ListOrItemField(DecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES), required=False)
     recurEndDate = IntegerField(min_value=0, required=False)
-    ValuePerQ = DecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES, required=False)
+    valuePerQ = DecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES, required=False)
     quant = DecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES, required=False)
     quatVarRate = ChoiceField(["Percent Delta Timestep X-1"], required=False)
     quantVarValue = ListOrItemField(DecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES), required=False)
@@ -109,8 +95,8 @@ class BCNSerializer(Serializer):
 
 class SensitivitySerializer(Serializer):
     globalVarBool = BooleanField(required=True)
-    altID = IntegerField(required=False) # TODO represent required property
-    bcnID = IntegerField(required=False) # TODO represent required property
+    altID = IntegerField(required=False)  # TODO represent required property
+    bcnID = IntegerField(required=False)  # TODO represent required property
     varName = ChoiceField([
         "initialOcc", "bcnLife", "recurValue", "recurEndDate", "valuePerQ", "quant", 'quantValue'],
         required=True
@@ -129,3 +115,136 @@ class InputSerializer(Serializer):
     bcnObjects = ListField(child=BCNSerializer(), required=False)
     sensitivityObject = SensitivitySerializer(required=False)
     scenarioObject = ScenarioSerializer(required=False)
+
+
+class CashFlow:
+    altID = 0
+    totCostDisc = []
+    totCostsDiscInv = []
+    totCostsNonDiscInv = []
+    totBenefitsDisc = []
+    totCostsDirDisc = []
+    totCostsIndDisc = []
+    totCostsExtDisc = []
+    totBenefitsDirDisc = []
+    totBenefitsIndDisc = []
+    totBenefitsExtDisc = []
+
+    def __init__(
+            self,
+            altID=0,
+            totCostDisc=[],
+            totCostsDiscInv=[],
+            totCostsNonDiscInv=[],
+            totBenefitsDisc=[],
+            totCostsDirDisc=[],
+            totCostsIndDisc=[],
+            totCostsExtDisc=[],
+            totBenefitsDirDisc=[],
+            totBenefitsIndDisc=[],
+            totBenefitsExtDisc=[]
+    ):
+        self.altID = altID
+        self.totCostDisc = totCostDisc
+        self.totCostsDiscInv = totCostsDiscInv
+        self.totCostsDiscInv = totCostsDiscInv
+        self.totCostsNonDiscInv = totCostsNonDiscInv
+        self.totBenefitsDisc = totBenefitsDisc
+        self.totCostsDirDisc = totCostsDirDisc
+        self.totCostsIndDisc = totCostsIndDisc
+        self.totCostsExtDisc = totCostsExtDisc
+        self.totBenefitsDirDisc = totBenefitsDirDisc
+        self.totoBenefitsIndDisc = totBenefitsIndDisc
+        self.totBenefitsExtDisc = totBenefitsExtDisc
+
+
+class CashFlowSerializer(Serializer):
+    altID = IntegerField(required=True)
+    totCostDisc = ListField(child=DecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES), required=False)
+    totCostsDiscInv = ListField(child=DecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES),
+                                required=False)
+    totCostsNonDiscInv = ListField(child=DecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES),
+                                   required=False)
+    totBenefitsDisc = ListField(child=DecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES),
+                                required=False)
+    totCostsDirDisc = ListField(child=DecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES),
+                                required=False)
+    totCostsIndDisc = ListField(child=DecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES),
+                                required=False)
+    totCostsExtDisc = ListField(child=DecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES),
+                                required=False)
+    totBenefitsDirDisc = ListField(child=DecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES),
+                                   required=False)
+    totBenefitsIndDisc = ListField(child=DecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES),
+                                   required=False)
+    totBenefitsExtDisc = ListField(child=DecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES),
+                                   required=False)
+
+
+class Output:
+    def __init__(self, reqCashFlowObjects):
+        self.reqCashFlowObjects = reqCashFlowObjects
+
+
+class OutputSerializer(Serializer):
+    reqCashFlowObjects = CashFlowSerializer()
+
+
+def presentValue(v: CostType, d: CostType, t: CostType, e: CostType = 0) -> CostType:
+    return v * ((1 + e) / (1 + d)) ** t
+
+
+class BCN:
+    def __init__(self, studyPeriod, **kwargs):
+        self.studyPeriod = studyPeriod
+
+        self.bcnID = kwargs.get("bcnID", None)
+        self.altID = kwargs.get("altID", None)
+        self.bcnType = kwargs.get("bcnType", None)
+        self.bcnSubType = kwargs.get("bcnSubType", None)
+        self.bcnName = kwargs.get("bcnName", None)
+        self.initialOcc = kwargs.get("initialOcc", 0)
+        self.bcnRealBool = kwargs.get("bcnRealBool", None)
+        self.bcnInvestBool = kwargs.get("bcnInvestBool", None)
+        self.rvBool = kwargs.get("rvBool", None)
+        self.recurBool = kwargs.get("recurBool", None)
+        self.recurInterval = kwargs.get("recurInterval", None)
+        self.recurVarRate = kwargs.get("recurVarRate", None)
+        self.recurVarValue = kwargs.get("recurVarValue", 0)
+        self.recurEndDate = kwargs.get("recurEndDate", self.initialOcc + 1)
+        self.valuePerQ = kwargs.get("valuePerQ", None)
+        self.quant = kwargs.get("quant", None)
+        self.quantVarRate = kwargs.get("quantVarRate", None)
+        self.quantVarValue = kwargs.get("quantVarValue", 1)
+        self.quantUnit = kwargs.get("quantUnit", None)
+
+        if not isinstance(self.recurVarValue, Sequence):
+            self.recurVarValue = self.createArray(self.recurVarValue)
+
+        if not isinstance(self.quantVarValue, Sequence):
+            self.quantVarValue = self.createArray(self.quantVarValue)
+
+    def __repr__(self) -> str:
+        return f"BCN ID: {self.bcnID}"
+
+    def discount(self, rate: CostType) -> Sequence[CostType]:
+        """
+        Discounts this BCN to its present value.
+
+        :param rate:  The discount rate.
+        :return: A list of discounted values over the study period.
+        """
+        result = self.createArray()
+
+        for i in range(self.initialOcc, self.recurEndDate):
+            result[i] = presentValue(
+                self.valuePerQ * (self.quant * self.quantVarValue[i - self.initialOcc]),
+                rate,
+                CostType(i),
+                self.recurVarValue[i]
+            )
+
+        return result
+
+    def createArray(self, default: Any = 0):
+        return [default] * (self.studyPeriod + 1)
