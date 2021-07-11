@@ -1,5 +1,6 @@
 from django.db import models
-from main.models import totalRequiredFlows, totalOptionalFlows
+from API.models import totalRequiredFlows, totalOptionalFlows
+import numpy
 
 
 def checkCosts(totReqFlow):
@@ -9,7 +10,9 @@ def checkCosts(totReqFlow):
 	return
 
 
-def sumCosts(totReqFlow.totCostDisc):
+def sumCosts(totReqFlow):
+	return numpy.sum(totReqFlow.totCostDisc)
+
 	totalCosts = 0
 
 	studyPeriod = len(totReqFlow.totCostsDisc)
@@ -17,7 +20,7 @@ def sumCosts(totReqFlow.totCostDisc):
 		totalCosts += totReqFlow.totCostDisc[i]
 	return totalCosts
 
-def sumBenefits(totReqFlow.totBenefitsDisc):
+def sumBenefits(totReqFlow):
 	totalBenefits = 0
 
 	studyPeriod = len(totReqFlow.totBenefitsDisc)
@@ -25,7 +28,7 @@ def sumBenefits(totReqFlow.totBenefitsDisc):
 		totalBenefits += totReqFlow.totBenefitsDisc[i]
 	return totalBenefits
 
-def sumInv(totReqFlow.totCostsDisc):
+def sumInv(totReqFlow):
 	totalCostsInv = 0
 
 	studyPeriod = len(totReqFlow.totCostsDisc)
@@ -34,7 +37,7 @@ def sumInv(totReqFlow.totCostsDisc):
 	return totalCostsInv
 
 
-def sumNonInv(totReqFlow.totCostsDisc):
+def sumNonInv(totReqFlow):
     # sum of all non Investment variables
 	pass 
 

@@ -1,1 +1,0 @@
-This folder should contains all debug logs for the api. It's only meant for development purposes. Any logs generated for the user should be stored elsewhere
