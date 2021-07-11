@@ -21,58 +21,64 @@ def sumInv(totCostsInvDisc):
 def sumNonInv(totCostsNonInvDisc):
 	return np.sum(totCostsNonInvDisc)
 
-
 def netBenefits(totalBenefits, totalCosts, totalBenefitsBase, totalCostsBase):
-	netBenefits = 0
-	netBenefits = (totalBenefits[])
-
-	return netBenefits
+	return (totalBenefits-totalBenefitsBase)/(totalCosts-totalCostsBase)
 
 def netSavings(totalCosts, totalCostsBase):
-	netSavings = 0
-	return netSavings
+	return (totalCosts - totalBenefits)
 
-def measBCR(netSavings, totalCostsInv, totalCostsInvBase):
-	return 
+def measBCR(netBenefits, totalCostsInv, totalCostsInvBase):
+        numerator = netBenefits ## I know this isn't really a simplification, however it makes the logic that follow easier to understand
+        denominator = totalCostsInv-totalCostsInvBase
+        if denominator <= 0 and numerator > 0: ## Need to come up with a better tolerance here to avoid divide by zero error
+                bcr = 'infinity'
+        elif denominator > 0 and numerator > 0:
+                bcr = numerator/denominator
+        elif denominator <= 0 and numerator <= 0:
+                bcr = "Not Calculable"
+        return bcr	
 
 def measSIR(totalCostsInv, totalCostsNonInv, totalCostsInvBase, totalCostsNonInvBase):
-	return 
+        numerator = (totalCostsNonInvBase-totalCostsNonInv)
+        denominator = (totaclCostsInvBase-TotalCostsInv)
+        if denominator <= 0 and numerator > 0: ## Need to come up with a better tolerance here to avoid divide by zero error
+                sir = 'infinity'
+        elif denominator > 0 and numerator > 0:
+                sir = numerator/denominator
+        elif denominator <= 0 and numerator <= 0:
+                sir = "Not Calculable"
+        return sir
 
-def measAIRR(sir):
-	return 
+def measAIRR(sir,reinvestRate,studyPeriod):
+        if sir > 0:
+                return (1+reinvestRate)*(sir)^(1/studyPeriod)-1
+        else:
+                return "AIRR Not Calculable"
 
-def measDeltaQ(altID, altIDBase, tag):
-	return
+def measDeltaQ(baselineFlow,altFlow):
+	return altFlow - baselineFlow
 
-def measNSPerQ(netSavings, altID, altIDBase, tag):
-	return
+def measNSPerQ(netSavings, deltaQ):
+	return netSavings/deltaQ
 
-def measNSPerPctQ(netSavings, altID, altIDBase, tag):
-	return
+def measNSPerPctQ(netSavings, deltaQ, totalQBase):
+	return netSavings/(deltaQ/totalQBase)
 
-def measNSPerPctQ(netSavings, altID, altIDBase, tag):
-	measNSPerPctQ = 0
-	return measNSPerPctQ
+def measNSElasticity(netSavings,totalCosts,deltaQ,totalQBase):
+	return (netSavings/totalCosts)/(deltaQ/totalQBase)
 
-def measNSElasticity(altID, altIDBase, tag):
-	measNSElasticity = 0
-	return measNSElasticity
-
-def measIRR(self, altID):
-    	""" Note from pseudocode docs: Technically speaking should be solving this, but the solution requires a 
+def measIRR(totFlows):
+    	""" Note from pseudocode docs: Technically speaking we should be solving this, but the solution requires a 
 		root finding algorithm and repeatedly updating cash flows to obtain.
 		"""
-	measIRR = numpy.irr(totBenefitsNonDisc(), totCostsNonDisc)
+	measIRR = numpy.irr(totFlows)
 	return measIRR
 
-def measDPP(self, altID):
-	return
-
-def totalQuant(self, altID, tag):
-	quantSum = 0
-	#if tag == totalOptionalCashFlow.tag:
-    		
-	return quantSum, quantUnitstotalOptionalFlows
+def measPaybackPeriod(totCosts,totBenefits):  ## used for both simple and discounted payback
+        for i in range(len(totCosts)):
+                if np.subtract(totCosts[i],totBenefits[i]) <= 0:
+                        dpp = i
+	return dpp
 
 ##Moved to quantList function
 ##def totalQuant(self, altID, tag):
