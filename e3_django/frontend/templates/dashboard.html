@@ -21,9 +21,11 @@
     <sl-card class="page-card">
         <div class="header">
             <h1>{{ user.get_username }}</h1>
-            <sl-icon-button id="logout-button" name="box-arrow-right" label="Logout"
-                            style="font-size: 1.8rem"
-                            onclick="window.location.href={% url 'logout' %}"></sl-icon-button>
+                <sl-tooltip content="Logout">
+                    <sl-icon-button id="logout-button" name="box-arrow-right" label="Logout"
+                                    style="font-size: 1.8rem"
+                                    onclick="window.location.href={% url 'logout' %}"></sl-icon-button>
+                </sl-tooltip>
 
             <script>
                 const logoutButton = document.getElementById("logout-button");
@@ -42,6 +44,7 @@
                 ADD
             </sl-button>
         </div>
+        {% if keys %}
         <table>
             <thead>
             <tr class="headers">
@@ -50,6 +53,7 @@
                 <th>Created</th>
                 <th>Expires</th>
                 <th>Status</th>
+                <th>Actions</th>
             </tr>
             </thead>
             <tbody>
@@ -72,10 +76,45 @@
                         {% endif %}
                     </sl-badge>
                 </td>
+                <td>
+                    {% if status == 'active' %}
+                    <sl-tooltip content="Revoke Key">
+                        <sl-icon-button id="revoke-{{ api_key.id }}" name="x" label="Revoke Key"
+                                        style="font-size: 1.8rem"></sl-icon-button>
+                    </sl-tooltip>
+
+                    <script>
+                        document.getElementById("revoke-{{ api_key.id }}")
+                            .addEventListener("click", () => {
+                                showRevokeDialog("{{ api_key.name }}", () => {
+                                    let formData = new FormData();
+                                    formData.append("key", "{{ api_key.id }}")
+
+                                    fetch({% url 'revoke-key'%}, {
+                                        method: 'POST',
+                                        body: formData,
+                                        headers: {
+                                            "X-CSRFToken": document.querySelector("[name=csrfmiddlewaretoken]").value
+                                        }
+                                    })
+                                        .then(response => response.json())
+                                        .then(json => {
+                                            if(json["redirect"]) {
+                                                window.location.href = json["redirect"];
+                                            }
+                                        });
+                                });
+                            });
+                    </script>
+                    {% endif %}
+                </td>
             </tr>
             {% endfor %}
             </tbody>
         </table>
+        {% else %}
+        <p class="center">No API keys exist yet. Click "ADD" to create one.</p>
+        {% endif %}
     </sl-card>
     <sl-card class="danger-zone page-card">
         <div class="header">
@@ -134,7 +173,6 @@
             <sl-button id="delete-cancel-button">CANCEL</sl-button>
             <sl-button id="confirm-delete-button" type="danger" disabled submit>DELETE</sl-button>
         </div>
-
 
         <script>
             const confirmInput = document.getElementById("password-confirm-input");
@@ -256,6 +294,37 @@
         </script>
     </sl-dialog>
 </sl-form>
+
+<sl-dialog id="revoke-dialog" label="Revoke Key">
+    Are you sure you want to revoke key:
+    <p id="revoke-confirm-name"></p>
+    This cannot be undone.
+
+    <div slot="footer">
+        <sl-button id="revoke-cancel-button">CANCEL</sl-button>
+        <sl-button id="confirm-revoke-button" type="danger">REVOKE</sl-button>
+    </div>
+
+    <script>
+        const revokeDialog = document.getElementById("revoke-dialog");
+
+        document.getElementById("revoke-cancel-button").addEventListener("click", () => revokeDialog.hide());
+
+        let previousListener = undefined;
+
+        function showRevokeDialog(keyName, handler){
+            const confirmButton = document.getElementById("confirm-revoke-button");
+            if(previousListener) {
+                confirmButton.removeEventListener("click", previousListener)
+            }
+            confirmButton.addEventListener("click", handler);
+
+            document.getElementById("revoke-confirm-name").innerHTML = keyName;
+
+            revokeDialog.show()
+        }
+    </script>
+</sl-dialog>
 
 </body>
 </html>

@@ -42,14 +42,21 @@ def register(request):
     password = request.POST["password"]
     confirm = request.POST["confirm-password"]
 
+    # Check if password confirmation matches
     if password != confirm:
         return JsonResponse({"success": False, "messages": ["Passwords did not match"]})
 
+    # Check if user with that email already exists
+    if EmailUser.objects.get(email=email):
+        return JsonResponse({"success": False, "messages": ["User with that email already exists."]})
+
+    # Create User
     user = EmailUser.objects.create_user(email=email, password=password)
 
     if user is None:
         return JsonResponse({"success": False, "messages": ["Error with user creation, please try again later"]})
 
+    # Log user in a redirect to dashboard
     user = authenticate(email=email, password=password)
     if user is not None and user.is_active:
         login(request, user)
@@ -77,7 +84,7 @@ def dashboard(request):
         elif apiKey.expiry_date is not None and datetime.now(timezone.utc) > apiKey.expiry_date:
             status_list[index] = "expired"
 
-    return render(request, "dashboard.html", {"keys": zip(status_list, apiKeys)})
+    return render(request, "dashboard.html", {"keys": list(zip(status_list, apiKeys))})
 
 
 @login_required(login_url="login")
@@ -96,3 +103,15 @@ def delete_user(request):
 
     EmailUser.objects.get(id=request.user.id).delete()
     return JsonResponse({"redirect": reverse("login")})
+
+
+@login_required(login_url="revoke_key")
+def revoke_key(request):
+    if request.method != "POST":
+        return JsonResponse({"messages": [f"Method {request.method} not allowed."]})
+
+    key = UserAPIKey.objects.get(id=request.POST["key"])
+    key.revoked = True
+    key.save()
+
+    return JsonResponse({"redirect": reverse("dashboard")})
