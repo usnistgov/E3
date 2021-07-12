@@ -9,7 +9,6 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-
 def validateFile(dataFile):
     """
     This requires ELDST's help to set up, may be housed in another library. 
@@ -33,7 +32,7 @@ def readFile(inputJSONFile):
         raise Exception('Err: File is not valid')
 
     # Verify consistency of discounting input
-    if validateDiscountRate() is True: # Call to validateDiscountRate()? where is this function defined
+    if analysis.validateDiscountRate() == True:
         # If discounting input is valid: pass.
         pass
 
@@ -43,19 +42,15 @@ def readFile(inputJSONFile):
         if not analysisObj.inflationRate:
             analysisObj.inflationRate = discounting.inflationRateCalc(analysisObj.dRateNorm, analysisObj.dRateReal)
         
-        if not analysisObj.dRateNorm:
+        elif analysisObj.dRateNorm:
             analysisObj.dRateNorm = discounting.dRateNomCalc(analysisObj.inflationRate, analysisObj.dRateReal)
         
-        if not analysisObj.dRateReal:
+        elif analysisObj.dRateReal:
             analysisObj.dRateReal = discounting.dRateRealCalc(analysisObj.dRateNorm, analysisObj.inflationRate)
+        else:
+            raise Exception("Err: Invalid discount rate")
 
     return generateUserObjects(objectList) 
-
-
-def validateDiscountRate():
-    # Purpose: Verifies the consistency of discounting input.
-    return True
-
 
 def generateUserObjects(objectList):
     """

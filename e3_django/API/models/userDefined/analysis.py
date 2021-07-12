@@ -99,7 +99,7 @@ class Analysis(models.Model):
 		# If outputRealBool is True, and dRateReal & inflationRate is given, OR if outputRealBool is False, and dRateReal & inflationRate is given
 		if (self.outputRealBool and self.dRateReal and self.inflationRate and not self.dRateNom) or \
 		(not self.outputRealBool and self.dRateNom and self.inflationRate and not self.dRateReal):
-			pass
+			return True
 
 		# If outputReal is True, and dRateNom & dRateReal is given
 		elif (self.outputRealBool and self.dRateReal and self.inflationRate and self.dRateNom) or \
@@ -109,7 +109,7 @@ class Analysis(models.Model):
 				return "Inflation rate calculated from nominal and real rate does NOT match the provided inflation rate. \
 					Calculation with the provided rate used in calculation may not be correct."
 			else:
-				pass
+				return True
 		
 		elif self.outputRealBool and self.dRateNom and self.dRateReal:
 			# use dRateReal
