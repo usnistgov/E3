@@ -8,6 +8,17 @@ html {
   margin-right: auto;
 }
 
+.hidden {
+  display: none;
+}
+
+.message-banner {
+  --sl-color-white: var(--sl-color-warning-100);
+  padding: 16px;
+  margin: 0;
+  width: 100%;
+}
+
 .bottom-margin {
   margin-bottom: 32px;
 }
@@ -18,7 +29,7 @@ sl-tab {
   cursor: pointer;
 }
 
-sl-card {
+.fixed-width {
   width: 23em;
   margin: 64px;
 }

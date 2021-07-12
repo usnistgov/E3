@@ -18,7 +18,7 @@
 <script src="https://pages.nist.gov/nist-header-footer/js/nist-header-footer.js" type="text/javascript" defer></script>
 <body>
 <div class="center container">
-    <sl-card>
+    <sl-card class="page-card">
         <div class="header">
             <h1>{{ user.get_username }}</h1>
             <sl-icon-button id="logout-button" name="box-arrow-right" label="Logout"
@@ -34,7 +34,7 @@
             </script>
         </div>
     </sl-card>
-    <sl-card>
+    <sl-card class="page-card">
         <div class="header" slot="header">
             <h2 class="left">API Keys</h2>
             <sl-button id="add-key-button" type="success">
@@ -77,7 +77,7 @@
             </tbody>
         </table>
     </sl-card>
-    <sl-card class="danger-zone">
+    <sl-card class="danger-zone page-card">
         <div class="header">
             <h2>Danger Zone</h2>
             <sl-button id="delete-button" type="danger">
@@ -92,6 +92,42 @@
     {% csrf_token %}
 
     <sl-dialog id="delete-dialog" class="delete-dialog" label="Delete Account">
+        <sl-card id="message-banner" class="message-banner hidden">
+            <script>
+                const banner = document.getElementById("message-banner");
+
+                function hide() {
+                    if(!banner.classList.contains("hidden"))
+                        banner.classList.add("hidden");
+                }
+
+                function show() {
+                    if(banner.classList.contains("hidden"))
+                        banner.classList.remove("hidden");
+                }
+
+                function addMessages(messages) {
+                    clear();
+
+                    for(let message of messages) {
+                        let p = document.createElement("p");
+                        p.innerHTML = message;
+                        banner.appendChild(p);
+                    }
+
+                    show();
+                }
+
+                function clear(){
+                    hide();
+
+                    for(let child of banner.children) {
+                        banner.removeChild(child);
+                    }
+                }
+            </script>
+        </sl-card>
+
         Deleting your account will also immediately revoke all active keys. Enter your current password to confirm deletion.
         <sl-input id="password-confirm-input" name="password-confirm" type="password" label="Password"></sl-input>
         <div slot="footer">
@@ -114,8 +150,15 @@
                     fetch({% url 'delete' %}, {
                         method: "POST",
                         body: event.detail.formData
-                    }).then(response => response.json())
-                        .then(console.log);
+                    })
+                        .then(result => result.json())
+                        .then(json => {
+                            if(json["redirect"]) {
+                                window.location.href = json["redirect"];
+                            } else {
+                                addMessages(json["messages"]);
+                            }
+                        });
                 });
 
             confirmInput.addEventListener("input", event => {

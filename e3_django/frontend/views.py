@@ -1,10 +1,12 @@
 import logging
 from datetime import datetime, timezone
 
+from django.contrib import messages
 from django.contrib.auth import logout, authenticate, login
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
+from django.urls import reverse
 
 from frontend.models import UserAPIKey, EmailUser
 
@@ -15,7 +17,6 @@ logger = logging.getLogger(__name__)
 
 def email_login(request):
     logout(request)
-    email = password = ""
 
     if request.method == "POST":
         email = request.POST["email"]
@@ -24,7 +25,9 @@ def email_login(request):
         user = authenticate(email=email, password=password)
         if user is not None and user.is_active:
             login(request, user)
-            return redirect("dashboard")
+            return JsonResponse({"redirect": reverse("dashboard")})
+        else:
+            return JsonResponse({"messages": ["Username or password incorrect. please try again."]})
 
     return render(request, "login.html")
 
@@ -40,14 +43,17 @@ def register(request):
     confirm = request.POST["confirm-password"]
 
     if password != confirm:
-        return JsonResponse({"success": False, "errors": "Password did not match"})
+        return JsonResponse({"success": False, "messages": ["Passwords did not match"]})
 
     user = EmailUser.objects.create_user(email=email, password=password)
 
     if user is None:
-        return JsonResponse({"success": False, "errors": "Error with user creation, please try again later"})
+        return JsonResponse({"success": False, "messages": ["Error with user creation, please try again later"]})
 
-    return JsonResponse({"success": True})
+    user = authenticate(email=email, password=password)
+    if user is not None and user.is_active:
+        login(request, user)
+        return JsonResponse({"redirect": reverse("dashboard")})
 
 
 @login_required(login_url="login")
@@ -83,10 +89,10 @@ def logout_view(request):
 @login_required(login_url="login")
 def delete_user(request):
     if request.method != "POST":
-        return JsonResponse({"errors": f"Method {request.method} not allowed."})
+        return JsonResponse({"messages": [f"Method {request.method} not allowed."]})
 
     if not request.user.check_password(request.POST["password-confirm"]):
-        return JsonResponse({"errors": "Password does not match"})
+        return JsonResponse({"messages": ["Password incorrect"]})
 
     EmailUser.objects.get(id=request.user.id).delete()
-    return redirect("login")
+    return JsonResponse({"redirect": reverse("login")})
