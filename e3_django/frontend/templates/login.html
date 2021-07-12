@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<link>
+<meta charset="UTF-8">
+<title>Login</title>
+
+<link rel="stylesheet" type="text/css"
+      href="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.0.0-beta.45/dist/themes/base.css"/>
+<script type="module"
+        src="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.0.0-beta.45/dist/shoelace.js"></script>
+
+{% load static %}
+<link rel="stylesheet" type="text/css" href="{% static 'login.css' %}"/>
+
+<!--NIST styles-->
+<link rel="stylesheet" href="https://pages.nist.gov/nist-header-footer/css/nist-combined.css">
+<script src="https://pages.nist.gov/nist-header-footer/js/jquery-1.9.0.min.js" type="text/javascript" defer></script>
+<script src="https://pages.nist.gov/nist-header-footer/js/nist-header-footer.js" type="text/javascript" defer></script>
+<body>
+<div class="center">
+    <div class="title">
+        <h1>E<sup>3</sup></h1>
+        <h2>Economic Evaluation Engine</h2>
+    </div>
+
+    <sl-card>
+        <sl-tab-group>
+            <sl-tab slot="nav" panel="login">Login</sl-tab>
+            <sl-tab slot="nav" panel="register">Register</sl-tab>
+
+            <sl-tab-panel name="login">
+                <sl-form id="login-form">
+                    {% csrf_token %}
+
+                    <sl-input class="bottom-margin" name="email" type="email" label="Email" autofocus></sl-input>
+                    <sl-input class="bottom-margin" name="password" type="password" label="Password"></sl-input>
+                    <sl-button type="primary" submit>LOGIN</sl-button>
+
+                    <script>
+                        document.getElementById("login-form")
+                            .addEventListener("sl-submit", event => {
+                                fetch({% url 'login' %}, {
+                                    method: "POST",
+                                    body: event.detail.formData
+                                }).then((result) => window.location.replace(result.url));
+                            });
+                    </script>
+                </sl-form>
+            </sl-tab-panel>
+            <sl-tab-panel name="register">
+                <sl-form id="register-form">
+                    {% csrf_token %}
+
+                    <sl-input class="bottom-margin" name="email" type="email" label="Email"></sl-input>
+                    <sl-input name="password" type="password" label="Password"></sl-input>
+                    <sl-input class="bottom-margin" name="confirm-password" type="password"
+                              label="Confirm Password"></sl-input>
+                    <sl-button type="primary" submit>REGISTER</sl-button>
+
+                    <script>
+                        document.getElementById("register-form")
+                            .addEventListener("sl-submit", event => {
+                                fetch({% url 'register' %}, {
+                                    method: "POST",
+                                    body: event.detail.formData
+                                });
+                            });
+                    </script>
+                </sl-form>
+            </sl-tab-panel>
+        </sl-tab-group>
+    </sl-card>
+</div>
+</body>
+</html>

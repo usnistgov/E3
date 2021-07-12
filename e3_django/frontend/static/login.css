@@ -1,0 +1,44 @@
+html {
+  font-family: var(--sl-font-sans);
+}
+
+.center {
+  width: fit-content;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.bottom-margin {
+  margin-bottom: 32px;
+}
+
+sl-tab {
+  width: 100%;
+  text-align: center;
+  cursor: pointer;
+}
+
+sl-card {
+  width: 23em;
+  margin: 64px;
+}
+
+sl-input {
+  margin-bottom: 8px;
+}
+
+sl-button {
+  width: 100%;
+}
+
+.title {
+  text-align: center;
+}
+.title h1 {
+  font-size: 48pt;
+}
+.title h2 {
+  font-size: 18pt;
+}
+
+/*# sourceMappingURL=login.css.map */

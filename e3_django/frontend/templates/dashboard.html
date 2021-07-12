@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<link>
+<meta charset="UTF-8">
+<title>Dashboard</title>
+
+<link rel="stylesheet" type="text/css"
+      href="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.0.0-beta.45/dist/themes/base.css"/>
+<script type="module"
+        src="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.0.0-beta.45/dist/shoelace.js"></script>
+
+{% load static %}
+<link rel="stylesheet" type="text/css" href="{% static 'dashboard.css' %}"/>
+
+<!--NIST styles-->
+<link rel="stylesheet" href="https://pages.nist.gov/nist-header-footer/css/nist-combined.css">
+<script src="https://pages.nist.gov/nist-header-footer/js/jquery-1.9.0.min.js" type="text/javascript" defer></script>
+<script src="https://pages.nist.gov/nist-header-footer/js/nist-header-footer.js" type="text/javascript" defer></script>
+<body>
+<div class="center container">
+    <sl-card>
+        <div class="header">
+            <h1>{{ user.get_username }}</h1>
+            <sl-icon-button id="logout-button" name="box-arrow-right" label="Logout"
+                            style="font-size: 1.8rem"
+                            onclick="window.location.href={% url 'logout' %}"></sl-icon-button>
+
+            <script>
+                const logoutButton = document.getElementById("logout-button");
+
+                logoutButton.addEventListener("click", () => {
+                    //TODO; add logout logic
+                });
+            </script>
+        </div>
+    </sl-card>
+    <sl-card>
+        <div class="header" slot="header">
+            <h2 class="left">API Keys</h2>
+            <sl-button id="add-key-button" type="success">
+                <sl-icon slot="prefix" name="plus-lg"></sl-icon>
+                ADD
+            </sl-button>
+        </div>
+        <table>
+            <thead>
+            <tr class="headers">
+                <th>Name</th>
+                <th>Prefix</th>
+                <th>Created</th>
+                <th>Expires</th>
+                <th>Status</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for status, api_key in keys %}
+            <tr>
+                <td>{{ api_key.name }}</td>
+                <td>{{ api_key.prefix }}</td>
+                <td>{{ api_key.created | date:'n/j/Y H:i' }}</td>
+                <td>{% if api_key.expiry_date %}{{ api_key.expiry_date | date:'n/j/Y H:i' }}{% else %}N/A{% endif %}
+                </td>
+                <td>
+                    <sl-badge
+                            type="{% if status == 'expired' %}warning{% elif status == 'revoked' %}danger{% else %}success{% endif %}">
+                        {% if status == 'expired' %}
+                        Expired
+                        {% elif status == 'revoked' %}
+                        Revoked
+                        {% else %}
+                        Active
+                        {% endif %}
+                    </sl-badge>
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </sl-card>
+    <sl-card class="danger-zone">
+        <div class="header">
+            <h2>Danger Zone</h2>
+            <sl-button id="delete-button" type="danger">
+                <sl-icon slot="prefix" name="trash-fill"></sl-icon>
+                DELETE ACCOUNT
+            </sl-button>
+        </div>
+    </sl-card>
+</div>
+
+<sl-form id="delete-form">
+    {% csrf_token %}
+
+    <sl-dialog id="delete-dialog" class="delete-dialog" label="Delete Account">
+        Deleting your account will also immediately revoke all active keys. Enter your current password to confirm deletion.
+        <sl-input id="password-confirm-input" name="password-confirm" type="password" label="Password"></sl-input>
+        <div slot="footer">
+            <sl-button id="delete-cancel-button">CANCEL</sl-button>
+            <sl-button id="confirm-delete-button" type="danger" disabled submit>DELETE</sl-button>
+        </div>
+
+
+        <script>
+            const confirmInput = document.getElementById("password-confirm-input");
+            const confirmButton = document.getElementById("confirm-delete-button");
+            const deleteDialog = document.getElementById("delete-dialog");
+            const deleteButton = document.getElementById("delete-button");
+            const cancelButton = document.getElementById("delete-cancel-button");
+
+            deleteButton.addEventListener("click", () => deleteDialog.show());
+            cancelButton.addEventListener("click", () => deleteDialog.hide());
+            document.getElementById("delete-form")
+                .addEventListener("sl-submit", event => {
+                    fetch({% url 'delete' %}, {
+                        method: "POST",
+                        body: event.detail.formData
+                    }).then(response => response.json())
+                        .then(console.log);
+                });
+
+            confirmInput.addEventListener("input", event => {
+                if (event.target.value) {
+                    confirmButton.removeAttribute("disabled");
+                } else {
+                    confirmButton.setAttribute("disabled", "disabled");
+                }
+            });
+        </script>
+    </sl-dialog>
+</sl-form>
+
+<sl-form id="add-key-form">
+    {% csrf_token %}
+
+    <sl-dialog id="add-key-dialog" label="Create New Key">
+        <div class="step-1">
+            <sl-input id="name-input" name="name" type="text" label="Name*"></sl-input>
+            <br/>
+            <label for="expire-datetime">Expire Date</label>
+            <br/>
+            <input type="datetime-local" id="expire-datetime" name="expire-datetime"/>
+            <p class="helper-text">Leave empty for no expiry date</p>
+        </div>
+        <div class="step-2">
+            <p>This is the only time the key will be displayed, be sure to save it.</p>
+            <div class="copy">
+                <p id="new-key-display"></p>
+                <sl-icon-button id="copy-button" name="clipboard"></sl-icon-button>
+            </div>
+        </div>
+
+        <div slot="footer">
+            <div class="step-1">
+                <sl-button id="add-cancel-button">CANCEL</sl-button>
+                <sl-button id="confirm-add-button" type="success" disabled submit>CREATE</sl-button>
+            </div>
+            <div class="step-2">
+                <sl-button id="add-ok-button" type="success">OK</sl-button>
+            </div>
+        </div>
+
+        <script>
+            const addDialog = document.getElementById("add-key-dialog");
+            document.getElementById("add-key-button")
+                .addEventListener("click", () => addDialog.show());
+            document.getElementById("add-cancel-button")
+                .addEventListener("click", () => addDialog.hide());
+            document.getElementById("add-ok-button")
+                .addEventListener("click", () => window.location.reload());
+
+            const keyDisplay = document.getElementById("new-key-display");
+            document.getElementById("add-key-form")
+                .addEventListener("sl-submit", event => {
+                    fetch(window.location.href, {
+                        method: "POST",
+                        body: event.detail.formData
+                    })
+                        .then(response => response.json())
+                        .then(response => {
+                            keyDisplay.innerHTML = response["key"];
+
+                            hideStep("step-1");
+                            showStep("step-2");
+                        });
+                });
+
+            const confirmAddButton = document.getElementById("confirm-add-button");
+            document.getElementById("name-input")
+                .addEventListener("input", event => {
+                    if (event.target.value) {
+                        confirmAddButton.removeAttribute("disabled");
+                    } else {
+                        confirmAddButton.setAttribute("disabled", "disabled");
+                    }
+                });
+
+            function hideStep(step) {
+                for (let element of document.getElementsByClassName(step)) {
+                    element.classList.add("hidden");
+                }
+            }
+
+            function showStep(step) {
+                for (let element of document.getElementsByClassName(step)) {
+                    element.classList.remove("hidden");
+                }
+            }
+
+            hideStep("step-2");
+
+            document.getElementById("copy-button")
+                .addEventListener("click", () => navigator.clipboard.writeText(keyDisplay.innerHTML));
+        </script>
+    </sl-dialog>
+</sl-form>
+
+</body>
+</html>

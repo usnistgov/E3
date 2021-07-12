@@ -30,6 +30,8 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+STATIC_URL = '/static/'
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -46,6 +48,7 @@ INSTALLED_APPS = [
     # created
     'API.apps.ApiConfig',
     'flow.apps.FlowConfig',
+    'frontend.apps.FrontendConfig'
 ]
 
 MIDDLEWARE = [
@@ -122,8 +125,6 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
-STATIC_URL = '/static/'
-
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -140,3 +141,5 @@ LOGGING = {
 
 CELERY_BROKER_URL = os.environ.get("BROKER_URL")
 CELERY_RESULT_BACKEND = os.environ.get("BACKEND_URL")
+
+AUTH_USER_MODEL = 'frontend.EmailUser'
