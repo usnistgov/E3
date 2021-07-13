@@ -16,8 +16,6 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
-print("Hello Django :)")
 # write startup code here; i.e. Main
 
 
@@ -32,6 +30,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+STATIC_URL = '/static/'
 
 # Application definition
 
@@ -44,9 +43,12 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     'rest_framework',
+    'rest_framework_api_key',
 
     # created
     'API.apps.ApiConfig',
+    'flow.apps.FlowConfig',
+    'frontend.apps.FrontendConfig'
 ]
 
 MIDDLEWARE = [
@@ -79,7 +81,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'e3_django.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 
@@ -89,7 +90,6 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/3.1/ref/settings/#auth-password-validators
@@ -109,7 +109,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/3.1/topics/i18n/
 
@@ -123,11 +122,8 @@ USE_L10N = True
 
 USE_TZ = True
 
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
-
-STATIC_URL = '/static/'
 
 LOGGING = {
     'version': 1,
@@ -145,3 +141,5 @@ LOGGING = {
 
 CELERY_BROKER_URL = os.environ.get("BROKER_URL")
 CELERY_RESULT_BACKEND = os.environ.get("BACKEND_URL")
+
+AUTH_USER_MODEL = 'frontend.EmailUser'

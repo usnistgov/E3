@@ -1,0 +1,87 @@
+@use "_shared"
+
+table
+  border-collapse: collapse
+  width: 100%
+
+  thead
+    tr
+      text-align: left
+
+    .title
+      padding: 8px 0 32px 0
+
+      text-align: left
+      font-size: 18pt
+
+    .headers
+      border-bottom: 2px solid var(--sl-color-gray-400)
+
+      th
+        padding-left: 16px
+        padding-bottom: 8px
+
+  tbody
+    td
+      padding: 16px
+
+    tr
+      white-space: nowrap
+
+      &:nth-child(even)
+        background-color: var(--sl-color-gray-50)
+
+      &:not(:last-child)
+        border-bottom: 1px solid var(--sl-color-gray-200)
+
+.container
+  width: 60em
+
+.page-card
+  width: 100%
+  margin: 32px
+
+.danger-zone
+  --border-color: var(--sl-color-danger-500)
+
+.header
+  display: flex
+  justify-content: space-between
+  align-items: center
+
+.delete-dialog
+  sl-input
+    margin: 16px 0
+
+input[type="datetime-local"]
+  height: 40px
+  width: 100%
+
+.helper-text
+  margin: 4px 0
+  font-size: 10pt
+  color: var(--sl-color-gray-500)
+
+#new-key-display
+  height: 40px
+
+  font-size: 14pt
+  text-align: center
+  line-height: 40px
+
+  background-color: var(--sl-color-gray-200)
+  border-radius: 8px
+
+#add-key-dialog
+  --width: 600px
+
+.copy
+  position: relative
+
+  sl-icon-button
+    position: absolute
+    right: 4px
+    top: 2px
+
+    font-size: 14pt
+    line-height: 40px
