@@ -28,6 +28,7 @@ services:
       CELERY_INSTANCES: 2
       BROKER_URL: "amqp://admin:password@rabbitmq:5672"
       BACKEND_URL: "rpc://"
+      C_FORCE_ROOT: "true"
     depends_on:
       - rabbitmq
     networks:

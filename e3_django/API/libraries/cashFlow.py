@@ -212,8 +212,8 @@ def totalFlows(altID,studyPeriod,timestepValue,baseBool,bcnStorageList):
         if altID in bcnStore.altID:
             tag = bcnStore.tag if bcnStore.tag != None else tag = None
             flowType = bcnStore.type
-            flowNonDisc = bcnStorage.bcnNonDiscFlow ## One attribute lookup here to prevent further in the future
-            flowDisc = bcnStorage.bcnDiscFlow
+            flowNonDisc = bcnStore.bcnNonDiscFlow ## One attribute lookup here to prevent further in the future
+            flowDisc = bcnStore.bcnDiscFlow
 ##                if flowType == 'Cost':
 ##                    bcnFlowNonDisc = np.add(flowNonDisc,bcnFlowNonDisc)
 ##                    bcnFlowDisc = np.add(flowDisc,bcnFlowDisc)

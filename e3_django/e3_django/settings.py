@@ -135,11 +135,13 @@ LOGGING = {
     },
     'root': {
         'handlers': ['console'],
-        'level': 'INFO',
+        'level': 'DEBUG',
     },
 }
 
 CELERY_BROKER_URL = os.environ.get("BROKER_URL")
 CELERY_RESULT_BACKEND = os.environ.get("BACKEND_URL")
+CELERY_TASK_SERIALIZER = "pickle"
+CELERY_ACCEPT_CONTENT = ["pickle", "json"]
 
 AUTH_USER_MODEL = 'frontend.EmailUser'

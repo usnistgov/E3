@@ -1,7 +1,4 @@
 import logging
-from decimal import Decimal
-from functools import reduce
-from operator import add
 
 from celery.result import AsyncResult
 from rest_framework.response import Response
@@ -10,13 +7,13 @@ from rest_framework.viewsets import ViewSet
 from rest_framework_api_key.permissions import HasAPIKey
 
 from API import tasks
-from API.serializers import InputSerializer, BCN, OutputSerializer, \
-    CashFlowSerializer
-
-logger = logging.getLogger(__name__)
+from API.serializers.InputSerializer import InputSerializer
+from frontend.models import UserAPIKey
 
 
 class UrlOrHeaderApiKey(HasAPIKey):
+    model = UserAPIKey
+
     def get_key(self, request):
         header_key = super().get_key(request)
         return header_key if header_key else request.GET.get("key")
@@ -29,32 +26,15 @@ class AnalysisViewSet(ViewSet):
     permission_classes = [UrlOrHeaderApiKey]
 
     def create(self, request):
+        logging.debug(f"Analysis View called with request data:\n{request.data}\n")
+
         serializer = InputSerializer(data=request.data)
 
         if not serializer.is_valid():
+            logging.debug(f"Failed to validate data! Data was:\n{request.data}\n")
             return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
 
-        bcns = [BCN(25, **args) for args in serializer.validated_data["bcnObjects"]]
-
-        for bcn in bcns:
-            logger.info(bcn)
-            logger.info(bcn.discount(Decimal(0.06)))
-
-        for alt in serializer.validated_data["alternativeObjects"]:
-            flows = map(lambda x: x.discount(Decimal(0.06)), filter(lambda x: x.bcnID in alt["altBCNList"], bcns))
-            logger.info(list(reduce(lambda x, y: map(add, x, y), flows)))
-
-        #logger.info(serializer.validated_data["alternativeObjects"])
-
-        #for alt in serializer.validated_data["alternativeObjects"]:
-        #    logger.info(Alternative(alt).altID)
-
-
-        task = tasks.analyze.delay(serializer.validated_data)
-
-        # output = OutputSerializer(CashFlowSerializer())
-
-        # logger.log(output.data)
+        task = tasks.analyze.delay(serializer.save())
 
         return Response(status=HTTP_202_ACCEPTED, headers={
             "Location": request.build_absolute_uri(f"/api/v1/queue/{task.task_id}")
@@ -65,11 +45,15 @@ class QueueViewSet(ViewSet):
     """
     Resource to query condition of analysis job
     """
+    permission_classes = [UrlOrHeaderApiKey]
+
     def retrieve(self, request, pk=None):
         if pk is None:
             return Response("ID must be specified", status=HTTP_400_BAD_REQUEST)
 
         status = AsyncResult(pk).status
+
+        logging.debug(f"Status of task {pk} is {status}")
 
         if status == "SUCCESS":
             return Response(status=HTTP_303_SEE_OTHER, headers={
@@ -83,6 +67,8 @@ class ResultViewSet(ViewSet):
     """
     Resource to get the result of an analysis job
     """
+    permission_classes = [UrlOrHeaderApiKey]
+
     def retrieve(self, request, pk=None):
         if pk is None:
             return Response("ID must be specified", status=HTTP_400_BAD_REQUEST)

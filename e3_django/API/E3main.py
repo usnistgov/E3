@@ -1,7 +1,6 @@
 ## imports everything. Imports are in order of their earliest call in main (not including debug mode calls
-import validateRead
 import json
-import libraries.cashFlows
+import libraries.cashFlow
 import models.userDefined.bcn
 import models.userDefined.analysis
 import models.bcnStorage
@@ -10,7 +9,6 @@ import models.totalRequiredFlows
 import models.totalOptionalFlows
 import libraries.measures
 import models.alternativeSummary
-import models.libraries.cashFlow
 
 ## Main-runs everything. Annotate any added code and keep new variable names clear or explicitly defined annotations
 def E3main():
