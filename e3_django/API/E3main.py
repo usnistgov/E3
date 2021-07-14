@@ -59,7 +59,8 @@ def E3main():
         for subItem in item:
             subList.append(subItem[1])
         scenarioList.append(sublist)
-
+    
+    ## Luke - End input collection and formatting
     ## Calls constructors. This should generate all user defined objects through the call to generateUserObjects
     validateRead.generateUserObjects(analysisList,alternativeList,bcnList,sensitivityList,scenarioList)
 
@@ -124,8 +125,19 @@ def E3main():
 
     ## Write output (eventually move to separate library).
     ## Luke - At this point the altSummary objects should be converted to a JSON string and aggregated into a single json string to return to the user
+    ## PSEUDOCODE (Feel free to move to a separate library if it makes more sense)
+    ## reportType = analysis.objToReport
+    ## if reportType == "FlowSummary":
+    ##     convert totalRequiredFlows objects to JSON and add to output
+    ## if reportType == "MeasureSummary":  ## Note that the "IRRSummary" type in analysis comes into play when calculating measures.
+    ##     convert alternativeSummary objects to JSON and add to output
+    ## The following are not needed now.
+    ## if reportType == "SensitivitySummary":
+    ##     convert sensitivitySummary objects to JSON and add to output
+    ## if reportType == "UncertaintySummary":
+    ##     convert uncertaintySummary objects to JSON and add to output
 
-    ## Send data to client
+    ## Send output JSON to client
             
 if __name == '__E3main__':
     app.run(debug=True)
