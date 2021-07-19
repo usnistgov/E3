@@ -60,8 +60,8 @@ totBenefitsDirDisc: [0,0,0,0,0,0,0,0,0,0,0]
 totBenefitsIndDisc: [0,0,0,0,0,0,0,0,0,0,0]
 totBenefitsExtDisc: [0,0,0,0,0,0,0,0,0,0,0]
 
-totalFlows(1,10,1,True,[bcnObject1,bcnObject2])
-Input: 0, 10, 1, True, [bcnObject1,bcnObject2]
+totalFlows(1,10,1,True,[bcnStorageObject1,bcnStorageObject2])
+Input: 0, 10, 1, True, [bcnStorageObject1,bcnStorageObject2]
 Output: None
 There is a call to construct a totalRequiredFlows and totalOptionalFlows object in here, so we can't fully test it until the models are validated. For now check the intermediate calculations to make sure they're right. The should be as follows:
 baselineBool: True
