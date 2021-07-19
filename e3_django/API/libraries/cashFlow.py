@@ -151,10 +151,10 @@ def rvCalc(initialOcc, value, studyPeriod, bcnLife=None, recurList=None, increme
         else:
             remainingLife = studyPeriod - (initialOcc + bcnLife) - 1
     else:
-        if endDate != None and studyPeriod > bcnLife + endDate - 1:
+        if endDate != None and studyPeriod >= endDate:
             remainingLife = 0
-        elif endDate != None and studyPeriod > bcnLife + endDate - 1:
-            remainingLife = studyPeriod - (endDate + bcnLife) - 1
+        elif endDate != None and studyPeriod < endDate:
+            remainingLife = bcnLife - (studyPeriod - (endDate - bcnLife))
         else:
             nonZeroIndexList = [i for i, e in enumerate(recurList) if e != 0]
             lastFlow = nonZeroIndexList[-1]
