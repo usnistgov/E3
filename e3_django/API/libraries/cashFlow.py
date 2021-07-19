@@ -249,7 +249,7 @@ def totalFlows(altID,studyPeriod,timestepValue,baseBool,bcnStorageList):
                 totCostExtDisc = np.add(flowDisc,totCostExtDisc)
                 totBenefitsExt = np.add(flowNonDisc,totBenefitsExt)
                 totBenefitsExtDisc = np.add(flowDisc,totBenefitsExtDisc)
-            elif tag != None: ## Non Monetary requires a tag so this should cover Non-Monetary as well
+            if tag != None: ## Non Monetary requires a tag so this should cover Non-Monetary as well
                 ## We don't store quantities for non-tagged items since they aren't used in calculation
                 quantList = bcnStore.quantList
                 units = bcnStore.quantUnits
@@ -266,6 +266,8 @@ def totalFlows(altID,studyPeriod,timestepValue,baseBool,bcnStorageList):
                                 tagFLowList[index] = [np.add(flowNonDisc,totFlowList[index][0]),np.add(flowNonDisc,totFlowList[index][1]),units]
                             elif flowType == 'Benefit':
                                 tagFLowList[index] = [np.subtract(flowNonDisc,totFlowList[index][0]),np.add(flowNonDisc,totFlowList[index][1]),units]
+                            else:
+                                tagFLowList[index] = [np.add(flowNonDisc,np.zeros(studyPeriod+1)),np.add(flowNonDisc,totFlowList[index][1]),units]
                             ## For now the type and subtype attributes in the totalOptionalFlows class are not used in calculation
                             ## They exist in case we want to use them in the future or a user wishes to add further calculations that require them                     
             
