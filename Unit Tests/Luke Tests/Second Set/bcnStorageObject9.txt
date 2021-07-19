@@ -1,0 +1,20 @@
+{
+	“bcnID”: 8,
+	“bcnName”: “NM 1”,
+	“altID”: [1,2],
+	“bcnType”: “Non-Monetary”,
+	“bcnSubType”: “Direct”,
+	“tag”: "Tag 3",
+	“bcnNonDiscFlow”:[0,0,0,0,0,0,0,0,0,0,0],
+	“bcnDiscFlow”:[0,0,0,0,0,0,0,0,0,0,0],
+	“quantList”: [100,100,100,100,100,100,100,100,100,100,100],
+	“quantUnits”: "m",
+	“sensBool”: False,
+	“sensFlowNonDisc”: None,
+	“sensFlowDisc”: None,
+	“sensQuantList”: None,
+	“uncBool”: False,
+	“uncFlowNonDisc”: None,
+	“uncFlowDisc”: None,
+	“uncQuantList”: None
+}

@@ -1,0 +1,22 @@
+{
+		“bcnID”: 6,
+		“altID”: [0],
+		“bcnType”: “Benefit”,
+		“bcnSubType”: “Indirect”,
+		“bcnName”: “Benefit 4”,
+		“bcnTag”: None,
+		“initialOcc”: 6,
+		“bcnInvestBool”: False,
+		“rvBool”: False,
+		“bcnLife”: None,
+		“recurBool”: False,
+		“recurInterval”: None,
+		“recurVarRate”: None,
+		“recurVarValue”: None,
+		“recurEndDate”: None,
+		“valuePerQ”: 0.5,
+		“quant”: 250,
+		“quantVarRate”: None,
+		“quantVarValue: None,
+		“quantUnit”: None
+}
