@@ -1,0 +1,22 @@
+{
+		“bcnID”: 0,
+		“altID”: [0],
+		“bcnType”: “Cost”,
+		“bcnSubType”: “Direct”,
+		“bcnName”: “BCN 1”,
+		“bcnTag”: {}”,
+		“initialOcc”: 1,
+		“rvBool”: True,
+		“bcnInvestBool”: True,
+		“bcnLife”: 30,
+		“recurBool”: {},
+		“recurInterval”: {},
+		“recurVarRate”: {},
+		“recurVarValue”: {},
+		“recurEndDate”: {},
+		“valuePerQ”: 1,
+		“quant”: 100,
+		“quantVarRate”: {},
+		“quantVarValue: {},
+		“quantUnit”: {}
+}
