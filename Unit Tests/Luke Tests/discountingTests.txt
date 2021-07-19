@@ -1,0 +1,65 @@
+inflationRateCalc(0.02,0.01)
+Input: 0.2, 0.01
+Output: 0.00990099009900991 (With allowances for round off and precision errors)
+
+dRateNomCalc(0.03,0.2)
+Input: 0.2, 0.03
+Output: 0.236
+
+dRateReal(0.236,0.03)
+Input: 0.236, 0.03
+Output: 0.2
+
+Note: There are multiple conditions for recurEscalationRateCorrection, the following four should test all combinations
+
+recurEscalationRateCorrection(“Real”,0.03,”percDelta”,0.3,null)
+Input: “Real”, 0.03, ”percDelta”, 0.3, null
+Output: 0.262135922330097 (With allowances for round off and precision errors)
+
+recurEscalationRateCorrection(“Real”,0.03,”percDelta”,[0,0.2,0.1,0.5,0.4],3)
+Input: “Real”, 0.03, ”percDelta”, [0,0.2,0.1,0.5,0.4], 3
+Output: 0.456310679611651 (With allowances for round off and precision errors)
+
+recurEscalationRateCorrection(“Nominal”,0.03,”percDelta”,0.3,null)
+Input: “Real”, 0.03, ”percDelta”, 0.3, null
+Output: 0.339
+
+recurEscalationRateCorrection(“Nominal”,0.03,”percDelta”,[0,0.2,0.1,0.5,0.4],3)
+Input: “Real”, 0.03, ”percDelta”, [0,0.2,0.1,0.5,0.4], 3
+Output: 0.545
+
+For Now quantEscCalc returns the input value. This is intentional as it’s a placeholder in case we want to add something for it later. Two cases, float and list of floats for the second input
+
+quantEscCalc(“percDelta”,0.1,Null)
+Input: “percDelta”, 0.1, Null
+Output: 0.1
+
+quantEscCalc(“percDelta”,[0,0.2,0.3],2)
+Input: “percDelta”, [0,0.2,0.3], 2
+Output: 0.3
+
+For SPV, discValueCalc, and escalatedQuantCalc: need to test results for both float and list types of recurrenceVariabilityRateValues
+
+spv(2,0.2,0.3)
+Input: 2, 0.2, 0.3
+Output: 0.85207100591716 (With allowances for round off and precision errors)
+
+spv(3,[0,0.1,0.2,0.5],0.3)
+Input: 3, [0,0.1,0.2,0.5], 0.3
+Output: 2.43331816112881
+
+discValueCalc(100,0.85207100591716,0.2)
+Input: 100, 0.85207100591716, 0.2
+Output: 85.207100591716 (With allowances for round off and precision errors)
+
+discValueCalc(100,2.43331816112881,[0,0.2,0.4,0.5])
+Input: 100, 2.43331816112881, [0,0.2,0.4,0.5]
+Output: 85.207100591716 (With allowances for round off and precision errors)
+
+escalatedQuantityCalc(100,”percDelta”,0.3,5)
+Input: 100, ”percDelta”, 0.3, 5
+Output: 371.293
+
+escalatedQuantityCalc(100,”percDelta”,[0,0.1,0.2,0.3],2)
+Input: 100, ”percDelta”, [0,0.1,0.2,0.3], 2
+Output: 132
