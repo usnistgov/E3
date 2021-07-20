@@ -1,0 +1,20 @@
+{
+	“bcnID”: 7,
+	“bcnName”: “BCN 8”,
+	“altID”: [2],
+	“bcnType”: “Cost”,
+	“bcnSubType”: “Indirect”,
+	“tag”: "Tag 2",
+	“bcnNonDiscFlow”:[50,0,0,0,52.0302005,0,0,0,54.14283528,0,-6.903888284],
+	“bcnDiscFlow”:[50,0,0,0,46.22815924,0,0,0,42.74085414,0,-5.137141261],
+	“quantList”: [100,0,0,0,100,0,0,0,100,0,0],
+	“quantUnits”: "m^2",
+	“sensBool”: False,
+	“sensFlowNonDisc”: None,
+	“sensFlowDisc”: None,
+	“sensQuantList”: None,
+	“uncBool”: False,
+	“uncFlowNonDisc”: None,
+	“uncFlowDisc”: None,
+	“uncQuantList”: None
+}

@@ -150,10 +150,10 @@ def rvCalc(initialOcc, value, studyPeriod, bcnLife=None, recurList=None, increme
         else:
             remainingLife = studyPeriod - (initialOcc + bcnLife) - 1
     else:
-        if endDate != None and studyPeriod > bcnLife + endDate - 1:
+        if endDate != None and studyPeriod >= endDate:
             remainingLife = 0
-        elif endDate != None and studyPeriod > bcnLife + endDate - 1:
-            remainingLife = studyPeriod - (endDate + bcnLife) - 1
+        elif endDate != None and studyPeriod < endDate:
+            remainingLife = bcnLife - (studyPeriod - (endDate - bcnLife))
         else:
             nonZeroIndexList = [i for i, e in enumerate(recurList) if e != 0]
             lastFlow = nonZeroIndexList[-1]
@@ -248,7 +248,7 @@ def totalFlows(altID,studyPeriod,timestepValue,baseBool,bcnStorageList):
                 totCostExtDisc = np.add(flowDisc,totCostExtDisc)
                 totBenefitsExt = np.add(flowNonDisc,totBenefitsExt)
                 totBenefitsExtDisc = np.add(flowDisc,totBenefitsExtDisc)
-            elif tag != None: ## Non Monetary requires a tag so this should cover Non-Monetary as well
+            if tag != None: ## Non Monetary requires a tag so this should cover Non-Monetary as well
                 ## We don't store quantities for non-tagged items since they aren't used in calculation
                 quantList = bcnStore.quantList
                 units = bcnStore.quantUnits
@@ -265,6 +265,8 @@ def totalFlows(altID,studyPeriod,timestepValue,baseBool,bcnStorageList):
                                 tagFLowList[index] = [np.add(flowNonDisc,totFlowList[index][0]),np.add(flowNonDisc,totFlowList[index][1]),units]
                             elif flowType == 'Benefit':
                                 tagFLowList[index] = [np.subtract(flowNonDisc,totFlowList[index][0]),np.add(flowNonDisc,totFlowList[index][1]),units]
+                            else:
+                                tagFLowList[index] = [np.add(flowNonDisc,np.zeros(studyPeriod+1)),np.add(flowNonDisc,totFlowList[index][1]),units]
                             ## For now the type and subtype attributes in the totalOptionalFlows class are not used in calculation
                             ## They exist in case we want to use them in the future or a user wishes to add further calculations that require them                     
             

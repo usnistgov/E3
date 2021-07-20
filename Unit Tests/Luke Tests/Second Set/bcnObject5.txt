@@ -1,0 +1,22 @@
+{
+		“bcnID”: 4,
+		“altID”: [2],
+		“bcnType”: “Benefit”,
+		“bcnSubType”: “Indirect”,
+		“bcnName”: “Benefit 2”,
+		“bcnTag”: None,
+		“initialOcc”: 3,
+		“bcnInvestBool”: False,
+		“rvBool”: False,
+		“bcnLife”: None,
+		“recurBool”: True,
+		“recurInterval”: 1,
+		“recurVarRate”: “percDelta”,
+		“recurVarValue”: [0,0.04,0.05,0.02,0.01,-0.03,0.06,0.02,-0.01,-0.03,0.09],
+		“recurEndDate”: 6,
+		“valuePerQ”: 3,
+		“quant”: 350.5,
+		“quantVarRate”: None,
+		“quantVarValue: None,
+		“quantUnit”: “tonnes”
+}
