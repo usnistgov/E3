@@ -1,4 +1,5 @@
-from typing import Any, Sequence, Tuple
+import logging
+from typing import Any, Sequence, Tuple, Callable
 
 from API.serializers import CostType
 
@@ -7,8 +8,8 @@ def presentValue(v: CostType, d: CostType, t: CostType) -> CostType:
     return v * (1 / (1 + d)) ** t
 
 
-def createArray(studyPeriod: int, default: Any = CostType(0)):
-    return [default] * (studyPeriod + 1)
+def createArray(studyPeriod: int, default: Any = 0):
+    return [CostType(default)] * (studyPeriod + 1)
 
 
 def discountValues(rate: CostType, values: Sequence[CostType]):
@@ -32,20 +33,30 @@ class Bcn:
         self.recurVarRate = kwargs.get("recurVarRate", None)
         self.recurVarValue = kwargs.get("recurVarValue", CostType(0))
         self.recurEndDate = kwargs.get("recurEndDate", self.initialOcc)
-        self.valuePerQ = kwargs.get("valuePerQ", None)
+        self.valuePerQ = kwargs.get("valuePerQ", 0)
         self.quant = kwargs.get("quant", None)
         self.quantVarRate = kwargs.get("quantVarRate", None)
         self.quantVarValue = kwargs.get("quantVarValue", CostType(0))
         self.quantUnit = kwargs.get("quantUnit", None)
 
+        # Inflate single values to arrays to make later computations easier
         if not isinstance(self.recurVarValue, Sequence):
-            self.recurVarValue = createArray(studyPeriod, default=self.recurVarValue if self.recurVarValue else CostType(0))
-
+            self.recurVarValue = createArray(studyPeriod, default=self.recurVarValue if self.recurVarValue else 0)
         if not isinstance(self.quantVarValue, Sequence):
-            self.quantVarValue = createArray(studyPeriod, default=self.quantVarValue if self.quantVarValue else CostType(0))
+            self.quantVarValue = createArray(studyPeriod, default=self.quantVarValue if self.quantVarValue else 0)
 
+        # If end date does not exist, set to studyPeriod if recur is true, else set to initial occurrence for single
+        # value.
         if self.recurEndDate is None:
             self.recurEndDate = studyPeriod if self.recurBool else self.initialOcc
+
+        # Ensure values are correct type for computation
+        if not all([isinstance(value, CostType) for value in self.recurVarValue]):
+            self.recurVarValue = [CostType(value) for value in self.recurVarValue]
+        if not all([isinstance(value, CostType) for value in self.quantVarValue]):
+            self.quantVarValue = [CostType(value) for value in self.quantVarValue]
+        if not isinstance(self.valuePerQ, CostType):
+            self.valuePerQ = CostType(self.valuePerQ)
 
     def __repr__(self) -> str:
         return f"BCN ID: {self.bcnID}"
@@ -59,6 +70,9 @@ class Bcn:
         :param rate:  The discount rate.
         :return: A list of discounted values over the study period.
         """
+        if not isinstance(rate, CostType):
+            rate = CostType(rate)
+
         quantities = self.quantities(studyPeriod)
         values = self.values(studyPeriod, quantities)
 
@@ -69,20 +83,33 @@ class Bcn:
 
         return quantities, values, discountedValues
 
-    def values(self, studyPeriod, quantities):
+    def values(self, studyPeriod: int, quantities: Sequence[CostType]) -> Sequence[CostType]:
+        """
+        Calculates the non-discounted values for over the study period from the given quantities.
+
+        :param studyPeriod: The study period the analysis is over.
+        :param quantities: A list of quantities in the study period.
+        :return: A list of non-discounted values in the correct position in a study period length array.
+        """
         return self.periodCalc(
             studyPeriod,
-            lambda i, _: quantities[i] * self.valuePerQ * ((CostType(1) + self.recurVarValue[i - self.initialOcc - 1]) ** i)
+            lambda i, _: quantities[i] * self.valuePerQ * ((1 + self.recurVarValue[i - self.initialOcc - 1]) ** i)
         )
 
-    def quantities(self, studyPeriod):
+    def quantities(self, studyPeriod: int) -> Sequence[CostType]:
+        """
+        Calculates the quantities over the study period.
+
+        :param studyPeriod: The study period the analysis is over.
+        :return: A list of quantities at the correct position in a study period length array.
+        """
         return self.periodCalc(
             studyPeriod,
             lambda i, previous: previous * (1 + self.quantVarValue[i - self.initialOcc - 1]),
             initial=self.quant
         )
 
-    def periodCalc(self, studyPeriod, calculation, initial=None):
+    def periodCalc(self, studyPeriod: int, calculation: Callable, initial: CostType = None) -> Sequence[CostType]:
         result = createArray(studyPeriod)
 
         for i in range(self.initialOcc, self.recurEndDate + 1):
@@ -90,7 +117,7 @@ class Bcn:
 
         return result
 
-    def residualValue(self, studyPeriod, values):
+    def residualValue(self, studyPeriod: int, values: Sequence[CostType]) -> Sequence[CostType]:
         # TODO fix this to work in edge cases
         result = list(values)
 
