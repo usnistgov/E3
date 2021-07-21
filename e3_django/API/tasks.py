@@ -27,7 +27,7 @@ def analyze(user_input: Input):
 
         flows = {bcn: bcn.cashFlows(analysis.studyPeriod, analysis.dRateReal) for bcn in user_input.bcnObjects
                  if bcn.bcnID in alt.altBCNList}
-        cashFlows.append(CashFlow(alt.altID, flows))
+        cashFlows.append(CashFlow(alt.altID, flows, analysis.studyPeriod))
 
     return OutputSerializer(Output(cashFlows)).data
 

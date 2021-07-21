@@ -36,9 +36,11 @@ class AnalysisViewSet(ViewSet):
 
         task = tasks.analyze.delay(serializer.save())
 
-        return Response(status=HTTP_202_ACCEPTED, headers={
-            "Location": request.build_absolute_uri(f"/api/v1/queue/{task.task_id}")
-        })
+        return Response(task.get())
+
+        # return Response(status=HTTP_202_ACCEPTED, headers={
+        #     "Location": request.build_absolute_uri(f"/api/v1/queue/{task.task_id}")
+        # })
 
 
 class QueueViewSet(ViewSet):
