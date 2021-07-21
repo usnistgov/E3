@@ -1,8 +1,47 @@
+import pytest
+from google.protobuf.json_format import ParseDict, MessageToDict
 from django.test import TestCase
+
 from API.models.userDefined.bcn import BCN
 
-# Create your tests here.
+# using pytest (like birdsnest)
+@pytest.fixture
+def BCN():
+	return ParseDict({
+		"bcnID": 0,
+		"altID": [0],
+		"bcnType": "Cost",
+		"bcnSubType": "Direct",
+		"bcnName": "BCN 1",
+		"bcnTag": {},
+		"initialOcc": 1,
+		"rvBool": True,
+		"bcnInvestBool": True,
+		"bcnLife": 30,
+		"recurBool": {},
+		"recurInterval": {},
+		"recurVarRate": {},
+		"recurVarValue": {},
+		"recurEndDate": {},
+		"valuePerQ": 1,
+		"quant": 100,
+		"quantVarRate": {},
+		"quantVarValue": {},
+		"quantUnit": {}
+	}, InputMessage.BCN())
 
+
+@pytest.mark.django_db
+def test_bcn_object(bcn):
+	obj = BCN(bcn)
+	assert obj.bcnID == 0
+	assert obj.altID == [0]
+
+	# test more outputs here
+	return 
+
+
+# using django.test
 class BCNTest(TestCase):
 	def model_create(self):
 		try:
