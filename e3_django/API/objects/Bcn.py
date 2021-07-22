@@ -19,8 +19,9 @@ def discountValues(rate: CostType, values: Sequence[CostType]):
 class Bcn:
     def __init__(self, studyPeriod, **kwargs):
         self.bcnID = kwargs.get("bcnID", None)
-        self.altID = kwargs.get("altID", None)
+        self.altID = kwargs.get("altID", [])
         self.bcnType = kwargs.get("bcnType", None)
+        self.bcnTag = kwargs.get("bcnTag", [])
         self.bcnSubType = kwargs.get("bcnSubType", None)
         self.bcnName = kwargs.get("bcnName", None)
         self.initialOcc = kwargs.get("initialOcc", 0)
@@ -44,6 +45,8 @@ class Bcn:
             self.recurVarValue = createArray(studyPeriod, default=self.recurVarValue if self.recurVarValue else 0)
         if not isinstance(self.quantVarValue, Sequence):
             self.quantVarValue = createArray(studyPeriod, default=self.quantVarValue if self.quantVarValue else 0)
+        if not isinstance(self.bcnTag, list):
+            self.bcnTag = [self.bcnTag]
 
         # If end date does not exist, set to studyPeriod if recur is true, else set to initial occurrence for single
         # value.
@@ -121,6 +124,8 @@ class Bcn:
         # TODO fix this to work in edge cases
         result = list(values)
 
-        result[studyPeriod] = CostType((studyPeriod - self.bcnLife) / self.bcnLife) * values[self.initialOcc]
+        remainingLife = self.bcnLife - (studyPeriod - self.initialOcc)
+
+        result[studyPeriod] = CostType(remainingLife / self.bcnLife) * values[self.initialOcc]
 
         return result

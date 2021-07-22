@@ -4,7 +4,7 @@ from typing import Union
 from celery import shared_task
 
 from API import registry
-from API.objects.CashFlow import CashFlow
+from API.objects.CashFlow import RequiredCashFlow, OptionalCashFlow
 from API.objects.Input import Input
 from API.objects.Output import Output
 from API.serializers.OutputSerializer import OutputSerializer
@@ -21,15 +21,38 @@ def analyze(user_input: Input):
 
     analysis = user_input.analysisObject
 
-    cashFlows = []
-    for alt in user_input.alternativeObjects:
-        logging.info(alt.altID)
+    flows = {bcn: bcn.cashFlows(analysis.studyPeriod, analysis.dRateReal) for bcn in user_input.bcnObjects}
 
-        flows = {bcn: bcn.cashFlows(analysis.studyPeriod, analysis.dRateReal) for bcn in user_input.bcnObjects
-                 if bcn.bcnID in alt.altBCNList}
-        cashFlows.append(CashFlow(alt.altID, flows, analysis.studyPeriod))
+    # Generate required cash flows
+    required = {}
+    for bcn in user_input.bcnObjects:
+        for alt in bcn.altID:
+            required[alt] = required.get(alt, RequiredCashFlow(alt, analysis.studyPeriod)).add(bcn, flows[bcn])
 
-    return OutputSerializer(Output(cashFlows)).data
+    # Generate empty cash flows for all tags
+    # FIXME: Maybe have all tags defined in one place so we don't have to search through all bcns for them.
+    optionals = {}
+    for bcn in user_input.bcnObjects:
+        for tag in bcn.bcnTag:
+            if not bcn.bcnTag:
+                continue
+
+            for alt in user_input.alternativeObjects:
+                key = (alt.altID, tag)
+
+                if key in optionals:
+                    continue
+
+                optionals[key] = OptionalCashFlow(alt.altID, tag, bcn.quantUnit, user_input.analysisObject.studyPeriod)
+
+    # Calculate optional cash flows
+    for bcn in user_input.bcnObjects:
+        for tag in bcn.bcnTag:
+            for alt in bcn.altID:
+                key = (alt, tag)
+                optionals[key].add(bcn, flows[bcn])
+
+    return OutputSerializer(Output(list(required.values()), optCashFlowObjects=list(optionals.values()))).data
 
 
 @shared_task

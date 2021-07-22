@@ -1,6 +1,8 @@
 from django.db import models
 import logging
 
+from django.db.models import DecimalField
+
 logger = logging.getLogger(__name__)
 
 MAX_DIGITS = 20
@@ -10,7 +12,7 @@ class AlternativeSummary(models.Model):
 	"""
 	Purpose: Stores total cash flows for a single altID-tag combination. Verify data type and range as Object is created. 
 	"""
-	altID 			 	= models.JSONField(defulat=list, unique=True)
+	altID 			 	= models.JSONField(default=list, unique=True)
 	totalBenefits	 	= models.DecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES) 
 	totalCosts 		 	= models.DecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES) 
 	totalCostsIn	 	= models.DecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES) 

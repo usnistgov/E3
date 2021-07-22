@@ -1,4 +1,5 @@
 from decimal import Decimal
+from itertools import groupby
 from unittest import TestCase
 
 from API.objects.Bcn import Bcn, createArray
@@ -10,30 +11,6 @@ PLACES = Decimal(10) ** -2
 
 class NewBcnTest(TestCase):
     def setUp(self):
-        self.bcn10 = Bcn(
-            25,
-            bcnID=10,
-            altID=1,
-            bcnType="Cost",
-            bcnSubType="Direct",
-            bcnName="Electricity Consumption",
-            initialOcc=7,
-            bcnRealBool=False,
-            bcnInvestBool=False,
-            rvBool=False,
-            recurBool=True,
-            recurInterval=1,
-            recurVarRate="percDelta",
-            recurVarValue=0.0,
-            recurEndDate=25,
-            valuePerQ=0.126,
-            quant=9,
-            quantVarRate="percDelta",
-            quantVarValue=[0.00, 5.72, 0.85, 0.46, 0.31, 0.24, 0.19, 0.16, 0.14, 0.12, 0.11, 0.10, 0.09, 0.08, 0.07,
-                           0.07, 0.06, 0.06],
-            quantUnit="kwh"
-        )
-
         self.bcn0 = Bcn(
             10,
             bcnID=0,

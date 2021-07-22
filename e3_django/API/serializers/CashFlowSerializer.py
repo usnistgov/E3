@@ -1,10 +1,10 @@
-from rest_framework.fields import IntegerField, ListField, DecimalField
+from rest_framework.fields import IntegerField, ListField, DecimalField, CharField
 from rest_framework.serializers import Serializer
 
 from API.serializers import MAX_DIGITS, DECIMAL_PLACES
 
 
-class CashFlowSerializer(Serializer):
+class RequiredCashFlowSerializer(Serializer):
     altID = IntegerField(required=True)
     totCostNonDisc = ListField(child=DecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES),
                                required=False)
@@ -54,3 +54,13 @@ class CashFlowSerializer(Serializer):
                                required=False)
     totBenefitsExtDisc = ListField(child=DecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES),
                                    required=False)
+
+
+class OptionalCashFlowSerializer(Serializer):
+    altID = IntegerField(required=True)
+    tag = CharField(required=True)
+    totTagFlowDisc = ListField(child=DecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES),
+                               required=True)
+    totTagQ = ListField(child=DecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES),
+                        required=True)
+    quantUnits = CharField(required=True)
