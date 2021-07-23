@@ -1,0 +1,24 @@
+{
+	"altID": 5,
+	"totalBenefits": -123.64,
+	"totalCosts": 234.64,
+	"totalCostsInv": 890.34,
+	"totalCostsNonInv": 234.23,
+	"netBenefits": 432.56,
+	"netSavings": 234.64,
+	"SIR": 1.42,
+	"IRR": 0.043,
+	"AIRR": 0.234,
+	"SPP": 3,
+	"DPP": 4,
+	"BCR": 1.42,
+	"quantSum": {-98.02,231.2},
+	"quantUnits": {{"Tag 1","m^3"},{"Tag 3","m"}},
+	"MARR": 0.04,
+	"deltaQuant": {{"Tag 1",707.9877672},{"Tag 3",1100}},
+	"nsDeltaQuant": {{"Tag 1",0.2334},{"Tag 3",1.2342}},
+	"nsPercQuant": {{"Tag 1",45.342},{"Tag 3",-0.3242}},
+	"nsElasticityQuant": {{"Tag 1",23.534},{"Tag 3",34.2343}}
+}
+
+Note that the inputs here are not internally consistent, however the object should still build correctly. Any inconsistency should be taken care of by testing the measures library calculations.

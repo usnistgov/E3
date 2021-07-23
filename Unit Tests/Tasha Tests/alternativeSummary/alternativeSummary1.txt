@@ -1,0 +1,22 @@
+{
+	"altID": 1,
+	"totalBenefits": 139.69,
+	"totalCosts": 1580.29,
+	"totalCostsInv": 431.30,
+	"totalCostsNonInv": 1148.99,
+	"netBenefits": -301.34,
+	"netSavings": -336.34,
+	"SIR": "Not Calculable",
+	"IRR": None,
+	"AIRR": "Not Calculable",
+	"SPP": "Infinity",
+	"DPP": "Infinity",
+	"BCR": "Not Calculable",
+	"quantSum": {807.987767,1100},
+	"quantUnits": {{"Tag 1","m^3"},{"Tag 3","m"}},
+	"MARR": 0.04,
+	"deltaQuant": {{"Tag 1",707.9877672},{"Tag 3",1100}},
+	"nsDeltaQuant": {{"Tag 1",-0.4750678},{"Tag 3",-0.3057656}},
+	"nsPercQuant": {{"Tag 1",-41.627135},{"Tag 3","Infinity"}},
+	"nsElasticityQuant": {{"Tag 1",-0.0334636},{"Tag 3","Infinity"}}
+}
