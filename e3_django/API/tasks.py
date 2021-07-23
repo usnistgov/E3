@@ -1,4 +1,3 @@
-import logging
 from typing import Union
 
 from celery import shared_task
@@ -21,17 +20,36 @@ def analyze(user_input: Input):
 
     analysis = user_input.analysisObject
 
-    flows = {bcn: bcn.cashFlows(analysis.studyPeriod, analysis.dRateReal) for bcn in user_input.bcnObjects}
+    flows = {bcn: bcn.cash_flows(analysis.studyPeriod, analysis.dRateReal) for bcn in user_input.bcnObjects}
 
+    required = calculate_required_flows(flows, user_input)
+    optionals = calculate_tag_flows(flows, user_input)
+
+    return OutputSerializer(Output(required, optionals)).data
+
+
+def calculate_required_flows(flows, user_input):
     # Generate required cash flows
     required = {}
     for bcn in user_input.bcnObjects:
         for alt in bcn.altID:
-            required[alt] = required.get(alt, RequiredCashFlow(alt, analysis.studyPeriod)).add(bcn, flows[bcn])
+            required[alt] = required \
+                .get(alt, RequiredCashFlow(alt, user_input.analysisObject.studyPeriod)) \
+                .add(bcn, flows[bcn])
 
-    # Generate empty cash flows for all tags
+    return list(required.values())
+
+
+def create_empty_tag_flows(user_input):
+    """
+    Generate empty cash flows for every tag in the bcn object set.
+
+    :param user_input: The input object.
+    :return: A dict of (alt, tag) to empty cash flows for every tag for every bcn.
+    """
     # FIXME: Maybe have all tags defined in one place so we don't have to search through all bcns for them.
-    optionals = {}
+    result = {}
+
     for bcn in user_input.bcnObjects:
         for tag in bcn.bcnTag:
             if not bcn.bcnTag:
@@ -40,19 +58,31 @@ def analyze(user_input: Input):
             for alt in user_input.alternativeObjects:
                 key = (alt.altID, tag)
 
-                if key in optionals:
+                if key in result:
                     continue
 
-                optionals[key] = OptionalCashFlow(alt.altID, tag, bcn.quantUnit, user_input.analysisObject.studyPeriod)
+                result[key] = OptionalCashFlow(alt.altID, tag, bcn.quantUnit, user_input.analysisObject.studyPeriod)
 
-    # Calculate optional cash flows
+    return result
+
+
+def calculate_tag_flows(flows, user_input):
+    """
+    Calculate cash flows for all tags in bcn set.
+
+    :param flows: The cash flows calculated from the bcn objects.
+    :param user_input: The input object.
+    :return: A list of cash flows for all tags. Some flows may be empty for some alternatives.
+    """
+    optionals = create_empty_tag_flows(user_input)
+
     for bcn in user_input.bcnObjects:
         for tag in bcn.bcnTag:
             for alt in bcn.altID:
                 key = (alt, tag)
                 optionals[key].add(bcn, flows[bcn])
 
-    return OutputSerializer(Output(list(required.values()), optCashFlowObjects=list(optionals.values()))).data
+    return list(optionals.values())
 
 
 @shared_task

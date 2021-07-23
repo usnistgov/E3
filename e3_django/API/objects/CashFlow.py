@@ -1,7 +1,8 @@
 import operator
 import pprint
 
-from API.serializers import CostType
+from API.objects.Bcn import Bcn
+from API.serializers import CostType, FlowType
 
 
 def elementwiseAdd(x, y):
@@ -9,7 +10,7 @@ def elementwiseAdd(x, y):
 
 
 class CashFlow:
-    def add(self, bcn, flow):
+    def add(self, bcn: Bcn, flow: FlowType):
         pass
 
     def print(self):
@@ -18,8 +19,8 @@ class CashFlow:
 
 
 class RequiredCashFlow(CashFlow):
-    def __init__(self, alt, studyPeriod):
-        default = [CostType(0)] * (studyPeriod + 1)
+    def __init__(self, alt: int, study_period: int):
+        default = [CostType(0)] * (study_period + 1)
 
         self.altID = alt
 
@@ -53,7 +54,7 @@ class RequiredCashFlow(CashFlow):
         self.totBenefitsExt = default
         self.totBenefitsExtDisc = default
 
-    def add(self, bcn, flow):
+    def add(self, bcn: Bcn, flow: FlowType):
         if bcn.bcnType == "Cost":
             self.totCostNonDisc = elementwiseAdd(self.totCostNonDisc, flow[1])
             self.totCostDisc = elementwiseAdd(self.totCostDisc, flow[2])
