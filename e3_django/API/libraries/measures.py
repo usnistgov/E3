@@ -113,7 +113,7 @@ def calcBaselineMeas(baselineTotFlows): ## Still a lot of redundancy in here. Co
 
     return baselineFlowList, baselineMeasList
 
-def calcBaslineTagMeas(baselineTagList,baselineAlt,altID,tag,flowDisc,totTagQ)
+def calcBaslineTagMeas(baselineTagList,altID,tag,flowDisc,totTagQ,units)
     if altID == baselineID and tag not in baselineTagList: ## Add new tags to baselineTagList
         baselineTagList.append(tag,flowDIsc,totTagQ,units])
     elif altID == baselineID and tag in baselineTagList:
