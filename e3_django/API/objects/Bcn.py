@@ -138,7 +138,7 @@ class Bcn:
         """
         result = list(values)
 
-        if study_period > self.bcnLife + self.initialOcc - 1:
+        if study_period >= self.bcnLife + self.initialOcc - 1:
             remaining_life = 0
         else:
             remaining_life = self.bcnLife - (study_period - self.initialOcc) - 1

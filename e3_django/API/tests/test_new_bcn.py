@@ -381,3 +381,86 @@ class NewBcnTest(TestCase):
 
         # Expect
         assert actual == expected
+
+    def test_residual_value(self):
+        # Given
+        values = [CostType(x) for x in [0, 200, 0, 0, 0, 0, 0, 0, 0, 0, 0]]
+        expected = [CostType(x).quantize(PLACES) for x in [0, 200, 0, 0, 0, 0, 0, 0, 0, 0, "-133.333333333"]]
+
+        # When
+        actual = [CostType(x).quantize(PLACES) for x in self.bcn0.residual_value(10, values)]
+
+        # Expect
+        assert actual == expected
+
+    def test_residual_value_study_period_greater_than_life(self):
+        # Given
+        values = [CostType(x) for x in [0, 200, 0, 0, 0, 0, 0, 0, 0, 0, 0]]
+        expected = [CostType(x).quantize(PLACES) for x in [0, 200, 0, 0, 0, 0, 0, 0, 0, 0, 0]]
+        bcn = Bcn(
+            10,
+            bcnID=0,
+            altID=[0],
+            bcnType="Cost",
+            bcnSubType="Direct",
+            bcnName="BCN 1",
+            bcnTag=None,
+            initialOcc=1,
+            bcnRealBool=False,
+            bcnInvestBool=True,
+            rvBool=True,
+            bcnLife=5,
+            recurBool=False,
+            recurInterval=None,
+            recurVarRate=None,
+            recurVarValue=None,
+            recurEndDate=None,
+            valuePerQ=Decimal("2"),
+            quant=Decimal("100"),
+            quantVarRate=None,
+            quantVarValue=None,
+            quantUnit=None
+        )
+
+        # When
+        actual = [CostType(x).quantize(PLACES) for x in bcn.residual_value(10, values)]
+
+        # Expect
+        assert actual == expected
+
+
+    def test_residual_value_study_period_equal_to_life(self):
+        # Given
+        values = [CostType(x) for x in [0, 200, 0, 0, 0, 0, 0, 0, 0, 0, 0]]
+        expected = [CostType(x).quantize(PLACES) for x in [0, 200, 0, 0, 0, 0, 0, 0, 0, 0, 0]]
+        bcn = Bcn(
+            10,
+            bcnID=0,
+            altID=[0],
+            bcnType="Cost",
+            bcnSubType="Direct",
+            bcnName="BCN 1",
+            bcnTag=None,
+            initialOcc=1,
+            bcnRealBool=False,
+            bcnInvestBool=True,
+            rvBool=True,
+            bcnLife=10,
+            recurBool=False,
+            recurInterval=None,
+            recurVarRate=None,
+            recurVarValue=None,
+            recurEndDate=None,
+            valuePerQ=Decimal("2"),
+            quant=Decimal("100"),
+            quantVarRate=None,
+            quantVarValue=None,
+            quantUnit=None
+        )
+
+        # When
+        actual = [CostType(x).quantize(PLACES) for x in bcn.residual_value(10, values)]
+
+        # Expect
+        assert actual == expected
+        assert False
