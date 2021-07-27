@@ -73,11 +73,10 @@ def E3main():
     else:
         discountRate = analysis.dRateNom
     studyPeriod = analysis.studyPeriod
-    timestepCount = analysis.timestepCount
-    timestepValue = analysis.timestepValue
+    timestepComp = analysis.timestepComp
     baselineBool = 
     for bcn in bcn.objects.all():
-        bcnNonDiscFlow, bcnDiscFlow, quantList = cashFlows.bcnFlow(discountRate,bcn,studyPeriod,timestepCount)
+        bcnNonDiscFlow, bcnDiscFlow, quantList = cashFlows.bcnFlow(discountRate,bcn,studyPeriod,timestepComp)
         bcnStorage(bcn.ID,bcn.bcnName,bcn.altID,bcn.type,bcn.subtype,bcn.tag,bcnNonDiscFlow,bcnDiscFlow,bcn.quantList,bcn.quantUnit)
 
     ## Generate the total flows for each alternative. First the list of all altIDs is generated. This is done by loopting through the alternative registry (or a metaclass can be used). The code then loops through the bcnStorage registry
@@ -87,7 +86,7 @@ def E3main():
         altIDList.append(alt.altID)
         if alt.baselineBoolean == True:
             baselineID = alt.altID
-        cashFlows.totalFlows(altID,studyPeriod,timestepValue,alt.baselineBoolean,bcnStorage.objects.all())        
+        cashFlows.totalFlows(altID,studyPeriod,timestepComp,alt.baselineBoolean,bcnStorage.objects.all())        
     
     ## Create baseline measures
     baselineAlt = [totRFlow for totRFlow in totalRequiredFlows._registry if totRFlow.altID == baselineID]
