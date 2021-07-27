@@ -68,7 +68,10 @@ def E3main():
     ## The first call generates the cash and quantity flows for the bcn, the second generates the bcnStorage object for the associated bcn. Considering this process is repeated for the sensitivity
     ## and uncertainty calculations the following steps will eventually be moved to a separate function or possibly their own script if they take up a significant portion of the code; calculating and generating bcnStorage objects,
     ## calculating and generating total flows, calculating and generating measures, converting output to json format for passing user data back
-    discountRate = analysis.discountRate
+    if analysis.outputRealBool == True:
+        discountRate = analysis.dRateReal
+    else:
+        discountRate = analysis.dRateNom
     studyPeriod = analysis.studyPeriod
     timestepCount = analysis.timestepCount
     timestepValue = analysis.timestepValue
