@@ -108,17 +108,7 @@ def E3main():
         if totRFlow != baselineID:
             altID = totRFlow.altID
             altMeasList = calcAltMeas(altID,baselineFlowList,reinvestRate,totRFlow)
-            
-            altTagList = []
-            quantMeasList = []
-            deltaQuant = []
-            nsDeltaQuant = []
-            nsPercQuant = []
-            nsElasticityQuant = []
-            for totOptFlow in totalOptionalFlows.objects.all():
-                if altID == totOptFlow.altID:
-                    altTagMeasList = calcAltTagMeas(altMeasList,baselineTagList,totOptFlow.tag,totOptFlow.totalTagFlowDisc,
-                                                       totOptFlow.totTagQ,totOptFlow.quantUnits)
+            altTagMeasList = calcAltTagMeas(totalOptionalFlows.objects.all(),altMeasList,baselineTagList,totOptFlow.tag,totOptFlow.totalTagFlowDisc,totOptFlow.totTagQ,totOptFlow.quantUnits)                                              
                      
             altQSum, altQUnits = quantList(altTagList)
 
