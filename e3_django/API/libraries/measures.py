@@ -30,30 +30,30 @@ def netSavings(totalCosts, totalCostsBase):
 def measBCR(netBenefits, totalCostsInv, totalCostsInvBase):
         numerator = netBenefits ## I know this isn't really a simplification, however it makes the logic that follow easier to understand
         denominator = totalCostsInv-totalCostsInvBase
-        if denominator <= 0 and numerator > 0: ## Need to come up with a better tolerance here to avoid divide by zero error
-                bcr = 'infinity'
-        elif denominator > 0 and numerator > 0:
-                bcr = numerator/denominator
+        if denominator <= 0 and numerator > 0:
+		bcr = 'Infinity' 
         elif denominator <= 0 and numerator <= 0:
                 bcr = "Not Calculable"
+	else:
+                bcr = numerator/denominator
         return bcr	
 
 def measSIR(totalCostsInv, totalCostsNonInv, totalCostsInvBase, totalCostsNonInvBase):
         numerator = (totalCostsNonInvBase-totalCostsNonInv)
-        denominator = (totaclCostsInvBase-TotalCostsInv)
-        if denominator <= 0 and numerator > 0: ## Need to come up with a better tolerance here to avoid divide by zero error
-                sir = 'infinity'
-        elif denominator > 0 and numerator > 0:
-                sir = numerator/denominator
+        denominator = (totalCostsInvBase-totalCostsInv)
+        if denominator <= 0 and numerator > 0:
+		sir = 'Infinity'
         elif denominator <= 0 and numerator <= 0:
                 sir = "Not Calculable"
+	else:
+                sir = numerator/denominator
         return sir
 
 def measAIRR(sir,reinvestRate,studyPeriod):
-        if sir > 0:
-                return (1+reinvestRate)*(sir)^(1/studyPeriod)-1
-        else:
+        if sir == "Not Calculable" or sir == "Infinity" or sir <= 0:
                 return "AIRR Not Calculable"
+        if sir > 0:
+                return (1+reinvestRate)*(sir)**(1/studyPeriod)-1
 
 def measDeltaQ(baselineFlow,altFlow):
 	return altFlow - baselineFlow
