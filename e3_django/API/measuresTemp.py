@@ -22,12 +22,12 @@ def calcBaselineMeas(): ## Still some redundancy in this file. Consider adding m
 
     ## Calculate baseline measures
     ## note that IRR still needs some work. If numpy.irr ends up being usable this code should be fine
-    totalCostsBase = measures.sumCosts(baselineTotFlows.totCostsDisc)
-    totalBenefitsBase = measures.sumBenefits(baselineTotFlows.totBenefitsDisc)
-    totalInvBase = measures.sumInv(baselineTotFlows.totCostsInvDisc)
-    totalNonInvBase = measures.sumNonInv(baselineTotFlows.totCostsNonInvDisc)
+    totalCostsBase = sum(baselineTotFlows.totCostsDisc)
+    totalBenefitsBase = sum(baselineTotFlows.totBenefitsDisc)
+    totalInvBase = sum(baselineTotFlows.totCostsInvDisc)
+    totalNonInvBase = sum(baselineTotFlows.totCostsNonInvDisc)
     if analysis.irrBoolean == true:
-        irr = measures.measIRR(baselineTotFlows.totCostsDisc,baselineTotFlows.totBenefitsDisc)
+        irr = measures.calculate_irr(baselineTotFlows.totCostsDisc, baselineTotFlows.totBenefitsDisc)
     ## Generate List of Tags and store baseline output for each tag
     dpp = measures.dpp(totReqFlow.totCostDisc,totReqFlow.totBensDisc)
     spp = measures.spp(totReqFlow.totCostDisc,totReqFlow.totBensDisc)
@@ -67,17 +67,17 @@ def calcAltMeas(baselineID, baselineTagList):
     ## Loop through remainder of total Required Flows objects and calculate their measures.
     for totReqFlow in totalRequiredFlows._registry:
         if totReqFlow.altID != baselineID:
-            totalCosts = measures.sumCosts(totReqFlow.totCostsDisc)
-            totalBenefitsBase = measures.sumBenefits(totReqFlow.totBenefitsDisc)
-            totalInvBase = measures.sumInv(totReqFlow.totCostsInvDisc)
-            totalNonInvBase = measures.sumNonInv(totReqFlow.totCostsNonInvDisc)
+            totalCosts = sum(totReqFlow.totCostsDisc)
+            totalBenefitsBase = sum(totReqFlow.totBenefitsDisc)
+            totalInvBase = sum(totReqFlow.totCostsInvDisc)
+            totalNonInvBase = sum(totReqFlow.totCostsNonInvDisc)
             if analysis.irrBoolean == true:
-                irr = measures.measIRR(totReqFlow.totCostsDisc,totReqFlow.totBenefitsDisc)  ## Assuming simplest case, this may need adjustment if we can't rely on numpy.irr
+                irr = measures.calculate_irr(totReqFlow.totCostsDisc, totReqFlow.totBenefitsDisc)  ## Assuming simplest case, this may need adjustment if we can't rely on numpy.irr
             netBenefits = measures.netBenefits(totalBenefits,totalCosts,totalBenefitsBase,totalCostsBase)
-            netSavings = measures.netSavings(totalCosts,totalCostsBase)
-            bcr = measures.measBCR(netSavings,totalCostsInv,totalCostsInvBase)
-            sir = measures.measSIR(totalCostsInv,totalCostsNonInv,totalCostInvBase,totalCostsNonInvBase)
-            airr = measures.measAIRR(analysis.reinvestRate,sir)
+            netSavings = measures.net_savings(totalCosts, totalCostsBase)
+            bcr = measures.bcr(netSavings, totalCostsInv, totalCostsInvBase)
+            sir = measures.sir(totalCostsInv, totalCostsNonInv, totalCostInvBase, totalCostsNonInvBase)
+            airr = measures.airr(analysis.reinvestRate, sir)
             dpp = measures.dpp(totReqFlow.totCostDisc,totReqFlow.totBensDisc)
             spp = measures.spp(totReqFlow.totCostDisc,totReqFlow.totBensDisc)
     ## Loop through tags in the current alt to see if they match the baseline tags. If so calculate the tag related measures. If not we handle it in writing the output file
@@ -102,10 +102,10 @@ def calcAltMeas(baselineID, baselineTagList):
     for baslineTag in baselineTagList:
         for altTag in altTagList:
             if altTag[0] == baselineTag[0]:
-                deltaQuant.append(altTag[0],measures.measDeltaQ(baselineTag[2],altTag[2]))
-                nsPerQuant.append(altTag[0],measures.measNSPerQ(netSavings,baselineTag[2]))
-                nsPerPctQuant.append(altTag[0],measures.measNSPerPctQ(netSavings,deltaQ,baselineTag[2]))
-                nsElasticityQuant.append(altTag[0],measures.measNSElasticity(netSavings,totalCosts,deltaQ,baselineTag[2]))
+                deltaQuant.append(altTag[0], measures.delta_q(baselineTag[2], altTag[2]))
+                nsPerQuant.append(altTag[0], measures.ns_per_q(netSavings, baselineTag[2]))
+                nsPerPctQuant.append(altTag[0], measures.ns_per_pct_q(netSavings, deltaQ, baselineTag[2]))
+                nsElasticityQuant.append(altTag[0], measures.ns_elasticity(netSavings, totalCosts, deltaQ, baselineTag[2]))
                     
     ## Make own function
     quantSum = []
