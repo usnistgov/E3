@@ -174,27 +174,35 @@ def calcAltMeas(altID, baselineFlowList,reinvestRate,totRFlow):
             
         return altMeasList
 
-def calcAltTagMeas(altMeasList,baselineTagList,tag,totalTagFlowDisc,totTagQ,quantUnits)
-    if tag not in altTagList: ## Add new tags to baselineTagList
-          altTagList.append([tag,totalTagFlowDisc,totTagQ,quantUnits])
-    elif tag in altTagList:
-        tagIndex = altTagList.index(tag)  ## If tag exists, add the new values to the previous entries in baselineTagList. These are used for Total Quantity Flows outputs
-        altTagList[i][1] = np.add(totalTagFlowDisc,altTagList[i][1])
-        altTagList[i][2] = np.add(totalTagFlowDisc,altTagList[i][2])
+def calcAltTagMeas(totOptFlowsList,altMeasList,baselineTagList,tag,totalTagFlowDisc,totTagQ,quantUnits)
+	altTagList = []
+        quantMeasList = []
+        deltaQuant = []
+        nsDeltaQuant = []
+        nsPercQuant = []
+        nsElasticityQuant = []
+	for totOptFlow in totOptFlowsList:
+                if altID == totOptFlow.altID:
+    			if tag not in altTagList: ## Add new tags to baselineTagList
+          			altTagList.append([tag,totalTagFlowDisc,totTagQ,quantUnits])
+    			elif tag in altTagList:
+        			tagIndex = altTagList.index(tag)  ## If tag exists, add the new values to the previous entries in baselineTagList. These are used for Total Quantity Flows outputs
+        			altTagList[i][1] = np.add(totalTagFlowDisc,altTagList[i][1])
+        			altTagList[i][2] = np.add(totalTagFlowDisc,altTagList[i][2])
 
-    for baslineTag in baselineTagList:
-        for altTag in altTagList:
-            if altTag[0] not in baselineTag:
-                deltaQ = altTag[2]
-                deltaQuant.append([altTag[0],deltaQ])
-                nsPerQuant.append([altTag[0],measures.measNSPerQ(altMeasList[5],baselineTag[2])])
-                nsPerPctQuant.append([altTag[0],"Infinite")
-                nsElasticityQuant.append([altTag[0],"Infinite")
-            elif altTag[0] == baselineTag[0]:
-                deltaQ = measures.measDeltaQ(baselineTag[2],altTag[2])
-                deltaQuant.append([altTag[0],deltaQ])
-                nsPerQuant.append([altTag[0],measures.measNSPerQ(altMeasList[5],baselineTag[2])])
-                nsPerPctQuant.append([altTag[0],measures.measNSPerPctQ(altMeasList[5],deltaQ,baselineTag[2])])
-                nsElasticityQuant.append([altTag[0],measures.measNSElasticity(altMeasList[5],altMeasList[2],deltaQ,baselineTag[2])])
+    		for baslineTag in baselineTagList:
+        		for altTag in altTagList:
+            			if altTag[0] not in baselineTag:
+                			deltaQ = altTag[2]
+                			deltaQuant.append([altTag[0],deltaQ])
+                			nsPerQuant.append([altTag[0],measures.measNSPerQ(altMeasList[5],baselineTag[2])])
+                			nsPerPctQuant.append([altTag[0],"Infinite")
+                			nsElasticityQuant.append([altTag[0],"Infinite")
+            			elif altTag[0] == baselineTag[0]:
+                			deltaQ = measures.measDeltaQ(baselineTag[2],altTag[2])
+                			deltaQuant.append([altTag[0],deltaQ])
+                			nsPerQuant.append([altTag[0],measures.measNSPerQ(altMeasList[5],baselineTag[2])])
+                			nsPerPctQuant.append([altTag[0],measures.measNSPerPctQ(altMeasList[5],deltaQ,baselineTag[2])])
+                			nsElasticityQuant.append([altTag[0],measures.measNSElasticity(altMeasList[5],altMeasList[2],deltaQ,baselineTag[2])])
                 
     return [deltaQuant,nsPerQuant,nsPerPctQuant,nsElasticityQuant]
