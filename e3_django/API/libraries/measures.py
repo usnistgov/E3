@@ -2,9 +2,9 @@ from django.db import models
 import numpy as np
 
 
-def checkCosts(totCostDisc,totCostDiscInv,totCostDiscNonInv,totFlowDisc,totBenefitsDisc):
+def checkCosts(totCostDisc,totCostDiscInv,totCostDiscNonInv):
 	## Should be run after sumCosts through sumBenefits
-	if totCostDisc != totCostDiscInv + totCostDiscNonInv or totFlowDisc != totCostDiscInv + totCostDiscNonInv - totBenefitsDisc:
+	if totCostDisc != totCostDiscInv + totCostDiscNonInv:
 		raise Exception("There was an error in calculation")
 
 	return
@@ -59,13 +59,22 @@ def measDeltaQ(baselineFlow,altFlow):
 	return altFlow - baselineFlow
 
 def measNSPerQ(netSavings, deltaQ):
-	return netSavings/deltaQ
+	if deltaQ != 0:
+                return netSavings/deltaQ
+        else:
+                return "Infinity"
 
 def measNSPerPctQ(netSavings, deltaQ, totalQBase):
-	return netSavings/(deltaQ/totalQBase)
+	if deltaQ != 0 and totQBase != 0:
+                return netSavings/(deltaQ/totQBase)
+        else:
+                return "Infinity"
 
 def measNSElasticity(netSavings,totalCosts,deltaQ,totalQBase):
-	return (netSavings/totalCosts)/(deltaQ/totalQBase)
+	if deltaQ != 0 and totQBase != 0:
+                return (netSavings/totCosts)/(deltaQ/totQBase)
+        else:
+                return "Infinity"
 
 def measIRR(totCosts,totBenefits):
 	totFlows = totalFlows(totCosts,totBenefits)
@@ -78,8 +87,9 @@ def measIRR(totCosts,totBenefits):
 def measPaybackPeriod(totCosts,totBenefits):  ## used for both simple and discounted payback
         dpp = "Infinity"
 	for i in range(len(totCosts)):
-                if np.subtract(totCosts[i],totBenefits[i]) <= 0:
+                if np.sum(np.subtract(totCosts[:i+1],totBenefits[:i+1])) <= 0:
                         dpp = i
+			break
 	return dpp
 
 ##Moved to quantList function
