@@ -22,10 +22,10 @@ def sumNonInv(totCostsNonInvDisc):
 	return np.sum(totCostsNonInvDisc)
 
 def netBenefits(totalBenefits, totalCosts, totalBenefitsBase, totalCostsBase):
-	return (totalBenefits-totalBenefitsBase)/(totalCosts-totalCostsBase)
+	return (totalBenefits-totalBenefitsBase)-(totalCosts-totalCostsBase)
 
 def netSavings(totalCosts, totalCostsBase):
-	return (totalCosts - totalBenefits)
+	return (totalCostsBase - totalCosts)
 
 def measBCR(netBenefits, totalCostsInv, totalCostsInvBase):
         numerator = netBenefits ## I know this isn't really a simplification, however it makes the logic that follow easier to understand
@@ -67,7 +67,8 @@ def measNSPerPctQ(netSavings, deltaQ, totalQBase):
 def measNSElasticity(netSavings,totalCosts,deltaQ,totalQBase):
 	return (netSavings/totalCosts)/(deltaQ/totalQBase)
 
-def measIRR(totFlows):
+def measIRR(totCosts,totBenefits):
+	totFlows = totalFlows(totCosts,totBenefits)
     	""" Note from pseudocode docs: Technically speaking we should be solving this, but the solution requires a 
 		root finding algorithm and repeatedly updating cash flows to obtain.
 		"""
@@ -75,7 +76,8 @@ def measIRR(totFlows):
 	return measIRR
 
 def measPaybackPeriod(totCosts,totBenefits):  ## used for both simple and discounted payback
-        for i in range(len(totCosts)):
+        dpp = "Infinity"
+	for i in range(len(totCosts)):
                 if np.subtract(totCosts[i],totBenefits[i]) <= 0:
                         dpp = i
 	return dpp
