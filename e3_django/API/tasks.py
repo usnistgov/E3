@@ -28,7 +28,7 @@ def analyze(user_input: Input):
 
     # Calculate Measures
 
-    return JSONRenderer().render(OutputSerializer(Output(required, optionals)).data)
+    return JSONRenderer().render(OutputSerializer(Output([], required, optionals)).data)
 
 
 def calculate_required_flows(flows, user_input):
