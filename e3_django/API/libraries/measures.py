@@ -98,7 +98,7 @@ def measPaybackPeriod(totCosts,totBenefits):  ## used for both simple and discou
 ##    		
 ##	return quantSum, quantUnits
 
-def calcBaselineMeas(baselineTotFlows): ## Still a lot of redundancy in here. Consider adding more granular functions. Same as for the following function
+def calcBaselineMeas(baselineTotFlows,irrBoolean): ## Still a lot of redundancy in here. Consider adding more granular functions. Same as for the following function
     totFlows = np.subtract(baselineTotFlows.totCostDisc,baselineTotFlows.totBenefitsDisc)
     totFlowsNonDisc = np.subtract(baselineTotFlows.totCostNonDisc,baselineTotFlows.totBenefitsNonDisc)
     totCosts = baselineTotFlows.totCostDisc
@@ -107,35 +107,33 @@ def calcBaselineMeas(baselineTotFlows): ## Still a lot of redundancy in here. Co
     totCostsNonInv = baselineTotFlows.totCostsNonInvDisc
     baselineFlowList = [totFlows,totCosts,totBens,totCostsInv,totCostsNonInv]
 
-    totalCostsBase = measures.sumCosts(totCosts)
-    totalBenefitsBase = measures.sumBenefits(totBens)
-    totalInvBase = measures.sumInv(totCostsInv)
-    totalNonInvBase = measures.sumNonInv(totCostsNonInv)
-    if analysis.irrBoolean == True:
-        irr = measures.measIRR(totFlowsNonDisc)
+    totalCostsBase = sumCosts(totCosts)
+    totalBenefitsBase = sumBenefits(totBens)
+    totalInvBase = sumInv(totCostsInv)
+    totalNonInvBase = sumNonInv(totCostsNonInv)
+    if irrBoolean == True:
+        irr = measIRR(totFlowsNonDisc)
     else:
         irr = None
-    dpp = measures.measPaybackPeriod(totCosts,totBens) 
-    spp = measures.measPaybackPeriod(totReqFlow.totCostNonDisc,totReqFlow.totBensNonDisc) ## Only call to these two attributes
+    dpp = measPaybackPeriod(totCosts,totBens) 
+    spp = measPaybackPeriod(totReqFlow.totCostNonDisc,totReqFlow.totBensNonDisc) ## Only call to these two attributes
 
     baselineMeasList = [baselineID, totalBenefitsBase, totalCostsBase, totalInvBase, totalNonInvBase, None, None, irr,
                         None, dpp, spp, None]
 
-                       quantSum,quantUnits,analysis.marr,deltaQuant,nsDeltaQuant,nsPercQuant,nsELasticityQuant
-
     return baselineFlowList, baselineMeasList
 
-def calcBaslineTagMeas(baselineTagList,altID,tag,flowDisc,totTagQ,units)
+def calcBaslineTagMeas(baselineTagList,altID,tag,flowDisc,totTagQ,units):
     if altID == baselineID and tag not in baselineTagList: ## Add new tags to baselineTagList
-        baselineTagList.append(tag,flowDIsc,totTagQ,units])
+        baselineTagList.append([tag,flowDIsc,totTagQ,units])
     elif altID == baselineID and tag in baselineTagList:
         tagIndex = baselineTagList.index(tag)  ## If tag exists, add the new values to the previous entries in baselineTagList. These are used for Total Quantity Flows outputs
         baselineTagList[i][1] = np.add(flowDisc,baselineTagList[i][1])
         baselineTagList[i][2] = np.add(totTagQ,baselineTagList[i][2])
 
-    return
+    return baselineTagList
             
-def quantList(baselineTagList)
+def quantList(baselineTagList):
     quantSum = []
     quantUnits = []
     for i in range(len(baselineTagList)):
