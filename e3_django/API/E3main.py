@@ -68,13 +68,14 @@ def E3main():
     ## The first call generates the cash and quantity flows for the bcn, the second generates the bcnStorage object for the associated bcn. Considering this process is repeated for the sensitivity
     ## and uncertainty calculations the following steps will eventually be moved to a separate function or possibly their own script if they take up a significant portion of the code; calculating and generating bcnStorage objects,
     ## calculating and generating total flows, calculating and generating measures, converting output to json format for passing user data back
-    if analysis.outputRealBool == True:
+    if analysis.outputRealBool == True: ##David - Added conditional to pull the right discount rate for the analysis
         discountRate = analysis.dRateReal
     else:
         discountRate = analysis.dRateNom
     studyPeriod = analysis.studyPeriod
-    timestepComp = analysis.timestepComp
-    baselineBool = 
+    timestepComp = analysis.timestepComp ##David - Removed timestepCount = analysis.timestepCount and added timestepComp = analysis.timestepComp
+    irrBoolean = analysis.irrBoolean. ##David - Removed hanging baselineBool variable and replaced it with irrBoolean
+    reinvestRate = discountRate ##David - Added to initialize before call, separate in case we want to add reinvestRate as separate input at somepoint
     for bcn in bcn.objects.all():
         bcnNonDiscFlow, bcnDiscFlow, quantList = cashFlows.bcnFlow(discountRate,bcn,studyPeriod,timestepComp)
         bcnStorage(bcn.ID,bcn.bcnName,bcn.altID,bcn.type,bcn.subtype,bcn.tag,bcnNonDiscFlow,bcnDiscFlow,bcn.quantList,bcn.quantUnit)
@@ -86,22 +87,25 @@ def E3main():
         altIDList.append(alt.altID)
         if alt.baselineBoolean == True:
             baselineID = alt.altID
+            break ##David - Added break to preven unnecessray looping
         cashFlows.totalFlows(altID,studyPeriod,timestepComp,alt.baselineBoolean,bcnStorage.objects.all())        
     
     ## Create baseline measures
-    baselineAlt = [totRFlow for totRFlow in totalRequiredFlows.objects.all() if totRFlow.altID == baselineID]
-    baselineFlowList, baselineMeasList = measures.calcBaselineMeas(baselineAlt)
+    baselineAlt = [totRFlow for totRFlow in totalRequiredFlows.objects.all() if totRFlow.altID == baselineID] ##David - Changed call to totalRequiredFlows._registry to totalRequiredFlows.objects.all()
+    baselineFlowList, baselineMeasList = measures.calcBaselineMeas(baselineAlt,irrBoolean)
 
     ## Create baseline tag measures
     baslineTagList = []
-    for totOptFlow in totalOptionalFlows.objects.all():
-        measures.calcBaslineTagMeas(baselineTagList,baselineAlt,totOptFlow.altID,totOptFlow.tag,totOptFlow.totalTagFlowDisc,totOptFlow.totTagQ,totOptFlow.quantUnits)
+    for totOptFlow in totalOptionalFlows.objects.all(): ##David - Added "baselineTagList =" to call to calcBaselineTagMeas
+        altID = totOptFlow.altID ##David - Added to prevent additional object attribute lookups
+        if altID == baselineID: ##David - Added conditional to check that we are pulling the alternative for the baseline
+            baselineTagList = measures.calcBaslineTagMeas(baselineTagList,baselineAlt,altID,totOptFlow.tag,totOptFlow.totalTagFlowDisc,totOptFlow.totTagQ,totOptFlow.quantUnits)
 
     ## Create baseline quantitiy attributes
     baselineQSum, baselineQUnits = quantList(baselineTagList)
     
     ## Construct Baseline alternative Summary Object
-    alternativeSummary(*baselineMeasList,baselineQSum,baselineQUnits,analysis.marr,None,None,None,None)
+    baselineSummary = alternativeSummary(*baselineMeasList,baselineQSum,baselineQUnits,analysis.marr,None,None,None,None) ##David - initiated variable to store baselineSUmmary, may be useful in sensitivity or uncertainty
 
     ## Calculate alternative measures
     for totRFlow in totalRequiredFlows.objects.all():
