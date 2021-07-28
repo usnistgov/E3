@@ -89,7 +89,7 @@ def E3main():
         cashFlows.totalFlows(altID,studyPeriod,timestepComp,alt.baselineBoolean,bcnStorage.objects.all())        
     
     ## Create baseline measures
-    baselineAlt = [totRFlow for totRFlow in totalRequiredFlows._registry if totRFlow.altID == baselineID]
+    baselineAlt = [totRFlow for totRFlow in totalRequiredFlows.objects.all() if totRFlow.altID == baselineID]
     baselineFlowList, baselineMeasList = measures.calcBaselineMeas(baselineAlt)
 
     ## Create baseline tag measures
