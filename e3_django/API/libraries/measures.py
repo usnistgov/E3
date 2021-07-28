@@ -1,126 +1,121 @@
-from typing import Union
-
-import numpy
+from django.db import models
 import numpy as np
 
-from API.serializers import CostType
 
-INFINITY = "Infinity"
-NOT_CALCULABLE = "Not Calculable"
-
-
-def checkCosts(totCostDisc, totCostDiscInv, totCostDiscNonInv, totFlowDisc, totBenefitsDisc):
+def checkCosts(totCostDisc, totCostDiscInv, totCostDiscNonInv):
     ## Should be run after sumCosts through sumBenefits
-    if totCostDisc != totCostDiscInv + totCostDiscNonInv or totFlowDisc != totCostDiscInv + totCostDiscNonInv - totBenefitsDisc:
+    if totCostDisc != totCostDiscInv + totCostDiscNonInv:
         raise Exception("There was an error in calculation")
 
-
-def netBenefits(totalBenefits: CostType, totalCosts: CostType, totalBenefitsBase: CostType,
-                totalCostsBase: CostType) -> CostType:
-    return (totalBenefits - totalBenefitsBase) / (totalCosts - totalCostsBase)
+    return
 
 
-def net_savings(total_costs: CostType, total_costs_base: CostType) -> CostType:
-    return total_costs - total_costs_base
+def sumCosts(totCostDisc):
+    return np.sum(totCostDisc)
 
 
-def bcr(net_benefits: CostType, total_costs_inv: CostType, total_costs_inv_base: CostType) -> Union[CostType, str]:
-    """
-    Calculate Benefit-cost Ratio (BCR).
+def sumBenefits(totBenefitsDisc):
+    return np.sum(totBenefitsDisc)
 
-    :param net_benefits:
-    :param total_costs_inv:
-    :param total_costs_inv_base:
-    :return: The calculated BCR.
-    """
-    numerator = net_benefits  ## I know this isn't really a simplification, however it makes the logic that follow easier to understand
-    denominator = total_costs_inv - total_costs_inv_base
 
-    if denominator > 0 and numerator > 0:
-        return numerator / denominator
-    if denominator <= 0 and numerator > 0:  ## Need to come up with a better tolerance here to avoid divide by zero error
-        return INFINITY
+def sumInv(totCostsInvDisc):
+    return np.sum(totCostsInvDisc)
+
+
+def sumNonInv(totCostsNonInvDisc):
+    return np.sum(totCostsNonInvDisc)
+
+
+def netBenefits(totalBenefits, totalCosts, totalBenefitsBase, totalCostsBase):
+    return (totalBenefits - totalBenefitsBase) - (totalCosts - totalCostsBase)
+
+
+def netSavings(totalCosts, totalCostsBase):
+    return (totalCostsBase - totalCosts)
+
+
+def measBCR(netBenefits, totalCostsInv, totalCostsInvBase):
+    numerator = netBenefits  ## I know this isn't really a simplification, however it makes the logic that follow easier to understand
+    denominator = totalCostsInv - totalCostsInvBase
+    if denominator <= 0 and numerator > 0:
+        bcr = 'Infinity'
     elif denominator <= 0 and numerator <= 0:
-        return NOT_CALCULABLE
+        bcr = "Not Calculable"
+    else:
+        bcr = numerator / denominator
+    return bcr
 
 
-def sir(total_costs_inv: CostType, total_costs_non_inv: CostType, total_costs_inv_base: CostType,
-        total_costs_non_inv_base: CostType) -> Union[CostType, str]:
-    """
-    Calculate Saving to Investment Ratio (SIR)
-
-    :param total_costs_inv:
-    :param total_costs_non_inv:
-    :param total_costs_inv_base:
-    :param total_costs_non_inv_base:
-    :return: The calculated SIR.
-    """
-    numerator = total_costs_non_inv_base - total_costs_non_inv
-    denominator = total_costs_inv_base - total_costs_inv
-
-    if denominator > 0 and numerator > 0:
-        return numerator / denominator
-    elif denominator <= 0 and numerator > 0:  ## Need to come up with a better tolerance here to avoid divide by zero error
-        return INFINITY
+def measSIR(totalCostsInv, totalCostsNonInv, totalCostsInvBase, totalCostsNonInvBase):
+    numerator = (totalCostsNonInvBase - totalCostsNonInv)
+    denominator = (totalCostsInvBase - totalCostsInv)
+    if denominator <= 0 and numerator > 0:
+        sir = 'Infinity'
     elif denominator <= 0 and numerator <= 0:
-        return NOT_CALCULABLE
+        sir = "Not Calculable"
+    else:
+        sir = numerator / denominator
+    return sir
 
 
-def airr(sir_value: CostType, reinvest_rate: CostType, study_period: int) -> Union[CostType, str]:
-    """
-    Calculate the adjusted internal rate of return (AIRR).
-
-    :param sir_value:
-    :param reinvest_rate:
-    :param study_period:
-    :return: The calculated AIRR.
-    """
-    if sir_value <= CostType(0):
+def measAIRR(sir, reinvestRate, studyPeriod):
+    if sir == "Not Calculable" or sir == "Infinity" or sir <= 0:
         return "AIRR Not Calculable"
-
-    return (1 + reinvest_rate) * sir_value ** CostType(1 / study_period) - 1
-
-
-def delta_q(baseline_flow: CostType, alt_flow: CostType) -> CostType:
-    return alt_flow - baseline_flow
+    if sir > 0:
+        return (1 + reinvestRate) * (sir) ** (1 / studyPeriod) - 1
 
 
-def ns_per_q(net_savings: CostType, delta_q: CostType) -> CostType:
-    return net_savings / delta_q
+def measDeltaQ(baselineFlow, altFlow):
+    return altFlow - baselineFlow
 
 
-def ns_per_pct_q(net_savings: CostType, delta_q: CostType, total_q_base: CostType) -> CostType:
-    return ns_per_q(net_savings, delta_q / total_q_base)
+def measNSPerQ(netSavings, deltaQ):
+    if deltaQ != 0:
+        return netSavings / deltaQ
+    else:
+        return "Infinity"
 
 
-def ns_elasticity(netSavings: CostType, totalCosts: CostType, deltaQ: CostType, totalQBase: CostType) -> CostType:
-    return ns_per_pct_q(netSavings / totalCosts, deltaQ, totalQBase)
+def measNSPerPctQ(netSavings, deltaQ, totalQBase):
+    if deltaQ != 0 and totQBase != 0:
+        return netSavings / (deltaQ / totQBase)
+    else:
+        return "Infinity"
 
 
-def calculate_irr(tot_flows):
-    """
-    Calculate Internal Rate of Return (IRR).
+def measNSElasticity(netSavings, totalCosts, deltaQ, totalQBase):
+    if deltaQ != 0 and totQBase != 0:
+        return (netSavings / totCosts) / (deltaQ / totQBase)
+    else:
+        return "Infinity"
 
-    Note from pseudocode docs: Technically speaking we should be solving this, but the solution requires a
+
+def measIRR(totCosts, totBenefits):
+    totFlows = totalFlows(totCosts, totBenefits)
+    """ Note from pseudocode docs: Technically speaking we should be solving this, but the solution requires a 
     root finding algorithm and repeatedly updating cash flows to obtain.
-
-    :param tot_flows:
-    :return: The calculated IRR.
     """
-    return numpy.irr(tot_flows)
+    measIRR = numpy.irr(totFlows)
+    return measIRR
 
 
-def meas_payback_period(tot_costs, tot_benefits):  ## used for both simple and discounted payback
-    if len(tot_costs) != len(tot_benefits):
-        raise ValueError("Total Costs and Total Benefits must be the same length.")
+def measPaybackPeriod(totCosts, totBenefits):  ## used for both simple and discounted payback
+    dpp = "Infinity"
+    for i in range(len(totCosts)):
+        if np.sum(np.subtract(totCosts[:i + 1], totBenefits[:i + 1])) <= 0:
+            dpp = i
+            break
+    return dpp
 
-    for i in range(len(tot_costs)):
-        if np.subtract(tot_costs[i], tot_benefits[i]) <= 0:
-            return i
 
+##Moved to quantList function
+##def totalQuant(self, altID, tag):
+##        quantSum = 0
+##
+##	return quantSum, quantUnits
 
-def calcBaselineMeas(baselineTotFlows, should_calculate_irr: bool = False):
-    ## Still a lot of redundancy in here. Consider adding more granular functions. Same as for the following function
+def calcBaselineMeas(
+        baselineTotFlows):  ## Still a lot of redundancy in here. Consider adding more granular functions. Same as for the following function
     totFlows = np.subtract(baselineTotFlows.totCostDisc, baselineTotFlows.totBenefitsDisc)
     totFlowsNonDisc = np.subtract(baselineTotFlows.totCostNonDisc, baselineTotFlows.totBenefitsNonDisc)
     totCosts = baselineTotFlows.totCostDisc
@@ -129,15 +124,17 @@ def calcBaselineMeas(baselineTotFlows, should_calculate_irr: bool = False):
     totCostsNonInv = baselineTotFlows.totCostsNonInvDisc
     baselineFlowList = [totFlows, totCosts, totBens, totCostsInv, totCostsNonInv]
 
-    totalCostsBase = sum(totCosts)
-    totalBenefitsBase = sum(totBens)
-    totalInvBase = sum(totCostsInv)
-    totalNonInvBase = sum(totCostsNonInv)
-
-    irr = calculate_irr(totFlowsNonDisc) if should_calculate_irr else None
-
-    dpp = meas_payback_period(totCosts, totBens)
-    spp = meas_payback_period(totReqFlow.totCostNonDisc, totReqFlow.totBensNonDisc) # Only call to these two attributes
+    totalCostsBase = measures.sumCosts(totCosts)
+    totalBenefitsBase = measures.sumBenefits(totBens)
+    totalInvBase = measures.sumInv(totCostsInv)
+    totalNonInvBase = measures.sumNonInv(totCostsNonInv)
+    if analysis.irrBoolean == True:
+        irr = measures.measIRR(totFlowsNonDisc)
+    else:
+        irr = None
+    dpp = measures.measPaybackPeriod(totCosts, totBens)
+    spp = measures.measPaybackPeriod(totReqFlow.totCostNonDisc,
+                                     totReqFlow.totBensNonDisc)  ## Only call to these two attributes
 
     baselineMeasList = [baselineID, totalBenefitsBase, totalCostsBase, totalInvBase, totalNonInvBase, None, None, irr,
                         None, dpp, spp, None]
@@ -145,22 +142,22 @@ def calcBaselineMeas(baselineTotFlows, should_calculate_irr: bool = False):
     quantSum, quantUnits, analysis.marr, deltaQuant, nsDeltaQuant, nsPercQuant, nsELasticityQuant
 
 
-    return baselineFlowList, baselineMeasList
+return baselineFlowList, baselineMeasList
 
 
-def calcBaslineTagMeas(baselineTagList, baselineAlt, altID, tag, flowDisc, totTagQ):
+def calcBaslineTagMeas(baselineTagList, altID, tag, flowDisc, totTagQ, units)
     if altID == baselineID and tag not in baselineTagList:  ## Add new tags to baselineTagList
         baselineTagList.append(tag, flowDIsc, totTagQ, units])
         elif altID == baselineID and tag in baselineTagList:
         tagIndex = baselineTagList.index(
-        tag)  ## If tag exists, add the new values to the previous entries in baselineTagList. These are used for Total Quantity Flows outputs
+            tag)  ## If tag exists, add the new values to the previous entries in baselineTagList. These are used for Total Quantity Flows outputs
         baselineTagList[i][1] = np.add(flowDisc, baselineTagList[i][1])
         baselineTagList[i][2] = np.add(totTagQ, baselineTagList[i][2])
 
     return
 
 
-def quantList(baselineTagList):
+def quantList(baselineTagList)
     quantSum = []
     quantUnits = []
     for i in range(len(baselineTagList)):
@@ -170,7 +167,7 @@ def quantList(baselineTagList):
     return quantSum, quantUnits
 
 
-def calcAltMeas(altID, baselineFlowList, reinvestRate, totReqFlow):
+def calcAltMeas(altID, baselineFlowList, reinvestRate, totRFlow):
     ## Loop through remainder of total Required Flows objects and calculate their measures.
     totFlows = np.subtract(totReqFlow.totCostDisc, totReqFlow.totBenefitsDisc)
     totFlowsNonDisc = np.subtract(altTotFlows.totCostNonDisc, altTotFlows.totBenefitsNonDisc)
@@ -184,16 +181,16 @@ def calcAltMeas(altID, baselineFlowList, reinvestRate, totReqFlow):
     totalInvBase = measures.sumInv(totCostsInv)
     totalNonInvBase = measures.sumNonInv(totCostsNonInv)
     if analysis.irrBoolean == True:
-        irr = measures.calculate_irr(totFlowsNonDisc)
+        irr = measures.measIRR(totFlowsNonDisc)
     else:
         irr = None
     netBenefits = measures.netBenefits(totalBenefits, totalCosts, baselineFlowList[2], baselineFlowList[1])
-    netSavings = measures.net_savings(totalCosts, baselineFlowList[1])
-    bcr = measures.bcr(netSavings, totalCostsInv, baselineFlowList[3])
-    sir = measures.sir(totalCostsInv, totalCostsNonInv, baselineFlowList[3], baselineFlowList[4])
-    airr = measures.airr(reinvestRate, sir)
-    dpp = measures.meas_payback_period(totCosts, totBens)
-    spp = measures.meas_payback_period(totReqFlow.totCostNonDisc, totReqFlow.totBensNonDisc)
+    netSavings = measures.netSavings(totalCosts, baselineFlowList[1])
+    bcr = measures.measBCR(netSavings, totalCostsInv, baselineFlowList[3])
+    sir = measures.measSIR(totalCostsInv, totalCostsNonInv, baselineFlowList[3], baselineFlowList[4])
+    airr = measures.measAIRR(reinvestRate, sir)
+    dpp = measures.measPaybackPeriod(totCosts, totBens)
+    spp = measures.measPaybackPeriod(totReqFlow.totCostNonDisc, totReqFlow.totBensNonDisc)
 
     altMeasList = [altID, totalBenefits, totalCosts, totalInv, totalNonInv, netSavings, sir, irr, airr,
                    dpp, spp, bcr]
@@ -201,29 +198,38 @@ def calcAltMeas(altID, baselineFlowList, reinvestRate, totReqFlow):
     return altMeasList
 
 
-def calcAltTagMeas(altMeasList, baselineTagList, tag, totalTagFlowDisc, totTagQ, quantUnits)
-    if tag not in altTagList:  ## Add new tags to baselineTagList
-        altTagList.append([tag, totalTagFlowDisc, totTagQ, quantUnits])
-    elif tag in altTagList:
-        tagIndex = altTagList.index(
-            tag)  ## If tag exists, add the new values to the previous entries in baselineTagList. These are used for Total Quantity Flows outputs
-        altTagList[i][1] = np.add(totalTagFlowDisc, altTagList[i][1])
-        altTagList[i][2] = np.add(totalTagFlowDisc, altTagList[i][2])
+def calcAltTagMeas(totOptFlowsList, altMeasList, baselineTagList, tag, totalTagFlowDisc, totTagQ, quantUnits)
+    altTagList = []
+    quantMeasList = []
+    deltaQuant = []
+    nsDeltaQuant = []
+    nsPercQuant = []
+    nsElasticityQuant = []
+    for totOptFlow in totOptFlowsList:
+        if altID == totOptFlow.altID:
+            if tag not in altTagList:  ## Add new tags to baselineTagList
+                altTagList.append([tag, totalTagFlowDisc, totTagQ, quantUnits])
+            elif tag in altTagList:
+                tagIndex = altTagList.index(
+                    tag)  ## If tag exists, add the new values to the previous entries in baselineTagList. These are used for Total Quantity Flows outputs
+                altTagList[i][1] = np.add(totalTagFlowDisc, altTagList[i][1])
+                altTagList[i][2] = np.add(totalTagFlowDisc, altTagList[i][2])
 
-    for baslineTag in baselineTagList:
-        for altTag in altTagList:
-            if altTag[0] not in baselineTag:
-                deltaQ = altTag[2]
-                deltaQuant.append([altTag[0], deltaQ])
-                nsPerQuant.append([altTag[0], measures.ns_per_q(altMeasList[5], baselineTag[2])])
-                nsPerPctQuant.append([altTag[0], "Infinite")
-                nsElasticityQuant.append([altTag[0], "Infinite")
-                elif altTag[0] == baselineTag[0]:
-                deltaQ = measures.delta_q(baselineTag[2], altTag[2])
-                deltaQuant.append([altTag[0], deltaQ])
-                nsPerQuant.append([altTag[0], measures.ns_per_q(altMeasList[5], baselineTag[2])])
-                nsPerPctQuant.append([altTag[0], measures.ns_per_pct_q(altMeasList[5], deltaQ, baselineTag[2])])
-                nsElasticityQuant.append(
-                    [altTag[0], measures.ns_elasticity(altMeasList[5], altMeasList[2], deltaQ, baselineTag[2])])
+        for baslineTag in baselineTagList:
+            for altTag in altTagList:
+                if altTag[0] not in baselineTag:
+                    deltaQ = altTag[2]
+                    deltaQuant.append([altTag[0], deltaQ])
+                    nsPerQuant.append([altTag[0], measures.measNSPerQ(altMeasList[5], baselineTag[2])])
+                    nsPerPctQuant.append([altTag[0], "Infinite")
+                    nsElasticityQuant.append([altTag[0], "Infinite")
+                    elif altTag[0] == baselineTag[0]:
+                    deltaQ = measures.measDeltaQ(baselineTag[2], altTag[2])
+                    deltaQuant.append([altTag[0], deltaQ])
+                    nsPerQuant.append([altTag[0], measures.measNSPerQ(altMeasList[5], baselineTag[2])])
+                    nsPerPctQuant.append([altTag[0], measures.measNSPerPctQ(altMeasList[5], deltaQ, baselineTag[2])])
+                    nsElasticityQuant.append(
+                        [altTag[0], measures.measNSElasticity(altMeasList[5], altMeasList[2], deltaQ, baselineTag[2])])
 
-                return [deltaQuant, nsPerQuant, nsPerPctQuant, nsElasticityQuant]
+
+return [deltaQuant, nsPerQuant, nsPerPctQuant, nsElasticityQuant]

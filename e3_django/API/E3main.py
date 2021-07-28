@@ -66,13 +66,15 @@ def E3main():
     ## The first call generates the cash and quantity flows for the bcn, the second generates the bcnStorage object for the associated bcn. Considering this process is repeated for the sensitivity
     ## and uncertainty calculations the following steps will eventually be moved to a separate function or possibly their own script if they take up a significant portion of the code; calculating and generating bcnStorage objects,
     ## calculating and generating total flows, calculating and generating measures, converting output to json format for passing user data back
-    discountRate = analysis.discountRate
+    if analysis.outputRealBool == True:
+        discountRate = analysis.dRateReal
+    else:
+        discountRate = analysis.dRateNom
     studyPeriod = analysis.studyPeriod
-    timestepCount = analysis.timestepCount
-    timestepValue = analysis.timestepValue
+    timestepComp = analysis.timestepComp
     baselineBool = 
     for bcn in bcn.objects.all():
-        bcnNonDiscFlow, bcnDiscFlow, quantList = cashFlows.bcnFlow(discountRate,bcn,studyPeriod,timestepCount)
+        bcnNonDiscFlow, bcnDiscFlow, quantList = cashFlows.bcnFlow(discountRate,bcn,studyPeriod,timestepComp)
         bcnStorage(bcn.ID,bcn.bcnName,bcn.altID,bcn.type,bcn.subtype,bcn.tag,bcnNonDiscFlow,bcnDiscFlow,bcn.quantList,bcn.quantUnit)
 
     ## Generate the total flows for each alternative. First the list of all altIDs is generated. This is done by loopting through the alternative registry (or a metaclass can be used). The code then loops through the bcnStorage registry
@@ -82,7 +84,7 @@ def E3main():
         altIDList.append(alt.altID)
         if alt.baselineBoolean == True:
             baselineID = alt.altID
-        cashFlows.totalFlows(altID,studyPeriod,timestepValue,alt.baselineBoolean,bcnStorage.objects.all())        
+        cashFlows.totalFlows(altID,studyPeriod,timestepComp,alt.baselineBoolean,bcnStorage.objects.all())        
     
     ## Create baseline measures
     baselineAlt = [totRFlow for totRFlow in totalRequiredFlows._registry if totRFlow.altID == baselineID]
@@ -104,17 +106,7 @@ def E3main():
         if totRFlow != baselineID:
             altID = totRFlow.altID
             altMeasList = calcAltMeas(altID,baselineFlowList,reinvestRate,totRFlow)
-            
-            altTagList = []
-            quantMeasList = []
-            deltaQuant = []
-            nsDeltaQuant = []
-            nsPercQuant = []
-            nsElasticityQuant = []
-            for totOptFlow in totalOptionalFlows.objects.all():
-                if altID == totOptFlow.altID:
-                    altTagMeasList = calcAltTagMeas(altMeasList,baselineTagList,totOptFlow.tag,totOptFlow.totalTagFlowDisc,
-                                                       totOptFlow.totTagQ,totOptFlow.quantUnits)
+            altTagMeasList = calcAltTagMeas(totalOptionalFlows.objects.all(),altMeasList,baselineTagList,totOptFlow.tag,totOptFlow.totalTagFlowDisc,totOptFlow.totTagQ,totOptFlow.quantUnits)                                              
                      
             altQSum, altQUnits = quantList(altTagList)
 

@@ -1,0 +1,20 @@
+{
+	“bcnID”: 3,
+	“bcnName”: “Benefit 1”,
+	“altID”: {1},
+	“bcnType”: “Benefit”,
+	“bcnSubType”: “Direct”,
+	“tag”: "Tag 1",
+	“bcnNonDiscFlow”:{0,0,30.603,0,31.8393612,0,31.83617726,0,32.79762982,0,32.14167722},
+	“bcnDiscFlow”:{0,0,28.84626261,0,28.28886004,0,26.66229725,0,25.89075184,0,23.91642643},
+	“quantList”: {0,0,30.603,0,31.8393612,0,31.83617726,0,32.79762982,0,32.14167722},
+	“quantUnits”: "m^3",
+	“sensBool”: False,
+	“sensFlowNonDisc”: None,
+	“sensFlowDisc”: None,
+	“sensQuantList”: None,
+	“uncBool”: False,
+	“uncFlowNonDisc”: None,
+	“uncFlowDisc”: None,
+	“uncQuantList”: None
+}
