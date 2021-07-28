@@ -1,10 +1,11 @@
-from API.objects import OptionalCashFlow, RequiredCashFlow
+from API.objects import OptionalCashFlow, RequiredCashFlow, AlternativeSummary
 
 
 class Output:
-    def __init__(self, reqCashFlowObjects: list[RequiredCashFlow],
-                 optCashFlowObjects: list[OptionalCashFlow] = None):
-        self.reqCashFlowObjects = reqCashFlowObjects
+    def __init__(self, alternative_summaries: list[AlternativeSummary], required_cash_flows: list[RequiredCashFlow],
+                 optional_cash_flows: list[OptionalCashFlow] = None):
+        self.alternativeSummary = alternative_summaries
+        self.reqCashFlowObjects = required_cash_flows
 
-        if optCashFlowObjects:
-            self.optCashFlowObjects = optCashFlowObjects
+        if optional_cash_flows:
+            self.optCashFlowObjects = optional_cash_flows

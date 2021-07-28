@@ -82,6 +82,29 @@ def payback_period(tot_costs, tot_benefits):  # used for both simple and discoun
             return i
 
 
+def ns_per_q(savings: CostType, delta_q: CostType) -> Union[CostType, str]:
+    if delta_q == 0:
+        return "Infinity"
+
+    return savings / delta_q
+
+
+def ns_per_pct_q(savings: CostType, delta_q: CostType, total_q_base: CostType) -> Union[CostType, str]:
+    if total_q_base == 0:
+        return "Infinity"
+
+    return ns_per_q(savings, delta_q / total_q_base)
+
+
+def ns_elasticity(savings: CostType, total_costs: CostType, delta_q: CostType, total_q_base: CostType) \
+        -> Union[CostType, str]:
+    return ns_per_pct_q(savings / total_costs, delta_q, total_q_base)
+
+
+def generate_tag_measures():
+    pass
+
+
 class AlternativeSummary:
     def __init__(self, alt_id, reinvest_rate, study_period, marr, flow: RequiredCashFlow,
                  baseline: "AlternativeSummary" = None, irr: bool = False):
@@ -98,7 +121,7 @@ class AlternativeSummary:
         self.SIR = sir(self.totalCostInv, self.totalCostsNonInv, baseline.totalCostInv,
                        baseline.totalCostsNonInv) if baseline else None
         self.IRR = numpy.irr(self.totFlowsNonDisc) if irr else None
-        self.AIRR = airr(self.SIR, self.reinvest_rate, study_period)
+        self.AIRR = airr(self.SIR, reinvest_rate, study_period)
         self.SPP = payback_period(flow.totCostNonDisc, flow.totBenefitsNonDisc)
         self.DPP = payback_period(flow.totCostDisc, flow.totBenefitsDisc)
         self.BCR = bcr(self.netSavings, self.totalCostInv, baseline.totalCostInv)

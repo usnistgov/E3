@@ -1,6 +1,7 @@
 from typing import Union
 
 from celery import shared_task
+from rest_framework.renderers import JSONRenderer
 
 from API import registry
 from API.objects.CashFlow import RequiredCashFlow, OptionalCashFlow
@@ -27,7 +28,7 @@ def analyze(user_input: Input):
 
     # Calculate Measures
 
-    return OutputSerializer(Output(required, optionals)).data
+    return JSONRenderer().render(OutputSerializer(Output(required, optionals)).data)
 
 
 def calculate_required_flows(flows, user_input):
