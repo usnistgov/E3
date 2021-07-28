@@ -1,8 +1,9 @@
 from decimal import Decimal
 from unittest import TestCase
 
-from API.objects.Bcn import Bcn, create_array
-from API.objects.CashFlow import RequiredCashFlow
+from API.objects import Bcn
+from API.objects import RequiredCashFlow
+from API.objects.Bcn import create_array
 from API.serializers import CostType
 
 PLACES = Decimal(10) ** -4
@@ -463,4 +464,3 @@ class NewBcnTest(TestCase):
 
         # Expect
         assert actual == expected
-        assert False

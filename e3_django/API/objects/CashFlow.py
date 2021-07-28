@@ -1,7 +1,7 @@
 import operator
 import pprint
 
-from API.objects.Bcn import Bcn
+from API.objects import Bcn
 from API.serializers import CostType, FlowType
 
 

@@ -1,4 +1,4 @@
-from API.objects.CashFlow import OptionalCashFlow, RequiredCashFlow
+from API.objects import OptionalCashFlow, RequiredCashFlow
 
 
 class Output:

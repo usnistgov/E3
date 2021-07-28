@@ -1,8 +1,6 @@
 from typing import Sequence
 
-from API.objects.Alternative import Alternative
-from API.objects.Analysis import Analysis
-from API.objects.Bcn import Bcn
+from API.objects import Alternative, Analysis, Bcn
 
 
 class Input:

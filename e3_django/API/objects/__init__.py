@@ -1,7 +1,9 @@
-from Alternative import Alternative
-from AlternativeSummary import AlternativeSummary
-from Analysis import Analysis
-from Bcn import Bcn
-from CashFlow import RequiredCashFlow, OptionalCashFlow, CashFlow
-from Input import Input
-from Output import Output
+from .Bcn import Bcn
+from .Alternative import Alternative
+from .Analysis import Analysis
+
+from .CashFlow import RequiredCashFlow, OptionalCashFlow, CashFlow
+from .AlternativeSummary import AlternativeSummary
+
+from .Input import Input
+from .Output import Output
