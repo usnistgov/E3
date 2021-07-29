@@ -109,7 +109,7 @@ def bcnFlowRecur(discountRate, bcnObject, studyPeriod, timestep):
                     spvMult = quantVarValue
                 else:
                     spvMult = 0
-                quantEsc = discounting.quantEscalationCalc(quantVarRate, quantVarValue, i)
+                quantEsc = discounting.quantEscalationCalc(quantVarRate, quantVarValue, i) ##David- Change quant to be its user assigned value at initialOcc to be consistent with NonRecur inputs
                 value = quantEsc*valPerQ
                 quantList[i] = quantEsc*quantity
                 bcnFlowNonDisc[i] = value
