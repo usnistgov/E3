@@ -91,7 +91,11 @@ def E3main():
         cashFlows.totalFlows(altID,studyPeriod,timestepComp,alt.baselineBoolean,bcnStorage.objects.all())        
     
     ## Create baseline measures
-    baselineAlt = [totRFlow for totRFlow in totalRequiredFlows.objects.all() if totRFlow.altID == baselineID] ##David - Changed call to totalRequiredFlows._registry to totalRequiredFlows.objects.all()
+    for totRFlow in totalRequiredFlows.objects.all(): ##David - Changed how baseline Alternative is found to be a bit more explicit
+        if totRFlow.baselineBool == True:
+            baselineID = totRFlow.altID
+            baselineAlt = totRFlow
+            break
     baselineFlowList, baselineMeasList = measures.calcBaselineMeas(baselineAlt,irrBoolean)
 
     ## Create baseline tag measures
@@ -111,8 +115,8 @@ def E3main():
     for totRFlow in totalRequiredFlows.objects.all():
         if totRFlow != baselineID:
             altID = totRFlow.altID
-            altMeasList = calcAltMeas(altID,baselineFlowList,reinvestRate,totRFlow)
-            altTagMeasList = calcAltTagMeas(totalOptionalFlows.objects.all(),altMeasList,baselineTagList,totOptFlow.tag,totOptFlow.totalTagFlowDisc,totOptFlow.totTagQ,totOptFlow.quantUnits)                                              
+            altMeasList = calcAltMeas(altID,irrBoolean,baselineFlowList,reinvestRate,studyPeriod,totRFlow) ##David - Added irrBoolean and studyPeriod as input
+            altTagMeasList = calcAltTagMeas(totalOptionalFlows.objects.all(),altMeasList,baselineTagList) ##David - Removed unneccesary inputs from call        
                      
             altQSum, altQUnits = quantList(altTagList)
 
