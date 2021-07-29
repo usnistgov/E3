@@ -75,7 +75,7 @@ def E3main():
     studyPeriod = analysis.studyPeriod
     timestepComp = analysis.timestepComp ##David - Removed timestepCount = analysis.timestepCount and added timestepComp = analysis.timestepComp
     irrBoolean = analysis.irrBoolean. ##David - Removed hanging baselineBool variable and replaced it with irrBoolean
-    reinvestRate = discountRate ##David - Added to initialize before call, separate in case we want to add reinvestRate as separate input at somepoint
+    reinvestRate = analysis.reinvestRate ##David- Corrected to appropriate variable
     for bcn in bcn.objects.all():
         bcnNonDiscFlow, bcnDiscFlow, quantList = cashFlows.bcnFlow(discountRate,bcn,studyPeriod,timestepComp)
         bcnStorage(bcn.ID,bcn.bcnName,bcn.altID,bcn.type,bcn.subtype,bcn.tag,bcnNonDiscFlow,bcnDiscFlow,bcn.quantList,bcn.quantUnit)
