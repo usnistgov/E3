@@ -77,7 +77,7 @@ def measNSElasticity(netSavings,totalCosts,deltaQ,totalQBase):
                 return "Infinity"
 
 def measIRR(totCosts,totBenefits):
-	totFlows = totalFlows(totCosts,totBenefits)
+	totFlows = np.subtract(totCosts,totBenefits)
     	""" Note from pseudocode docs: Technically speaking we should be solving this, but the solution requires a 
 		root finding algorithm and repeatedly updating cash flows to obtain.
 		"""
