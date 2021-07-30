@@ -151,9 +151,9 @@ def calcBaselineTagMeas(baselineTagList, altID, tag, flowDisc, totTagQ, units):
         baselineTagList[i][1] = np.add(flowDisc, baselineTagList[i][1])
         baselineTagList[i][2] = np.add(totTagQ, baselineTagList[i][2])
 
-    for baselineTag in baselineTagList:
-        baselineTag[1] = np.sum(baselineTag[1])
-        baselineTag[2] = np.sum(baselineTag[2])
+    ##for baselineTag in baselineTagList:
+    ##    baselineTag[1] = np.sum(baselineTag[1])
+    ##    baselineTag[2] = np.sum(baselineTag[2])
 
     return baselineTagList
 
