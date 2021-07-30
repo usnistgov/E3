@@ -131,9 +131,11 @@ def spv(time, recurrenceVariabilityRateValues, discountRate):
     return SPV 
 
 
-def discValueCalc(time, value, spv, recurrenceVariabilityRateValues): # 'value' is from BCN Class <- Josh & David will discuss. may have to include some var. For now, is included as parameter; remove as necessary.
-    # Initial recurrence probably should be added to the BCN Class.
-    # Note: if there exist NO instance where we need spv value w/o calling SPV, then we may fold spv() & discValueCalc() into single function.
+def discValueCalc(time, value, spv, recurrenceVariabilityRateValues):
+    # 'value' is from BCN Class <- Josh & David
+    # will discuss. may have to include some var. For now, is included as parameter; remove as necessary. Initial
+    # recurrence probably should be added to the BCN Class. Note: if there exist NO instance where we need spv value
+    # w/o calling SPV, then we may fold spv() & discValueCalc() into single function.
     if not time or time < 0:
         raise Exception("Time value must be supplied, and be positive")
 

@@ -4,7 +4,6 @@ cash flows for alternatives, ultimately constructing the Total Cash Flows object
 """
 # import files
 from . import discounting as discounting
-import totalRequiredFlows
 import numpy as  np
 
 def blankFlow(studyPeriod, timestepValue):
@@ -33,9 +32,9 @@ def bcnFlowNonRecur(discountRate, bcnObject, studyPeriod, timestepValue):
     bcnFlowNonDisc = blankFlow(studyPeriod, timestepValue)
     bcnFlowDisc = blankFlow(studyPeriod, timestepValue)
     quantList = blankFlow(studyPeriod, timestepValue)
-    quantity = bcnObject.quant ## assigning a new variable to store the bcnObject should add some efficiency as it prevents multiple dictionary lookups
+    quantity = bcnObject.quant # assigning a new variable to store the bcnObject should add some efficiency as it prevents multiple dictionary lookups
 
-    if not bcnObject.valuePerQ: ## Keep this with object call since it will have to be made anyway during assignment to ensure the value isn't blank
+    if not bcnObject.valuePerQ: # Keep this with object call since it will have to be made anyway during assignment to ensure the value isn't blank
         pass
     else:
         valPerQ = bcnObject.valuePerQ
@@ -57,12 +56,12 @@ def bcnFlowNonRecur(discountRate, bcnObject, studyPeriod, timestepValue):
         discMult = discounting.spv(initOcc,spvMult,discountRate)
         discValue = discounting.discValueCalc(value,discMult)
         bcnFlowNonDisc[timestepValue] = value
-        bcnFlowDisc[timestepValue] = discVale
+        bcnFlowDisc[timestepValue] = discValue
 
-        if bcnObject.rvBool == True: ## Everything below this will be moved to the rvCalc function eventually
+        if bcnObject.rvBool: ## Everything below this will be moved to the rvCalc function eventually
             ## Repeated code in Recurring Flow Calc, move to its own function
             residValue = rvCalc(initOcc, value, studyPeriod, bcnLife)
-            if isinstance(recurVarValue,list):
+            if isinstance(recurVarValue, list):
                 residVarValue = recurVarValue[studyPeriod]
             elif isinstance(recurVarValue,int):
                 residVarValue = recurVarValue
@@ -78,7 +77,7 @@ def bcnFlowNonRecur(discountRate, bcnObject, studyPeriod, timestepValue):
     return
 
 
-def bcnFlowRecur(discountRate, bcnObject, studyPeriod, timestep):
+def bcnFlowRecur(discountRate, bcnObject, studyPeriod, timestepValue):
     """
     Purpose: Completes construction of flows for recurring BCNs
     """
@@ -92,7 +91,7 @@ def bcnFlowRecur(discountRate, bcnObject, studyPeriod, timestep):
     quantity = bcnObject.quant
     end = bcnObject.endDate
 
-    recurList = blankFlow(studyPeriod, timestepVale)
+    recurList = blankFlow(studyPeriod, timestepValue)
     for i in range(initOcc,studyPeriod,increment):
         recurList[i] = 1
     if not bcnObject.valuePerQ:
@@ -145,7 +144,7 @@ def bcnFlowRecur(discountRate, bcnObject, studyPeriod, timestep):
             
 
 def rvCalc(initialOcc, value, studyPeriod, bcnLife=None, recurList=None, increment=None, endDate = None):
-    if recurList = None:
+    if recurList is None:
         if studyPeriod > bcnLife + initialOcc - 1:
             residValue = 0
         else:
@@ -212,8 +211,8 @@ def totalFlows(altID,studyPeriod,timestepValue,baseBool,bcnStorageList):
         if altID in bcnStore.altID:
             tag = bcnStore.tag if bcnStore.tag != None else tag = None
             flowType = bcnStore.type
-            flowNonDisc = bcnStorage.bcnNonDiscFlow ## One attribute lookup here to prevent further in the future
-            flowDisc = bcnStorage.bcnDiscFlow
+            flowNonDisc = bcnStore.bcnNonDiscFlow ## One attribute lookup here to prevent further in the future
+            flowDisc = bcnStore.bcnDiscFlow
 ##                if flowType == 'Cost':
 ##                    bcnFlowNonDisc = np.add(flowNonDisc,bcnFlowNonDisc)
 ##                    bcnFlowDisc = np.add(flowDisc,bcnFlowDisc)

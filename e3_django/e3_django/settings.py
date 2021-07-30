@@ -86,8 +86,14 @@ WSGI_APPLICATION = 'e3_django.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        # 'ENGINE': 'django.db.backends.sqlite3',
+        # 'NAME': BASE_DIR / 'db.sqlite3',
+        "ENGINE": "django.db.backends.postgresql_psycopg2",
+        'NAME': 'E3',
+        'USER': 'admin',
+        'PASSWORD': 'CRuj6oyJJirj6ThnfxV7',
+        'HOST': 'postgres',
+        'PORT': '',
     }
 }
 
@@ -135,11 +141,13 @@ LOGGING = {
     },
     'root': {
         'handlers': ['console'],
-        'level': 'INFO',
+        'level': 'DEBUG',
     },
 }
 
 CELERY_BROKER_URL = os.environ.get("BROKER_URL")
 CELERY_RESULT_BACKEND = os.environ.get("BACKEND_URL")
+CELERY_TASK_SERIALIZER = "pickle"
+CELERY_ACCEPT_CONTENT = ["pickle", "json"]
 
 AUTH_USER_MODEL = 'frontend.EmailUser'
