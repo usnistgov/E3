@@ -13,19 +13,18 @@ class AlternativeSummary(models.Model):
 	altID 			 	= models.JSONField(defulat=list, unique=True)
 	totalBenefits	 	= models.DecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES) 
 	totalCosts 		 	= models.DecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES) 
-	totalCostsIn	 	= models.DecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES) 
+	totalCostsInv	 	= models.DecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES) 
 	totalCostsNonInv 	= models.DecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES) 
 	netBenefits		 	= models.DecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES) 
-	netSaviings 	 	= models.DecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES) 
+	netSavings 	 		= models.DecimalField(max_digits=2, decimal_places=DECIMAL_PLACES) 
 	SIR 			 	= models.DecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES) 
-	IRR 			 	= models.DecimalField(null=True, max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES) #optional
+	IRR 			 	= models.DecimalField(null=True, max_digits=MAX_DIGITS, decimal_places=3) #optional
 	AIRR 			 	= models.DecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES) 
 	SPP 			 	= models.DecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES) 
 	BCR 			 	= models.DecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES) 
 	quantSum 		 	= models.JSONField(default=list) 
-	quantUnits 		 	= models.JSONField(default=list) #list of strings ith index is the unit for the ith element in quantSum
-	Marr  			 	= DecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES) #taken directly from Analysis object
-	
+	quantUnits 		 	= models.JSONField(default=list) #TODO: Check list of strings; the ith index is the unit for ith element in quantSum
+	MARR  			 	= DecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES) #taken directly from Analysis object
 	deltaQuant 			= models.JSONField(default=list)
 	nsDeltaQuant 		= models.JSONField(default=list)
 	nsPercQuant 		= models.JSONField(default=list)
