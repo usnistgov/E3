@@ -1,5 +1,15 @@
 version: "3.9"
 services:
+  postgres:
+    image: postgres:13.3
+    restart: always
+    hostname: postgres
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: CRuj6oyJJirj6ThnfxV7
+      POSTGRES_DB: E3
+    networks:
+      - default
   rabbitmq:
     image: rabbitmq
     hostname: rabbitmq
@@ -9,31 +19,30 @@ services:
       SERVICE_PORTS: 5672
       TCP_PORTS: 5672
     networks:
-      - proxy
+      - default
   api:
     build: e3_django/
     environment:
-      CELERY_INSTANCES: 2
       BROKER_URL: "amqp://admin:password@rabbitmq:5672"
       BACKEND_URL: "rpc://"
     depends_on:
       - rabbitmq
+      - postgres
     ports:
       - "8000:8000"
     networks:
-      - proxy
+      - default
   worker:
     build: e3_django/
+    deploy:
+      replicas: 1
     environment:
-      CELERY_INSTANCES: 2
       BROKER_URL: "amqp://admin:password@rabbitmq:5672"
       BACKEND_URL: "rpc://"
       C_FORCE_ROOT: "true"
     depends_on:
       - rabbitmq
+      - postgres
     networks:
-      - proxy
+      - default
     command: celery -A API worker -l INFO
-networks:
-  proxy:
-    driver: bridge

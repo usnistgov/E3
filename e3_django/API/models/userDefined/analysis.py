@@ -17,7 +17,9 @@ class Analysis(models.Model):
 	baseDate 		= models.DateTimeField(null=True)
 	serviceDate 	= models.DateTimeField()
 	timestepVal		= models.CharField(max_length=30, null=True, validators=[MinValueValidator(baseDate)])
-	timestepComp	= models.IntegerField(null=True, validators=[MaxValueValidator(studyPeriod), MinValueValidator(0)])
+	# FIXME: had to change the validators on timestepcomp because you cannot compare values passed in in
+	# field-specified validators
+	timestepComp	= models.IntegerField(null=True)#, validators=[MaxValueValidator(studyPeriod), MinValueValidator(0)])
 	outputRealBool	= models.BooleanField(null=True)
 	interestRate 	= models.DecimalField(max_digits=7, decimal_places=2) # May add check later that they're positive
 	dRateReal		= models.DecimalField(max_digits=7, decimal_places=2, null=True) # May add check later that they're positive
