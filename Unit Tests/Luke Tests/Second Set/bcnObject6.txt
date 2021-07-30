@@ -14,7 +14,7 @@
 		“recurVarRate”: “percDelta”,
 		“recurVarValue”: 0.01,
 		“recurEndDate”: 7,
-		“valuePerQ”: 0.1,
+		“valuePerQ”: 0.01,
 		“quant”: 90,
 		“quantVarRate”: “percDelta”,
 		“quantVarValue: -0.03,
