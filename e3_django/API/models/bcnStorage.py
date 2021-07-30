@@ -11,7 +11,7 @@ class BCNStorage(models.Model):
 	bcnID 			= models.IntegerField(null=False)
 	bcnName 		= models.CharField(null=True, max_length=30, default="")
 	altID 			= models.JSONField(default=list, unique=True)
-	bcnType 		= models.CharField(null=True, max_length=30) # 'type' is a reserved python var. Changed to 'bcnType'.
+	bcnType 		= models.CharField(null=True, max_length=30) 
 	bcnSubType 		= models.CharField(null=True, max_length=30) 
 	tag 			= models.CharField(max_length=30, default="") 
 	bcnNonDiscFlow 	= models.JSONField(default=list)

@@ -26,7 +26,7 @@ class AlternativeSummary(models.Model):
 	SPP 			 	= models.DecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES) 
 	BCR 			 	= models.DecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES) 
 	quantSum 		 	= models.JSONField(default=list) 
-	quantUnits 		 	= models.JSONField(default=list) #TODO: Check list of strings; the ith index is the unit for ith element in quantSum
+	quantUnits 		 	= models.JSONField(default=list) 
 	MARR  			 	= DecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES) #taken directly from Analysis object
 	deltaQuant 			= models.JSONField(default=list)
 	nsDeltaQuant 		= models.JSONField(default=list)
@@ -58,6 +58,9 @@ class AlternativeSummary(models.Model):
 
 			if not all(isinstance(x, float) for x in self.quantSum):
 				raise Exception("Incorrect data type: quantSum must be a list of floats")
+
+			if not all(isinstance(x, str) for x in self.quantUnits):
+				raise Exception("Incorrect data type: quantUnits must be a list of strings")
 
 			if not all(isinstance(x, float) for x in self.deltaQuant):
 				raise Exception("Incorrect data type: deltaQuant must be a list of floats")

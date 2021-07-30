@@ -5,7 +5,7 @@
 	"bcnType": "Cost",
 	"bcnSubtype": "Externality",
 	"bcnTag": "Monetary Example",
-	"totTagFlowDisc": {4.32,7.475,14,52.43,64.34,23.634},
-	"totTagQ": {1,53.64,23,63.34,-234.3,234.1},
+	"totTagFlowDisc": [4.32,7.475,14,52.43,64.34,23.634],
+	"totTagQ": [1,53.64,23,63.34,-234.3,234.1],
 	"quantUnits": "hrs"
 }

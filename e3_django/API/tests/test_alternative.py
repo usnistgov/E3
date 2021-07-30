@@ -1,8 +1,6 @@
 from django.test import TestCase
 from API.models.userDefined.alternative import Alternative
 
-# Create your tests here.
-
 class AlternativeTest(TestCase):
 	def create_model(self):
 		return Alternative.objects.create(

@@ -4,9 +4,15 @@ from datetime import datetime
 
 """
 BCNStorage tests here using django test.
+
+TODO: read contents of txt file in Unit Tests directory, pass it in
 """
 
 class BCNStorageTest(TestCase):
+    def test(self, text):
+        # try create object with text
+        return
+    
     def create_model(self):
         """
         Tests bcnStorageObject1

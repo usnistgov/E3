@@ -12,7 +12,6 @@ class TotalRequiredFlows(models.Model):
 	sensBool = models.BooleanField(default=False)
 	uncBool = models.BooleanField(default=False)
 
-	# Below is varList, consisting of 20 variables
 	totCostNonDisc  = models.JSONField(default=list)
 	totCostDisc  = models.JSONField(default=list)
 	totCostNonDiscInv  = models.JSONField(default=list)
@@ -79,6 +78,7 @@ class TotalRequiredFlows(models.Model):
 		var = self.flowName
 		var.append(flow)		
 		logger.info("Info: flow %s successfully added to flow %s", flow, flowName)
+		
 		return
 
 
@@ -89,6 +89,7 @@ class TotalRequiredFlows(models.Model):
 		"""
 		self.flowName = flow
 		logger.info("Info: flow %s successfully updated to %s", flowName, flow)
+
 		return
 
 
@@ -122,4 +123,5 @@ class TotalRequiredFlows(models.Model):
 		self.totBenefitsExtDisc  = flowsList[19]
 
 		logger.info("Info: All flows in flowList were successfully updated.")
+
 		return
