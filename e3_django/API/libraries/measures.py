@@ -162,7 +162,7 @@ def quantList(baselineTagList):
     quantSum = []
     quantUnits = []
     for i in range(len(baselineTagList)):
-        quantSum.append([baselineTagList[i][0], np.sum(baselineTagList[i][2])])
+        quantSum.append([baselineTagList[i][0], baselineTagList[i][2]])
         quantUnits.append([baselineTagList[i][0], baselineTagList[i][3]])
 
     return quantSum, quantUnits
