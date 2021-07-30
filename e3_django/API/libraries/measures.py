@@ -48,7 +48,7 @@ def measBCR(netBenefits, totalCostsInv, totalCostsInvBase):
 
 def measSIR(totalCostsInv, totalCostsNonInv, totalCostsInvBase, totalCostsNonInvBase):
     numerator = (totalCostsNonInvBase - totalCostsNonInv)
-    denominator = (totalCostsInvBase - totalCostsInv)
+    denominator = (totalCostsInv - totalCostsInvBase)
     if denominator <= 0 and numerator > 0:
         sir = 'Infinity'
     elif denominator <= 0 and numerator <= 0:
@@ -136,7 +136,7 @@ def calcBaselineMeas(baselineTotFlows,
     spp = measPaybackPeriod(baselineTotFlows.totCostsNonDisc,
                             baselineTotFlows.totBenefitsNonDisc)  ## Only call to these two attributes
 
-    baselineMeasList = [baselineID, totalBenefitsBase, totalCostsBase, totalInvBase, totalNonInvBase, None, None, irr,
+    baselineMeasList = [baselineID, totalBenefitsBase, totalCostsBase, totalInvBase, totalNonInvBase, None, None, None, irr,
                         None, dpp, spp, None]
 
     return baselineFlowList, baselineMeasList
