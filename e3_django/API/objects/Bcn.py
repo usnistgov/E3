@@ -4,11 +4,26 @@ from API.serializers import CostType, FlowType
 
 
 def present_value(v: CostType, d: CostType, t: CostType) -> CostType:
+    """
+    Converts the given value to a present value with the given discount and time values.
+
+    :param v: The value to discount.
+    :param d: The discount rate to apply.
+    :param t: The amount of time to discount.
+    :return: The value discounted to its present value.
+    """
     return v * (1 / (1 + d)) ** t
 
 
-def create_array(study_period: int, default: Any = 0):
-    return [CostType(default)] * (study_period + 1)
+def create_list(size: int, default: Any = 0):
+    """
+    Create an list of the given size plus one pre-populated with the given default parameter. Default is 0.
+
+    :param size: The size of the list to create.
+    :param default: The value to pre-populate the list with. Default is 0.
+    :return: A list of the given size plus one pre-populated with the given default value.
+    """
+    return [CostType(default)] * (size + 1)
 
 
 def discount_values(rate: CostType, values: list[CostType]):
@@ -16,6 +31,10 @@ def discount_values(rate: CostType, values: list[CostType]):
 
 
 class Bcn:
+    """
+    Represents a BCN object in the API input.
+    """
+
     def __init__(self, studyPeriod, **kwargs):
         self.bcnID = kwargs.get("bcnID", None)
         self.altID = kwargs.get("altID", [])
@@ -41,9 +60,9 @@ class Bcn:
 
         # Inflate single values to arrays to make later computations easier
         if not isinstance(self.recurVarValue, Sequence):
-            self.recurVarValue = create_array(studyPeriod, default=self.recurVarValue if self.recurVarValue else 0)
+            self.recurVarValue = create_list(studyPeriod, default=self.recurVarValue if self.recurVarValue else 0)
         if not isinstance(self.quantVarValue, Sequence):
-            self.quantVarValue = create_array(studyPeriod, default=self.quantVarValue if self.quantVarValue else 0)
+            self.quantVarValue = create_list(studyPeriod, default=self.quantVarValue if self.quantVarValue else 0)
         if not isinstance(self.bcnTag, list):
             self.bcnTag = [self.bcnTag]
 
@@ -65,11 +84,11 @@ class Bcn:
 
     def cash_flows(self, study_period: int, rate: CostType) -> FlowType:
         """
-        Discounts this BCN to its present value.
+        Discounts this BCN to its present value and returns final and intermediate values.
 
         :param study_period: The range that this BCN is over.
         :param rate:  The discount rate.
-        :return: A list of discounted values over the study period.
+        :return: A tuple of discounted values over the study period.
         """
         if not isinstance(rate, CostType):
             rate = CostType(rate)
@@ -121,7 +140,7 @@ class Bcn:
         :param initial: The initial value to pass to the calculation for the first calculation.
         :return: A list of the study period with the values created by the calculation for the BCN range.
         """
-        result = create_array(study_period)
+        result = create_list(study_period)
 
         for i in range(self.initialOcc, self.recurEndDate + 1):
             result[i] = calculation(i, result[i - 1] if i > self.initialOcc else initial)

@@ -3,7 +3,7 @@ from unittest import TestCase
 
 from API.objects import Bcn
 from API.objects import RequiredCashFlow
-from API.objects.Bcn import create_array
+from API.objects.Bcn import create_list
 from API.serializers import CostType
 
 PLACES = Decimal(10) ** -4
@@ -71,8 +71,8 @@ class NewBcnTest(TestCase):
         expected2 = [CostType(x) for x in [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]]
 
         # When
-        actual1 = create_array(10, 0)
-        actual2 = create_array(10, 1)
+        actual1 = create_list(10, 0)
+        actual2 = create_list(10, 1)
 
         # Expect
         assert actual1 == expected1

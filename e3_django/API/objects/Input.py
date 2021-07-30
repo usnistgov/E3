@@ -4,6 +4,10 @@ from API.objects import Alternative, Analysis, Bcn
 
 
 class Input:
+    """
+    Represents the full API input object.
+    """
+
     def __init__(self, analysisObject: Analysis, alternativeObjects: list[Alternative], bcnObjects, sensitivityObject=None,
                  scenarioObject=None):
         self.analysisObject = analysisObject

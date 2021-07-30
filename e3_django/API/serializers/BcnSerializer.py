@@ -2,7 +2,6 @@ from drf_compound_fields.fields import ListOrItemField
 from rest_framework.fields import IntegerField, ListField, ChoiceField, CharField, BooleanField, DecimalField
 from rest_framework.serializers import Serializer
 
-from API.objects.Bcn import Bcn
 from API.serializers import MAX_DIGITS, DECIMAL_PLACES
 from API.serializers.fields import BooleanOptionField
 

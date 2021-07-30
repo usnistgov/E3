@@ -2,7 +2,6 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.fields import ChoiceField, IntegerField, DateField, DecimalField, ListField, CharField
 from rest_framework.serializers import Serializer
 
-from API.objects.Alternative import Alternative
 from API.serializers import MAX_DIGITS, DECIMAL_PLACES
 from API.serializers.fields import ListMultipleChoiceField, BooleanOptionField
 

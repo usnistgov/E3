@@ -106,6 +106,10 @@ def generate_tag_measures():
 
 
 class AlternativeSummary:
+    """
+    Represents an alternative summary object with measure in the API output.
+    """
+
     def __init__(self, alt_id, reinvest_rate, study_period, marr, flow: RequiredCashFlow,
                  baseline: "AlternativeSummary" = None, irr: bool = False):
         self.altID = alt_id
