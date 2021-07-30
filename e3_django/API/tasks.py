@@ -89,5 +89,5 @@ def calculate_tag_flows(flows, user_input):
 
 
 @shared_task
-def runModule(outputOption: Union[str, list[str]], userInput):
-    return registry.moduleFunctions[outputOption](userInput)
+def run_module(output_option: Union[str, list[str]], user_input):
+    return registry.moduleFunctions[output_option](user_input)
