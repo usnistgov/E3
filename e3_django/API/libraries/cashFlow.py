@@ -257,17 +257,17 @@ def totalFlows(altID,studyPeriod,timestepValue,baseBool,bcnStorageList):
                     ## I know I could do this as a list of lists but as a first pass this makes it easier for me to verify
                     ## the index is being pulled correctly. We don't use Non-Discounted Flows for the analysis
                     tagList.append([tag,altID])
-                    tagFlowList.append(quantList,flowDisc,units)
+                    tagFlowList.append(flowDisc,quantList,units)
                 else:
                     for tagName in tagList:
                         if tagName == tag:
                             index = tagList.index(tag)
                             if flowType == 'Cost':
-                                tagFLowList[index] = [np.add(flowNonDisc,totFlowList[index][0]),np.add(flowNonDisc,totFlowList[index][1]),units]
+                                tagFLowList[index] = [np.add(flowDisc,totFlowList[index][0]),np.add(quantList,totFlowList[index][1]),units]
                             elif flowType == 'Benefit':
-                                tagFLowList[index] = [np.subtract(flowNonDisc,totFlowList[index][0]),np.add(flowNonDisc,totFlowList[index][1]),units]
+                                tagFLowList[index] = [np.subtract(flowDisc,totFlowList[index][0]),np.add(quantList,totFlowList[index][1]),units]
                             else:
-                                tagFLowList[index] = [np.add(totFlowList[index][0],np.zeros(studyPeriod+1)),np.add(totFlowList[index][0],totFlowList[index][1]),units]
+                                tagFLowList[index] = [np.add(flowDisc,totFlowList[index][0]),np.add(quantList,totFlowList[index][1]),units]
                             ## For now the type and subtype attributes in the totalOptionalFlows class are not used in calculation
                             ## They exist in case we want to use them in the future or a user wishes to add further calculations that require them                     
             
