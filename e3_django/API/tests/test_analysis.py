@@ -3,10 +3,12 @@ from API.models.userDefined import analysis
 from API.models.userDefined.analysis import Analysis
 from datetime import datetime
 
-# Create your tests here.
+"""
+Analysis tests here using django test.
+"""
 
 class AnalysisTest(TestCase):
-	def model_create(self):
+	def create_model(self):
 		res = Analysis.objects.create(
 			analysisType = "LCCA",
 			projectType = "Buildings",
@@ -34,8 +36,8 @@ class AnalysisTest(TestCase):
 		return res
 
 
-	def test_model_create(self):
-		created = self.model_create()
+	def test_create_model(self):
+		created = self.create_model()
 		self.assertTrue(isinstance(created, Analysis))
 		print("\nNew Analysis object was created.")
 		print(">>> Passed Analysis tests!")

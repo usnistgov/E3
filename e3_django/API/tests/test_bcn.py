@@ -3,7 +3,7 @@ from google.protobuf.json_format import ParseDict, MessageToDict
 from django.test import TestCase
 
 from API.models.userDefined.bcn import BCN
-
+"""
 # using pytest (like birdsnest)
 @pytest.fixture
 def BCN():
@@ -39,11 +39,11 @@ def test_bcn_object(bcn):
 
 	# test more outputs here
 	return 
-
+"""
 
 # using django.test
 class BCNTest(TestCase):
-	def model_create(self):
+	def create_model(self):
 		try:
 			BCN.objects.create(
 			bcnID = 0,
@@ -71,7 +71,7 @@ class BCNTest(TestCase):
 			print("BCN model failed to create")
 			return False
 
-	def model_create2(self):
+	def create_model_2(self):
 		return BCN.objects.create(
 			bcnID = 1,
 			altID = [0,1],
@@ -96,12 +96,13 @@ class BCNTest(TestCase):
 			quantUnit = "kWh",
 			)
 
-	def test_model_create(self):
+	def test_create_model(self):
 		#self.assertFalse(self.model_create())
 		print("\nNew BCN object was not created.")
 
-		created2 = self.model_create2()
-		self.assertTrue(isinstance(created2, BCN))
-		print("New BCN object was created.")
+		created = [self.create_model2(), self.create_model()]
+		for x in created:
+			self.assertTrue(isinstance(x, BCN))
 
+		print("New BCN object(s) were created.")
 		print(">>> Passed BCN tests!")

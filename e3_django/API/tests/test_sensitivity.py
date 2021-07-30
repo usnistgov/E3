@@ -4,7 +4,7 @@ from API.models.userDefined.sensitivity import Sensitivity
 # Create your tests here.
 
 class SensitivityTest(TestCase):
-	def model_create(self):
+	def create_model(self):
 		return Sensitivity.objects.create(
 			globalVarBool = True,
 			altID = None,
@@ -26,8 +26,8 @@ class SensitivityTest(TestCase):
 			)
 	"""
 
-	def test_model_create(self):
-		created = self.model_create()
+	def test_create_model(self):
+		created = self.create_model()
 		self.assertTrue(isinstance(created, Sensitivity))
 		print("\nNew Sensitivity object was created.")
 

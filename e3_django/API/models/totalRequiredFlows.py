@@ -7,7 +7,7 @@ class TotalRequiredFlows(models.Model):
 	"""
 	Purpose: Initializes a TotalRequiredFlows object, verifies data fields.
 	"""
-	altID = models.IntegerField(default=None)
+	#altID = models.IntegerField(default=None)
 	baselineBool = models.BooleanField()
 	sensBool = models.BooleanField(default=False)
 	uncBool = models.BooleanField(default=False)
