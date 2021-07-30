@@ -219,35 +219,35 @@ def totalFlows(altID,studyPeriod,timestepValue,baseBool,bcnStorageList):
 ##                elif flowType == 'Benefit':
 ##                    bcnFlowNonDisc = np.subtract(flowNonDisc,bcnFlowNonDisc) ## When adding to flows containing costs and benefits, benefits are subtracted, when added to flows of just benefits they are added.
 ##                    bcnFlowDisc = np.subtract(flowDisc,bcnFlowDisc)
-            totCostNonDisc = np.add(flowNonDisc,totCostNonDisc)
-            totCostDisc = np.add(flowDisc,totCostDisc)
-            totBenefitsNonDisc = np.add(flowNonDisc,totBenefitsNonDisc)
-            totBenefitsDisc = np.add(flowDisc,totBenefitsDisc)                        
+            totCostNonDisc = np.add(flowNonDisc,totCostNonDisc) if flowType == "Cost"
+            totCostDisc = np.add(flowDisc,totCostDisc) if flowType == "Cost"
+            totBenefitsNonDisc = np.add(flowNonDisc,totBenefitsNonDisc) if flowType == "Benefit"
+            totBenefitsDisc = np.add(flowDisc,totBenefitsDisc) if flowType == "Benefit"                  
             if bcnStore.bcnInvestBool == True:
-                totCostNonDiscInv = np.add(flowNonDisc,totCostNonDiscInv)
-                totCostDiscInv = np.add(flowDisc,totCostDiscInv)
-                totBenefitsNonDiscInv = np.add(flowNonDisc,totBenefitsNonDiscInv)
-                totBenefitsDiscInv = np.add(flowDisc,totBenefitsDiscInv)
+                totCostNonDiscInv = np.add(flowNonDisc,totCostNonDiscInv) if flowType == "Cost"
+                totCostDiscInv = np.add(flowDisc,totCostDiscInv) if flowType == "Cost"
+                totBenefitsNonDiscInv = np.add(flowNonDisc,totBenefitsNonDiscInv) if flowType == "Benefit"
+                totBenefitsDiscInv = np.add(flowDisc,totBenefitsDiscInv) if flowType == "Benefit"
             else:
-                totCostNonDiscNonInv = np.add(flowNonDisc,totCostNonDiscNonInv)
-                totCostDiscNonInv = np.add(flowDisc,totCostDiscNonInv)
-                totBenefitsNonDiscNonInv = np.add(flowNonDisc,totBenefitsNonDiscNonInv) ## Realistically there should be no investment benefits, this is included to add flexibility in the code and allow the option
-                totBenefitsDiscNonInv = np.add(flowDisc,totBenefitsDiscNonInv)
+                totCostNonDiscNonInv = np.add(flowNonDisc,totCostNonDiscNonInv) if flowType == "Cost"
+                totCostDiscNonInv = np.add(flowDisc,totCostDiscNonInv) if flowType == "Cost"
+                totBenefitsNonDiscNonInv = np.add(flowNonDisc,totBenefitsNonDiscNonInv) if flowType == "Benefit" ## Realistically there should be no investment benefits, this is included to add flexibility in the code and allow the option
+                totBenefitsDiscNonInv = np.add(flowDisc,totBenefitsDiscNonInv) if flowType == "Benefit"
             if bcnStore.subType == 'Direct':
-                totCostDir = np.add(flowNonDisc,totCostDir)
-                totCostDirDisc = np.add(flowDisc,totCostDirDisc)
-                totBenefitsDir = np.add(flowNonDisc,totBenefitsDir)
-                totBenefitsDirDisc = np.add(flowDisc,totBenefitsDirDisc)
+                totCostDir = np.add(flowNonDisc,totCostDir) if flowType == "Cost"
+                totCostDirDisc = np.add(flowDisc,totCostDirDisc) if flowType == "Cost"
+                totBenefitsDir = np.add(flowNonDisc,totBenefitsDir) if flowType == "Benefit"
+                totBenefitsDirDisc = np.add(flowDisc,totBenefitsDirDisc) if flowType == "Benefit"
             elif bcnStore.subType == 'Indirect':
-                totCostInd = np.add(flowNonDisc,totCostInd)
-                totCostIndDisc = np.add(flowDisc,totCostIndDisc)
-                totBenefitsInd = np.add(flowNonDisc,totBenefitsInd)
-                totBenefitsIndDisc = np.add(flowDisc,totBenefitsIndDisc)
+                totCostInd = np.add(flowNonDisc,totCostInd) if flowType == "Cost"
+                totCostIndDisc = np.add(flowDisc,totCostIndDisc) if flowType == "Cost"
+                totBenefitsInd = np.add(flowNonDisc,totBenefitsInd) if flowType == "Benefit"
+                totBenefitsIndDisc = np.add(flowDisc,totBenefitsIndDisc) if flowType == "Benefit"
             else:
-                totCostExt = np.add(flowNonDisc,totCostExt)
-                totCostExtDisc = np.add(flowDisc,totCostExtDisc)
-                totBenefitsExt = np.add(flowNonDisc,totBenefitsExt)
-                totBenefitsExtDisc = np.add(flowDisc,totBenefitsExtDisc)
+                totCostExt = np.add(flowNonDisc,totCostExt) if flowType == "Cost"
+                totCostExtDisc = np.add(flowDisc,totCostExtDisc) if flowType == "Cost"
+                totBenefitsExt = np.add(flowNonDisc,totBenefitsExt) if flowType == "Benefit"
+                totBenefitsExtDisc = np.add(flowDisc,totBenefitsExtDisc) if flowType == "Benefit"
             if tag != None: ## Non Monetary requires a tag so this should cover Non-Monetary as well
                 ## We don't store quantities for non-tagged items since they aren't used in calculation
                 quantList = bcnStore.quantList
