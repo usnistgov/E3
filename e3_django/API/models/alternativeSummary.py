@@ -21,7 +21,8 @@ class AlternativeSummary(models.Model):
 	netSavings 	 		= models.DecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES)
 	SIR 			 	= models.DecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES) 
 	IRR 			 	= models.DecimalField(null=True, max_digits=MAX_DIGITS, decimal_places=3) #optional
-	AIRR 			 	= models.DecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES) 
+	AIRR 			 	= models.DecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES)
+	DPP 			 	= models.DecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES)
 	SPP 			 	= models.DecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES) 
 	BCR 			 	= models.DecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES) 
 	quantSum 		 	= models.JSONField(default=list) 
@@ -51,7 +52,7 @@ class AlternativeSummary(models.Model):
 		try:
 			AlternativeSummary.objects.create(altID=obj.altID, totalBenefits=obj.totalBenefits, totalCosts=obj.totalCosts, 
 			totalCostsIn=obj.totalCostsIn, totalCostsNonInv=obj.totalCostsNonInv, netBenefits=obj.netBenefits, netSaviings=obj.netSaviings,
-			SIR=obj.SIR, IRR=obj.IRR, AIRR=obj.AIRR, SPP=obj.SPP, BCR=obj.BCR, quantSum=obj.quantSum, quantUnits=obj.quantUnits, Marr=obj.Marr,
+			SIR=obj.SIR, IRR=obj.IRR, AIRR=obj.AIRR, DPP=obj.DPP SPP=obj.SPP, BCR=obj.BCR, quantSum=obj.quantSum, quantUnits=obj.quantUnits, Marr=obj.Marr,
 			deltaQuant=obj.deltaQuant, nsDeltaQuant=obj.nsDeltaQuant, nsPercQuant=obj.nsPercQuant, nsElasticityQuant=obj.nsElasticityQuant
 			)
 
