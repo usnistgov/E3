@@ -12,9 +12,19 @@ from frontend.models import UserAPIKey
 
 
 class UrlOrHeaderApiKey(HasAPIKey):
+    """
+    Permissions that checks if API key is present in the default HTTP header or a URL parameter.
+    """
     model = UserAPIKey
 
     def get_key(self, request):
+        """
+        Returns the API key if it is present in an HTTP header else it tries to get it from a URL parameter. If no key
+        is found, None will be returned.
+
+        :param request: The HTTP request to get the key from.
+        :return: The API key or None if no key is present.
+        """
         header_key = super().get_key(request)
         return header_key if header_key else request.GET.get("key")
 

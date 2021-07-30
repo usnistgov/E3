@@ -1,15 +1,9 @@
 from rest_framework.fields import ListField
 from rest_framework.serializers import Serializer
 
-from API.objects.Alternative import Alternative
-from API.objects.Analysis import Analysis
-from API.objects.Bcn import Bcn
-from API.objects.Input import Input
-from API.serializers.AlternativeSerializer import AlternativeSerializer
-from API.serializers.AnalysisSerializer import AnalysisSerializer
-from API.serializers.BcnSerializer import BCNSerializer
-from API.serializers.SenarioSerializer import ScenarioSerializer
-from API.serializers.SensitivitySerializer import SensitivitySerializer
+from API.objects import Input, Analysis, Alternative, Bcn
+from API.serializers import AnalysisSerializer, AlternativeSerializer, BCNSerializer, SensitivitySerializer, \
+    ScenarioSerializer
 
 
 class InputSerializer(Serializer):
