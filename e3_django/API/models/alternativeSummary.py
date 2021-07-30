@@ -51,8 +51,8 @@ class AlternativeSummary(models.Model):
 		obj = objectList.alternativeSummaryObject 
 		try:
 			AlternativeSummary.objects.create(altID=obj.altID, totalBenefits=obj.totalBenefits, totalCosts=obj.totalCosts, 
-			totalCostsIn=obj.totalCostsIn, totalCostsNonInv=obj.totalCostsNonInv, netBenefits=obj.netBenefits, netSaviings=obj.netSaviings,
-			SIR=obj.SIR, IRR=obj.IRR, AIRR=obj.AIRR, DPP=obj.DPP, SPP=obj.SPP, BCR=obj.BCR, quantSum=obj.quantSum, quantUnits=obj.quantUnits, Marr=obj.Marr,
+			totalCostsInv=obj.totalCostsInv, totalCostsNonInv=obj.totalCostsNonInv, netBenefits=obj.netBenefits, netSavings=obj.netSavings,
+			SIR=obj.SIR, IRR=obj.IRR, AIRR=obj.AIRR, DPP=obj.DPP, SPP=obj.SPP, BCR=obj.BCR, quantSum=obj.quantSum, quantUnits=obj.quantUnits, MARR=obj.MARR,
 			deltaQuant=obj.deltaQuant, nsDeltaQuant=obj.nsDeltaQuant, nsPercQuant=obj.nsPercQuant, nsElasticityQuant=obj.nsElasticityQuant
 			)
 

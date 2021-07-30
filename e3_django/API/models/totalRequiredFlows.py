@@ -121,4 +121,5 @@ class TotalRequiredFlows(models.Model):
 		self.totBenefitsIndDisc  = flowsList[18]
 		self.totBenefitsExtDisc  = flowsList[19]
 
+		logger.info("Info: All flows in flowList were successfully updated.")
 		return
