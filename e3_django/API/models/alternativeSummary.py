@@ -18,7 +18,7 @@ class AlternativeSummary(models.Model):
 	totalCostsInv	 	= models.DecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES) 
 	totalCostsNonInv 	= models.DecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES) 
 	netBenefits		 	= models.DecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES) 
-	netSavings 	 		= models.DecimalField(max_digits=2, decimal_places=DECIMAL_PLACES) 
+	netSavings 	 		= models.DecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES)
 	SIR 			 	= models.DecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES) 
 	IRR 			 	= models.DecimalField(null=True, max_digits=MAX_DIGITS, decimal_places=3) #optional
 	AIRR 			 	= models.DecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES) 
