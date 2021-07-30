@@ -42,8 +42,8 @@ class BCNStorage(models.Model):
 	def validateBCNStorageObject(self, bcnStorageObject):
 		obj = bcnStorageObject
 		try:
-			BCNStorage.objects.create(bcnName=obj.bcnName, bcnID=obj.bcnID, altID=obj.altID, bcnType=obj.bcnType, subType=obj.subType, \
-				tag=obj.tag, bcnNonDiscFlow=obj.bcnNonDiscFlow, bcnDiscFlow=obj.bcnDiscFlow, quantList=obj.quantList, quantUnt=obj.quantUnt, \
+			BCNStorage.objects.create(bcnID=obj.bcnID, bcnName=obj.bcnName, altID=obj.altID, bcnType=obj.bcnType, bcnSubType=obj.bcnSubType, \
+				tag=obj.tag, bcnNonDiscFlow=obj.bcnNonDiscFlow, bcnDiscFlow=obj.bcnDiscFlow, quantList=obj.quantList, quantUnits=obj.quantUnits, \
 				sensBool=obj.sensBool, sensFlowNonDisc=obj.sensFlowNonDisc, sensFlowDisc=obj.sensFlowDisc, sensQuantList=obj.sensQuantList, \
 				uncBool=obj.uncBool, uncFlowNonDisc=obj.unFlowNonDisc, uncFlowDisc=obj.uncFlowDisc, uncQuantList=obj.uncQuantList)
 

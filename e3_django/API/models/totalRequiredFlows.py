@@ -53,7 +53,8 @@ class TotalRequiredFlows(models.Model):
 		"""
 		obj = totalReqFlowsObject
 		try:
-			TotalRequiredFlows.objects.create(altID=obj.altID, baselineBool=obj.baselineBool, sensBool=obj.sensBool, uncBool=obj.uncBool, \
+			TotalRequiredFlows.objects.create( #altID=obj.altID, 
+				baselineBool=obj.baselineBool, sensBool=obj.sensBool, uncBool=obj.uncBool, \
 				totalCostNonDisc=obj.totalCostNonDisc, totCostDisc=obj.totCostDisc, totCostNonDiscInv=obj.totCostNonDiscInv, totCostDiscInv=obj.totCostDiscInv, \
 				totCostNonDiscNonInv=obj.totCostNonDiscNonInv, totCostDiscNonInv=obj.totCostDiscNonInv, totBenefitsNonDisc=obj.totBenefitsNonDisc, \
 				totBenefitsDisc=obj.totBenefitsDisc, totCostDir=obj.totCostDir, totCostInd=obj.totCostInd, totCostExt=obj.totCostExt, totCostDirDisc=obj.totCostDirDisc, \
