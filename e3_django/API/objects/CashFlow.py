@@ -2,7 +2,7 @@ import operator
 import pprint
 
 from API.objects import Bcn
-from API.serializers import CostType, FlowType
+from API.variables import CostType, FlowType
 
 
 def elementwise_add(x, y):

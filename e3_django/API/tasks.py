@@ -1,3 +1,4 @@
+import logging
 from typing import Union
 
 from celery import shared_task
@@ -7,6 +8,7 @@ from API import registry
 from API.objects.CashFlow import RequiredCashFlow, OptionalCashFlow
 from API.objects.Input import Input
 from API.objects.Output import Output
+from API.serializers import RequiredCashFlowSerializer
 from API.serializers.OutputSerializer import OutputSerializer
 
 
@@ -26,9 +28,11 @@ def analyze(user_input: Input):
     required = calculate_required_flows(flows, user_input)
     optionals = calculate_tag_flows(flows, user_input)
 
+    logging.info(JSONRenderer().render(OutputSerializer(Output([], required, optionals)).data))
+
     # Calculate Measures
 
-    return JSONRenderer().render(OutputSerializer(Output([], required, optionals)).data)
+    return OutputSerializer(Output([], required, optionals)).data
 
 
 def calculate_required_flows(flows, user_input):

@@ -3,7 +3,7 @@ from typing import Union
 import numpy
 
 from API.objects import RequiredCashFlow
-from API.serializers import CostType
+from API.variables import CostType
 
 
 def net_benefits(benefits: CostType, costs: CostType, benefits_base: CostType, costs_base: CostType) -> CostType:

@@ -1,6 +1,6 @@
 from typing import Any, Sequence, Callable
 
-from API.serializers import CostType, FlowType
+from API.variables import CostType, FlowType
 
 
 def present_value(v: CostType, d: CostType, t: CostType) -> CostType:

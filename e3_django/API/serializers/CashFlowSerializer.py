@@ -1,7 +1,7 @@
 from rest_framework.fields import IntegerField, ListField, DecimalField, CharField
 from rest_framework.serializers import Serializer
 
-from API.serializers import MAX_DIGITS, DECIMAL_PLACES
+from API.variables import MAX_DIGITS, DECIMAL_PLACES
 
 
 class RequiredCashFlowSerializer(Serializer):
