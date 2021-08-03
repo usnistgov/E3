@@ -1,4 +1,4 @@
-version: "3.9"
+version: "3.6"
 services:
   postgres:
     image: postgres:13.3
@@ -15,8 +15,8 @@ services:
       retries: 5
     networks:
       - default
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
+#    volumes:
+#      - /DATA/e3/postgres_data:/var/lib/postgresql/data
 
   rabbitmq:
     image: rabbitmq:3.9.0
@@ -24,12 +24,12 @@ services:
     hostname: rabbitmq
     configs:
       - source: e3_rabbitmq_config
-      - target: /etc/rabbitmq/rabbitmq.conf
+        target: /etc/rabbitmq/rabbitmq.conf
     networks:
       - default
 
   api:
-    image: dockreg.el.nist.gov/e3/web
+    image: dockreg.el.nist.gov/e3/api
     restart: always
     environment:
       BROKER_URL: "amqp://admin:password@rabbitmq:5672"
@@ -37,14 +37,12 @@ services:
     depends_on:
       - rabbitmq
       - postgres
-    expose:
-      - "8000"
     networks:
       - default
       - traefik_net
     command: [
-        "/wait-for-it/wait-for-it.sh", "postgres:5432", "-t", "0", "--",
-        "/wait-for-it/wait-for-it.sh", "rabbitmq:5672", "-t", "0", "--",
+        "wait-for-it/wait-for-it.sh", "postgres:5432", "-t", "0", "--",
+        "wait-for-it/wait-for-it.sh", "rabbitmq:5672", "-t", "0", "--",
         "python", "manage.py", "runserver", "0.0.0.0:8000"
     ]
     deploy:
@@ -59,10 +57,10 @@ services:
         - "traefik.http.routers.e3_router_https.rule=Host(`e3test.el.nist.gov`)"
         - "traefik.http.routers.e3_router_https.entrypoints=websecure"
         - "traefik.http.routers.e3_router_https.tls"
-        - "traefik.http.services.e3_service.loadbalancer.server.port=5000"
+        - "traefik.http.services.e3_service.loadbalancer.server.port=8000"
 
   worker:
-    image: dockreg.el.nist.gov/e3/web
+    image: dockreg.el.nist.gov/e3/api
     restart: always
     deploy:
       replicas: 1
@@ -75,19 +73,9 @@ services:
     networks:
       - default
     command: [
-        "/wait-for-it/wait-for-it.sh", "rabbitmq:5672", "-t", "0", "--",
+        "wait-for-it/wait-for-it.sh", "rabbitmq:5672", "-t", "0", "--",
         "celery", "-A", "API", "worker", "-l", "INFO"
     ]
-
-volumes:
-  postgres_data:
-    driver_opts:
-      type: none
-      device: /DATA/e3/postgres_data
-  rabbitmq_config:
-    driver_opts:
-      type: none
-      device: /DATA/e3/rabbitmq_config
 
 configs:
   e3_rabbitmq_config:
