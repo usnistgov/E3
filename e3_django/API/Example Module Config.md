@@ -1,6 +1,4 @@
-from API.registry import E3AppConfig
-
-
+```python
 class FlowConfig(E3AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
     name = 'flow'
@@ -11,3 +9,4 @@ class FlowConfig(E3AppConfig):
     def analyze(self, baseInput, steps=None):
         print(f"Input on Flow: {baseInput}, steps: {steps}")
         return baseInput
+```
