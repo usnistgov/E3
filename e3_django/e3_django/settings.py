@@ -28,7 +28,7 @@ SECRET_KEY = 'yzp=q+*3e--r4ie+hzgj_@2$auyfk38l4#@1jj6tgshv0)dga2jn'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["e3test.el.nist.gov"]
 
 STATIC_URL = '/static/'
 
