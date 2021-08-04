@@ -7,41 +7,6 @@ import math
 logger = logging.getLogger(__name__)
 
 class Analysis(models.Model):
-	"""
-	Purpose: Initializes an Analysis object, verifies data fields.
-	"""
-	analysisType 	= models.CharField(max_length=30, null=True)
-	projectType 	= models.CharField(max_length=30)
-	objToReport		= models.JSONField(null=True, default=list)
-	studyPeriod 	= models.IntegerField(null=True, validators=[MinValueValidator(0)])
-	baseDate 		= models.DateTimeField(null=True)
-	serviceDate 	= models.DateTimeField()
-	timestepVal		= models.CharField(max_length=30, null=True, validators=[MinValueValidator(baseDate)])
-	# FIXME: had to change the validators on timestepcomp because you cannot compare values passed in in
-	# field-specified validators
-	timestepComp	= models.IntegerField(null=True)#, validators=[MaxValueValidator(studyPeriod), MinValueValidator(0)])
-	outputRealBool	= models.BooleanField(null=True)
-	interestRate 	= models.DecimalField(max_digits=7, decimal_places=2) # May add check later that they're positive
-	dRateReal		= models.DecimalField(max_digits=7, decimal_places=2, null=True) # May add check later that they're positive
-	dRateNom		= models.DecimalField(max_digits=7, decimal_places=2) # May add check later that they're positive
-	inflationRate	= models.DecimalField(max_digits=7, decimal_places=2) # May add check later that they're positive
-	Marr			= models.DecimalField(max_digits=7, decimal_places=2, null=True) # May add check later that they're positive
-	reinvestRate	= models.DecimalField(max_digits=7, decimal_places=2, null=True) # May add check later that they're positive
-	incomeRateFed	= models.DecimalField(max_digits=7, decimal_places=2, null=True)
-	incomeRateOther	= models.DecimalField(max_digits=7, decimal_places=2, null=True)
-	location		= models.JSONField(null=True, default=list)
-
-	
-	def __init__(self, *args, **kwargs):
-		"""
-		Purpose: Standard class constructor method. Create object based off of list of inputs developed from json string
-		in addition to the above checking methods provided by models. Class variables are provided in the following table. 
-		The STS document contains more information
-		"""
-		print("Analysis CONSTRUCTOR method called")
-		# Add anything that should run BEFORE model validation.
-		return super().__init__(*args, **kwargs)
-
 
 	def validateAnalysisObject(self, objectList):
 		"""

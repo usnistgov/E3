@@ -20,7 +20,7 @@ class BCNStorageTest(TestCase):
         res = BCNStorage.objects.create(
             bcnID = 0,
             bcnName = "Cost 1",
-            altID = {0},
+            altID = [0],
             bcnType = "Cost",
             bcnSubType = "Direct",
             tag = "Tag 1",

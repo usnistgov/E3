@@ -1,9 +1,7 @@
 from django.db import models
 
 class Sensitivity(models.Model):
-	"""
-	Purpose: Initializes a Sensitivity object
-	"""
+
 	globalVarBool = models.BooleanField(null= True)
 	altID 		  = models.IntegerField(null=True, unique=True)
 	bcnID 		  = models.CharField(null=True, max_length=30, default='')
