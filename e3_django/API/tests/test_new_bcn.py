@@ -4,7 +4,7 @@ from unittest import TestCase
 from API.objects import Bcn
 from API.objects import RequiredCashFlow
 from API.objects.Bcn import create_list
-from API.serializers import CostType
+from API.variables import CostType
 
 PLACES = Decimal(10) ** -4
 

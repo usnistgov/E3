@@ -8,8 +8,20 @@
 E3, a project at NIST, is an API that performs complex economic analysis.
 
 
+### Run with Docker
+Ensure that docker and docker-compose are installed on your system.
+
+Run with docker-compose:
+
+    $ docker-compose build
+    $ docker-compose up
+
+This will run the django development server at http://localhost:8000/. PostgreSQL 
+will be used as the database and RabbitMQ and a worker will be created for API
+requests.
+
 ## Getting Started
-Clone the repository from Github.
+Clone the repository from [Github](https://github.com/usnistgov/E3.git).
 
     $ git clone https://github.com/usnistgov/E3.git
     $ cd e3_django
@@ -30,15 +42,5 @@ You can now run the development server:
 
     $ python manage.py runserver
 
-
-### Run with Docker
-Ensure that docker and docker-compose are installed on your system.
-
-Run with docker-compose:
-
-    $ docker-compose build
-    $ docker-compose up
-
-
 ## Technologies used
-Python, Django, SQLite3, Docker
+Python, Django, PostgreSQL, Docker
