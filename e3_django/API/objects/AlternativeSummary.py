@@ -104,6 +104,17 @@ def ns_elasticity(savings: CostType, total_costs: CostType, delta_q: CostType, t
 def generate_tag_measures():
     pass
 
+def updateMeasure(measureName, flow):
+    """
+    Purpose: Based on measureName (string with the exact same name as the variable without 
+    the enclosing brackets if they exist) reset current measure to the input measure.
+    """
+    # if variable name `measureName` exists, resets current measure with input flow.
+    if self.measureName: 
+        self.measureName = flow
+        
+    return 
+
 
 class AlternativeSummary:
     """
@@ -113,12 +124,10 @@ class AlternativeSummary:
     def __init__(self, alt_id, reinvest_rate, study_period, marr, flow: RequiredCashFlow,
                  baseline: "AlternativeSummary" = None, irr: bool = False):
         self.altID = alt_id
-
         self.totalBenefits = sum(flow.totBenefitsDisc)
         self.totalCosts = sum(flow.totCostDisc)
         self.totalCostInv = sum(flow.totCostsDiscInv)
         self.totalCostsNonInv = sum(flow.totCostsNonDiscInv)
-
         self.netBenefits = net_benefits(self.totalBenefits, self.totalCosts, baseline.totalBenefits,
                                         baseline.totalCosts) if baseline else None
         self.netSavings = net_savings(self.totalCosts, baseline.totalCosts) if baseline else None
@@ -129,12 +138,9 @@ class AlternativeSummary:
         self.SPP = payback_period(flow.totCostNonDisc, flow.totBenefitsNonDisc)
         self.DPP = payback_period(flow.totCostDisc, flow.totBenefitsDisc)
         self.BCR = bcr(self.netSavings, self.totalCostInv, baseline.totalCostInv)
-
         self.quantSum = None
         self.quantUnits = None
-
         self.MARR = marr
-
         self.deltaQuant = None
         self.nsDeltaQuant = None
         self.nsElasticityQuant = None

@@ -46,7 +46,6 @@ class AnalysisSerializer(Serializer):
         # Check e3_django/API/models/userDefined/analysis.py &
         # Merge to this file:
 
-
         # 1. Depending on analysisType (LCCA, BCA, Cost-Loss, Profit Maximization), check all required inputs are included
         # Else, raise ValidationError
 

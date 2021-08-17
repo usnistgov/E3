@@ -7,36 +7,6 @@ Purpose: The Discounting Library serves two purposes.
 from . import validateRead as vr
 
 
-def inflationRateCalc(dRateNom, dRateReal):
-    """
-    Purpose: Returns inflation rate from nominal and real discount rates, 
-    if user fails to provide an inflation rate.
-    """
-    inflationRate = (1 + dRateNom) / (1 + dRateReal) - 1
-
-    return inflationRate
-
-
-def dRateNomCalc(inflationRate, dRateReal):
-    """
-    Purpose: Returns the nominal discount rate from inflation and real discount rates,
-    if user fails to provide a nominal discount rate.
-    """
-    dRateNorm = (1 + inflationRate) * (1 + dRateReal) - 1
-
-    return dRateNorm
-
-
-def dRateRealCalc(dRateNorm, inflationRate): 
-    """
-    Purpose: Returns the real discount rate from inflation and nominal discount rates,
-    if user fails to provide real discount rate.
-    """
-    dRateReal = (1 + dRateNorm) / (1 + inflationRate) - 1
-
-    return dRateReal
-
-
 def recurEscalationRateCorrection(analysisType, inflationRate, recurrenceVariabilityRateType, recurrenceVariabilityRateValues, time = None): 
     # realdiscountrate, nominaldiscountrate, inflationrate <- from Analysis Class. 
     #Higher lvl variables that are independent (above) all
