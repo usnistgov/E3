@@ -32,6 +32,14 @@ class CashFlow:
         """
         pass
 
+    def update(self, bcn, flow):
+        """To be added later for updating bcn values to this cash flow."""
+        pass
+    
+    def updateAllFlows(self, bcn, flowsList):
+        """To be added later for updating ALL bcn values to this cash flow."""
+        pass
+
     def print(self):
         """
         Prints a representation of this cash flow. Used for debugging.
@@ -127,6 +135,12 @@ class RequiredCashFlow(CashFlow):
 
         return self
 
+    def update(self, bcn: Bcn, flow: FlowType):
+        return self
+    
+    def updateAllFlows(self, bcn: Bcn, flowsList):
+        return self
+
 
 class OptionalCashFlow(CashFlow):
     """
@@ -147,4 +161,8 @@ class OptionalCashFlow(CashFlow):
         self.totTagFlowDisc = elementwise_add(self.totTagFlowDisc, flow[2])
         self.totTagQ = elementwise_add(self.totTagFlowDisc, flow[0])
 
+        return self
+
+    def update(self, bcn, flow):
+        """To be added later for updating optional cash flow."""
         return self
