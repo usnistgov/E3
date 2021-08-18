@@ -4,7 +4,9 @@ from rest_framework.serializers import Serializer
 
 from API.variables import MAX_DIGITS, DECIMAL_PLACES
 from API.serializers.fields import BooleanOptionField
+import logging
 
+logger = logging.getLogger(__name__)
 
 class BCNSerializer(Serializer):
     bcnID = IntegerField(min_value=0, unique=True, required=True)
@@ -40,22 +42,44 @@ class BCNSerializer(Serializer):
         if data["recurEndDate"] >= data["studyPeriod"]:
             raise ValidationError("recurEndDate must be less than studyPeriod")
 
+        # Check all required inputs are given, based on chosen bcnType.
+        if data['bcnType'] == 'Benefit':
+            if not data['initialOcc'] or not data['bcnRealBool'] or not data['valuePerQ']:
+                raise ValidationError("You must supply: initialOcc, bcnRealBool, valuePerQ if bcnType: Benefit.")
+            if not data['quantUnit']:
+                logger.info("quantUnit was not provided. Value will be assumed in dollars.")
 
-        # Check e3_django/API/models/userDefined/bcn.py &
-        # Merge to this file:
+        elif data['bcnType'] == 'Cost':
+            if not data['bcnRealBool'] or not data['bcnInvestBool'] or not data['valuePerQ']:
+                raise ValidationError("You must supply: bcnRealBool, bcnInvestBool, valuePerQ if bcnType: Cost.")
+            if not data['quantUnit']:
+                logger.info("quantUnit was not provided. Value will be assumed in dollars.")
         
-        # 1. Depending on bcnType (Benefit, Cost, NonMonetary), ensure all required inputs are included
-        # Else, raise ValidationError
+        elif data['bcnType'] == 'NonMonetary':
+            if not data['bcnTag'] or not data['quantUnit']:
+                raise ValidationError("You must supply: bcnTag, quantUnit if bcnType: NonMonetary.")
 
-        # 2. Depending on recurBool (True / False), ensure necessary fields are included
-        # Else, raise ValidationError
+        else:
+            logger.info("BCN type is unknown. Setting to Default.")
 
-        # 3. If quantVarRate exists, ensure quantVarValue is included
-        # Else, raise ValidationError
+
+        if data['recurBool']:
+            if not data['recurInterval'] or not data['recurVarRate'] or not data['recurVarValue']:
+                raise ValidationError("You must supply: recurInterval, recurVarRate, recurVarValue if recurBool: True.")
+        if data['quantVarRate']:
+            if not data['quantVarValue']:
+                raise ValidationError("You must supply: quantVarValue if quantVarRate exists.")
+
+        if not data['recurEndDate']:
+            logger.info("recurEndDate was not provided. BCN will occur for the entire studyPeriod.")
+
+        if data['quantUnit'] == "":
+            logger.warning('Warning: %s', 'The quantity unit supplied is blank.', extra=d)
 
         return data
 
 
     def updateObject(self, varName, newVal):
         self.varName = newVal
+        
         return

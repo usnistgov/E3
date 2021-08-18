@@ -17,17 +17,6 @@ class TotalOptionalFlows(models.Model):
 	totTagQ = models.JSONField(default=list)
 	quantUnits = models.CharField(max_length=30, default="dollars")
 
-	
-	def __init__(self, *args, **kwargs):
-		""" 
-        Purpose: Standard class constructor method. Create object based off of list of inputs developed from json string
-        in addition to the above checking methods provided by models. Class variables are provided in the following table. 
-        The STS document contains more information
-        """
-		print("TotalOptionalFlows CONSTRUCTOR method called")
-		# Add anything that should run BEFORE model validation.
-		return super().__init__(*args, **kwargs)
-
 		
 	def validateTotalOptionalFlows(self, totalOpFlowsObject):
 		"""
