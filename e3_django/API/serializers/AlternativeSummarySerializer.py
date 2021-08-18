@@ -1,5 +1,5 @@
 from rest_framework.serializers import Serializer
-from rest_framework.excaptions import ValidationError
+from rest_framework.exceptions import ValidationError
 from rest_framework.fields import DecimalField, ListField, CharField
 
 from API.variables import MAX_DIGITS, DECIMAL_PLACES
