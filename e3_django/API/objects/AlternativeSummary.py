@@ -2,12 +2,12 @@ from typing import Union
 
 import numpy
 
-from API.objects import RequiredCashFlow
+from API.objects import RequiredCashFlow, OptionalCashFlow
 from API.variables import CostType
 
 
 def net_benefits(benefits: CostType, costs: CostType, benefits_base: CostType, costs_base: CostType) -> CostType:
-    return (benefits - benefits_base) / (costs - costs_base)
+    return (benefits - benefits_base) - (costs - costs_base)
 
 
 def net_savings(costs: CostType, costs_base: CostType) -> CostType:
@@ -49,13 +49,13 @@ def check_fraction(numerator: CostType, denominator: CostType) -> Union[CostType
     :param denominator: The denominator of the fraction.
     :return: The calculated fraction or "Infinity" or "Not Calculable".
     """
-    if denominator > 0 and numerator > 0:
-        return numerator / denominator
-    elif denominator <= 0 and numerator > 0:
+    if denominator <= 0 and numerator > 0:
         # FIXME: Need to come up with a better tolerance here to avoid divide by zero error
         return "Infinity"
     elif denominator <= 0 and numerator <= 0:
         return "Not Calculable"
+    else:
+        return numerator / denominator
 
 
 def airr(sir_value: CostType, reinvest_rate: CostType, study_period: int) -> Union[CostType, str]:
@@ -67,7 +67,7 @@ def airr(sir_value: CostType, reinvest_rate: CostType, study_period: int) -> Uni
     :param study_period:
     :return: The calculated AIRR.
     """
-    if sir_value <= CostType(0):
+    if not isinstance(sir_value, CostType) or sir_value <= CostType(0):
         return "AIRR Not Calculable"
 
     return (1 + reinvest_rate) * sir_value ** CostType(1 / study_period) - 1
@@ -80,6 +80,8 @@ def payback_period(tot_costs, tot_benefits):  # used for both simple and discoun
     for i in range(len(tot_costs)):
         if numpy.subtract(tot_costs[i], tot_benefits[i]) <= 0:
             return i
+
+    return "Infinity"
 
 
 def ns_per_q(savings: CostType, delta_q: CostType) -> Union[CostType, str]:
@@ -98,22 +100,25 @@ def ns_per_pct_q(savings: CostType, delta_q: CostType, total_q_base: CostType) -
 
 def ns_elasticity(savings: CostType, total_costs: CostType, delta_q: CostType, total_q_base: CostType) \
         -> Union[CostType, str]:
+    if total_costs == 0:
+        return "Infinity"
+
     return ns_per_pct_q(savings / total_costs, delta_q, total_q_base)
 
 
-def generate_tag_measures():
-    pass
+# def generate_tag_measures():
+#     pass
 
-def updateMeasure(measureName, flow):
-    """
-    Purpose: Based on measureName (string with the exact same name as the variable without 
-    the enclosing brackets if they exist) reset current measure to the input measure.
-    """
-    # if variable name `measureName` exists, resets current measure with input flow.
-    if self.measureName: 
-        self.measureName = flow
-        
-    return 
+# def updateMeasure(measureName, flow):
+#     """
+#     Purpose: Based on measureName (string with the exact same name as the variable without
+#     the enclosing brackets if they exist) reset current measure to the input measure.
+#     """
+#     # if variable name `measureName` exists, resets current measure with input flow.
+#     if self.measureName:
+#         self.measureName = flow
+#
+#     return
 
 
 class AlternativeSummary:
@@ -122,7 +127,7 @@ class AlternativeSummary:
     """
 
     def __init__(self, alt_id, reinvest_rate, study_period, marr, flow: RequiredCashFlow,
-                 baseline: "AlternativeSummary" = None, irr: bool = False):
+                 optionals: list[OptionalCashFlow], baseline: "AlternativeSummary" = None, irr: bool = False):
         self.altID = alt_id
         self.totalBenefits = sum(flow.totBenefitsDisc)
         self.totalCosts = sum(flow.totCostDisc)
@@ -133,14 +138,27 @@ class AlternativeSummary:
         self.netSavings = net_savings(self.totalCosts, baseline.totalCosts) if baseline else None
         self.SIR = sir(self.totalCostInv, self.totalCostsNonInv, baseline.totalCostInv,
                        baseline.totalCostsNonInv) if baseline else None
-        self.IRR = numpy.irr(self.totFlowsNonDisc) if irr else None
+        self.IRR = numpy.irr(numpy.subtract(flow.totCostDisc, flow.totBenefitsDisc)) if irr else None
         self.AIRR = airr(self.SIR, reinvest_rate, study_period)
         self.SPP = payback_period(flow.totCostNonDisc, flow.totBenefitsNonDisc)
         self.DPP = payback_period(flow.totCostDisc, flow.totBenefitsDisc)
         self.BCR = bcr(self.netSavings, self.totalCostInv, baseline.totalCostInv)
-        self.quantSum = None
-        self.quantUnits = None
+
+        self.quantSum = [optional.totTagQ for optional in optionals]
+        self.quantUnits = [(optional.tag, optional.quantUnits) for optional in optionals]
+
         self.MARR = marr
-        self.deltaQuant = None
-        self.nsDeltaQuant = None
-        self.nsElasticityQuant = None
+
+        delta_q_list = [optional.totTagQ - baseline.totalCosts if baseline else optional.totTagQ for optional in
+                        optionals]
+
+        self.deltaQuant = delta_q_list
+        self.nsPercQuant = [
+            (optional.tag, ns_per_q(self.netSavings, optional.totTagQ) if baseline else optional.totTagQ) for optional
+            in optionals]
+        self.nsDeltaQuant = [
+            (optional.tag, ns_per_pct_q(self.netSavings, delta_q, baseline.totalCosts) if baseline else "Infinity") for
+            optional, delta_q in zip(optionals, delta_q_list)]
+        self.nsElasticityQuant = [(optional.tag, ns_elasticity(self.netSavings, self.totalCosts, delta_q,
+                                                               baseline.totalCosts) if baseline else "Infinity") for
+                                  optional, delta_q in zip(optionals, delta_q_list)]

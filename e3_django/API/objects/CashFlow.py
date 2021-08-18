@@ -56,6 +56,8 @@ class RequiredCashFlow(CashFlow):
     def __init__(self, alt: int, study_period: int):
         default = [CostType(0)] * (study_period + 1)
 
+        self.bcn_list = []
+
         self.altID = alt
 
         self.totCostNonDisc = default
@@ -89,6 +91,8 @@ class RequiredCashFlow(CashFlow):
         self.totBenefitsExtDisc = default
 
     def add(self, bcn: Bcn, flow: FlowType):
+        self.bcn_list.append(bcn)
+
         if bcn.bcnType == "Cost":
             self.totCostNonDisc = elementwise_add(self.totCostNonDisc, flow[1])
             self.totCostDisc = elementwise_add(self.totCostDisc, flow[2])

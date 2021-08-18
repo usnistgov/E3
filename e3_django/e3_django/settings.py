@@ -28,7 +28,7 @@ SECRET_KEY = 'yzp=q+*3e--r4ie+hzgj_@2$auyfk38l4#@1jj6tgshv0)dga2jn'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["e3test.el.nist.gov"]
+ALLOWED_HOSTS = ["e3test.el.nist.gov", "localhost"]
 
 STATIC_URL = '/static/'
 
@@ -47,7 +47,6 @@ INSTALLED_APPS = [
 
     # created
     'API.apps.ApiConfig',
-    'flow.apps.FlowConfig',
     'frontend.apps.FrontendConfig'
 ]
 
