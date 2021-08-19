@@ -16,6 +16,22 @@ def elementwise_add(x, y):
     return list(map(operator.add, x, y))
 
 
+def bcn_type(bcn_type_param: str):
+    """
+    Decorator to denote whether a method should run only when a BCN has the correct type.
+
+    :param bcn_type_param: The BCN type to allow the function to run.
+    :return: The wrapped decorator function.
+    """
+    def inner_decorator(f):
+        def wrapped(self, bcn_type_var: str, flow: FlowType):
+            if bcn_type_param == bcn_type_var:
+                f(self, flow)
+
+        return wrapped
+    return inner_decorator
+
+
 class CashFlow:
     """
     Represents a cash flow object in the API output. Functionality is added in subclasses.
@@ -39,13 +55,6 @@ class CashFlow:
     def updateAllFlows(self, bcn, flowsList):
         """To be added later for updating ALL bcn values to this cash flow."""
         pass
-
-    def print(self):
-        """
-        Prints a representation of this cash flow. Used for debugging.
-        """
-        pp = pprint.PrettyPrinter(indent=4, depth=2, compact=True, width=400)
-        pp.pprint(self.__dict__)
 
 
 class RequiredCashFlow(CashFlow):
@@ -90,52 +99,88 @@ class RequiredCashFlow(CashFlow):
         self.totBenefitsExt = default
         self.totBenefitsExtDisc = default
 
+    @bcn_type("Cost")
+    def add_base_cost(self, flow: FlowType):
+        self.totCostNonDisc = elementwise_add(self.totCostNonDisc, flow[1])
+        self.totCostDisc = elementwise_add(self.totCostDisc, flow[2])
+
+    @bcn_type("Benefits")
+    def add_base_benefits(self, flow: FlowType):
+        self.totBenefitsNonDisc = elementwise_add(self.totBenefitsNonDisc, flow[1])
+        self.totBenefitsDisc = elementwise_add(self.totBenefitsDisc, flow[2])
+
+    @bcn_type("Cost")
+    def add_invest_cost(self, flow: FlowType):
+        self.totCostsNonDiscInv = elementwise_add(self.totCostsNonDiscInv, flow[1])
+        self.totCostsDiscInv = elementwise_add(self.totCostsDiscInv, flow[2])
+
+    @bcn_type("Benefits")
+    def add_invest_benefits(self, flow: FlowType):
+        self.totBenefitsNonDiscInv = elementwise_add(self.totBenefitsNonDiscInv, flow[1])
+        self.totBenefitsDiscInv = elementwise_add(self.totBenefitsDiscInv, flow[2])
+
+    @bcn_type("Cost")
+    def add_non_invest_cost(self, flow: FlowType):
+        self.totCostNonDiscNonInv = elementwise_add(self.totCostNonDiscNonInv, flow[1])
+        self.totCostDiscNonInv = elementwise_add(self.totCostDiscNonInv, flow[2])
+
+    @bcn_type("Benefits")
+    def add_non_invest_benefits(self, flow: FlowType):
+        self.totBenefitsNonDiscNonInv = elementwise_add(self.totBenefitsNonDiscNonInv, flow[1])
+        self.totBenefitsDiscNonInv = elementwise_add(self.totBenefitsDiscNonInv, flow[2])
+
+    @bcn_type("Cost")
+    def add_direct_cost(self, flow: FlowType):
+        self.totCostDir = elementwise_add(self.totCostDir, flow[1])
+        self.totCostDirDisc = elementwise_add(self.totCostDirDisc, flow[2])
+
+    @bcn_type("Benefits")
+    def add_direct_benefits(self, flow: FlowType):
+        self.totBenefitsDir = elementwise_add(self.totBenefitsDir, flow[1])
+        self.totBenefitsDirDisc = elementwise_add(self.totBenefitsDirDisc, flow[2])
+
+    @bcn_type("Cost")
+    def add_indirect_cost(self, flow: FlowType):
+        self.totCostInd = elementwise_add(self.totCostInd, flow[1])
+        self.totCostIndDisc = elementwise_add(self.totCostIndDisc, flow[2])
+
+    @bcn_type("Benefits")
+    def add_indirect_benefits(self, flow: FlowType):
+        self.totBenefitsInd = elementwise_add(self.totBenefitsInd, flow[1])
+        self.totBenefitsIndDisc = elementwise_add(self.totBenefitsIndDisc, flow[2])
+
+    @bcn_type("Cost")
+    def add_external_cost(self, flow: FlowType):
+        self.totCostExt = elementwise_add(self.totCostExt, flow[1])
+        self.totCostExtDisc = elementwise_add(self.totCostExtDisc, flow[2])
+
+    @bcn_type("Benefits")
+    def add_external_benefits(self, flow: FlowType):
+        self.totBenefitsExt = elementwise_add(self.totBenefitsExt, flow[1])
+        self.totBenefitsExtDisc = elementwise_add(self.totBenefitsExtDisc, flow[2])
+
     def add(self, bcn: Bcn, flow: FlowType):
         self.bcn_list.append(bcn)
 
-        if bcn.bcnType == "Cost":
-            self.totCostNonDisc = elementwise_add(self.totCostNonDisc, flow[1])
-            self.totCostDisc = elementwise_add(self.totCostDisc, flow[2])
-        elif bcn.bcnType == "Benefits":
-            self.totBenefitsNonDisc = elementwise_add(self.totBenefitsNonDisc, flow[1])
-            self.totBenefitsDisc = elementwise_add(self.totBenefitsDisc, flow[2])
+        self.add_base_cost(bcn.bcnType, flow)
+        self.add_base_benefits(bcn.bcnType, flow)
 
         if bcn.bcnInvestBool:
-            if bcn.bcnType == "Cost":
-                self.totCostsNonDiscInv = elementwise_add(self.totCostsNonDiscInv, flow[1])
-                self.totCostsDiscInv = elementwise_add(self.totCostsDiscInv, flow[2])
-            elif bcn.bcnType == "Benefits":
-                self.totBenefitsNonDiscInv = elementwise_add(self.totBenefitsNonDiscInv, flow[1])
-                self.totBenefitsDiscInv = elementwise_add(self.totBenefitsDiscInv, flow[2])
+            self.add_invest_cost(bcn.bcnType, flow)
+            self.add_invest_benefits(bcn.bcnType, flow)
         else:
-            if bcn.bcnType == "Cost":
-                self.totCostNonDiscNonInv = elementwise_add(self.totCostNonDiscNonInv, flow[1])
-                self.totCostDiscNonInv = elementwise_add(self.totCostDiscNonInv, flow[2])
-            elif bcn.bcnType == "Benefits":
-                self.totBenefitsNonDiscNonInv = elementwise_add(self.totBenefitsNonDiscNonInv, flow[1])
-                self.totBenefitsDiscNonInv = elementwise_add(self.totBenefitsDiscNonInv, flow[2])
+            self.add_non_invest_cost(bcn.bcnType, flow)
+            self.add_non_invest_benefits(bcn.bcnType, flow)
 
         if bcn.bcnSubType == "Direct":
-            if bcn.bcnType == "Cost":
-                self.totCostDir = elementwise_add(self.totCostDir, flow[1])
-                self.totCostDirDisc = elementwise_add(self.totCostDirDisc, flow[2])
-            elif bcn.bcnType == "Benefits":
-                self.totBenefitsDir = elementwise_add(self.totBenefitsDir, flow[1])
-                self.totBenefitsDirDisc = elementwise_add(self.totBenefitsDirDisc, flow[2])
+            self.add_direct_cost(bcn.bcnType, flow)
+            self.add_direct_benefits(bcn.bcnType, flow)
         elif bcn.bcnSubType == "Indirect":
-            if bcn.bcnType == "Cost":
-                self.totCostInd = elementwise_add(self.totCostInd, flow[1])
-                self.totCostIndDisc = elementwise_add(self.totCostIndDisc, flow[2])
-            elif bcn.bcnType == "Benefits":
-                self.totBenefitsInd = elementwise_add(self.totBenefitsInd, flow[1])
-                self.totBenefitsIndDisc = elementwise_add(self.totBenefitsIndDisc, flow[2])
+            self.add_indirect_cost(bcn.bcnType, flow)
+            self.add_indirect_benefits(bcn.bcnType, flow)
         else:
-            if bcn.bcnType == "Cost":
-                self.totCostExt = elementwise_add(self.totCostExt, flow[1])
-                self.totCostExtDisc = elementwise_add(self.totCostExtDisc, flow[2])
-            elif bcn.bcnType == "Benefits":
-                self.totBenefitsExt = elementwise_add(self.totBenefitsExt, flow[1])
-                self.totBenefitsExtDisc = elementwise_add(self.totBenefitsExtDisc, flow[2])
+            self.add_external_cost(bcn.bcnType, flow)
+            self.add_external_benefits(bcn.bcnType, flow)
 
         return self
 
