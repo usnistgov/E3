@@ -1,35 +1,156 @@
+import pprint
 from decimal import Decimal
 from unittest import TestCase
 
 import pytest
 
-from API.objects import Bcn
+from API.objects import Bcn, RequiredCashFlow, OptionalCashFlow
 from API.objects.AlternativeSummary import sir, bcr, net_savings, net_benefits, check_fraction, airr, payback_period, \
-    ns_per_q, ns_per_pct_q, ns_elasticity
+    ns_per_q, ns_per_pct_q, ns_elasticity, AlternativeSummary, calculate_quant_sum
+from API.variables import CostType
 
 PLACES = Decimal(10) ** -13
 
 AIRR_NOT_CALCULABLE = "AIRR Not Calculable"
 INFINITY = "Infinity"
 NOT_CALCULABLE = "Not Calculable"
+AIRR_NOT_CALCULABLE = "AIRR Not Calculable"
+
 
 class NewAlternativeSummaryFunctionTest(TestCase):
+    def setUp(self):
+        self.bcn1 = Bcn(
+            10,
+            bcnID=1,
+            altID=[0, 1],
+            bcnType="Cost",
+            bcnSubType="Indirect",
+            bcnName="COST 2",
+            bcnTag=None,
+            initialOcc=1,
+            bcnInvestBool=False,
+            rvBool=False,
+            bcnLife=None,
+            recurBool=True,
+            recurInterval=1,
+            recurVarRate="percDelta",
+            recurVarValue=CostType("0.03"),
+            recurEndDate=None,
+            valuePerQ=CostType("2"),
+            quant=CostType("100"),
+            quantVarRate="percDelta",
+            quantVarValue=CostType("0.05"),
+            quantUnit="kWh"
+        )
+        self.bcn2 = Bcn(
+            10,
+            bcnID=2,
+            altID=[1, 2],
+            bcnType="Cost",
+            bcnSubType="Externality",
+            bcnName="EXT 2",
+            bcnTag=None,
+            initialOcc=5,
+            bcnInvestBool=True,
+            rvBool=False,
+            bcnLife=6,
+            recurBool=False,
+            recurInterval=None,
+            recurVarRate=None,
+            recurVarValue=None,
+            recurEndDate=None,
+            valuePerQ=CostType("1"),
+            quant=CostType("500"),
+            quantVarRate=None,
+            quantVarValue=None,
+            quantUnit=None
+        )
+        self.bcn3 = Bcn(
+            10,
+            bcnID=3,
+            altID=[1],
+            bcnType="Benefit",
+            bcnSubType="Direct",
+            bcnName="Benefit 1",
+            bcnTag="Tag 1",
+            initialOcc=2,
+            bcnInvestBool=False,
+            rvBool=False,
+            bcnLife=None,
+            recurBool=True,
+            recurInterval=2,
+            recurVarRate="percDelta",
+            recurVarValue=CostType("-0.03"),
+            recurEndDate=None,
+            valuePerQ=CostType("1"),
+            quant=CostType("30"),
+            quantVarRate=[0, 0.01, 0.01, 0.02, 0.02, 0.01, -0.01, 0.02, 0.01, 0, -0.02],
+            quantVarValue=None,
+            quantUnit="m^3"
+        )
+        self.bcn5 = Bcn(
+            10,
+            bcnID=5,
+            altID=[1, 2],
+            bcnType="Benefit",
+            bcnSubType="Indirect",
+            bcnName="Benefit 3",
+            bcnTag="Tag 1",
+            initialOcc=0,
+            bcnInvestBool=False,
+            rvBool=False,
+            bcnLife=None,
+            recurBool=True,
+            recurInterval=1,
+            recurVarRate="percDelta",
+            recurVarValue=CostType("0.01"),
+            recurEndDate=7,
+            valuePerQ=CostType("0.1"),
+            quant=CostType("90"),
+            quantVarRate="percDelta",
+            quantVarValue=CostType("-0.03"),
+            quantUnit="m^3"
+        )
+        self.bcn8 = Bcn(
+            10,
+            bcnID=8,
+            altID=[1, 2],
+            bcnType="Non-Monetary",
+            bcnSubType="Direct",
+            bcnName="NM 1",
+            bcnTag="Tag 3",
+            initialOcc=0,
+            bcnInvestBool=False,
+            rvBool=False,
+            bcnLife=None,
+            recurBool=True,
+            recurInterval=1,
+            recurVarRate=None,
+            recurVarValue=None,
+            recurEndDate=None,
+            valuePerQ=None,
+            quant=CostType("100"),
+            quantVarRate=None,
+            quantVarValue=None,
+            quantUnit="m^3"
+        )
+
     def test_sir_infinity(self):
         result = sir(Decimal("431.304392192082"), Decimal("133.831872126668"), Decimal("94.9622352953234"),
-                      Decimal("1148.99048312239"))
+                     Decimal("1148.99048312239"))
         assert result == INFINITY
 
     def test_sir_0(self):
-        result = sir(Decimal("0"), Decimal("1148.99048"), Decimal("139.60787"), Decimal("1148.99048"))
+        result = sir(Decimal("1148.99048"), Decimal("1148.99048"), Decimal("139.60787"), Decimal("0"))
         assert result == 0
 
     def test_sir_not_calculable(self):
         result = sir(Decimal("431.304392192082"), Decimal("1148.99048312239"), Decimal("94.9622352953234"),
-                      Decimal("1148.99048312239"))
+                     Decimal("1148.99048312239"))
         assert result == NOT_CALCULABLE
 
     def test_sir(self):
-        result = sir(Decimal("100"), Decimal("300"), Decimal("200"), Decimal("550"))
+        result = sir(Decimal("550"), Decimal("300"), Decimal("200"), Decimal("100"))
         assert result == Decimal("2.5")
 
     def test_bcr_not_calculable(self):
@@ -144,6 +265,41 @@ class NewAlternativeSummaryFunctionTest(TestCase):
         assert result1 == Decimal("1")
         assert result2 == Decimal("0.5")
 
+    def test_calculate_quant_sum(self):
+        # Given
+        x = OptionalCashFlow(0, "tag1", "units", 1).add(None, ([CostType(1)] * 2, [CostType(2)] * 2, [CostType(3)] * 2))
+        y = OptionalCashFlow(0, "tag1", "units", 1).add(None, ([CostType(4)] * 2, [CostType(5)] * 2, [CostType(6)] * 2))
+
+        # When
+        result = calculate_quant_sum([x, y])
+
+        # Expect
+        assert result == [CostType("2"), CostType("8")]
+
+    def test_calculate_quant_sum_with_bcns(self):
+        # Given
+        optionals = {}
+        bcn_list = [self.bcn1, self.bcn2, self.bcn3, self.bcn5, self.bcn8]
+
+        for bcn in bcn_list:
+            for tag in bcn.bcnTag:
+                if tag is None:
+                    continue
+
+                if tag not in optionals:
+                    optionals[tag] = OptionalCashFlow(1, tag, bcn.quantUnit, 10)
+
+                optionals[tag].add(bcn, bcn.cash_flows(10, CostType("0.02")))
+
+        print(optionals)
+
+        # When
+        result = calculate_quant_sum(optionals.values())
+
+        # Expect
+        assert result == [CostType("2"), CostType("8")]
+
+
 class NewAlternativeSummaryTest(TestCase):
     def setUp(self):
         self.bcn0 = Bcn(
@@ -153,7 +309,7 @@ class NewAlternativeSummaryTest(TestCase):
             bcnType="Cost",
             bcnSubType="Direct",
             bcnName="BCN 1",
-            bcnTag=None,
+            bcnTag="test_tag",
             initialOcc=1,
             bcnRealBool=False,
             bcnInvestBool=True,
@@ -168,8 +324,21 @@ class NewAlternativeSummaryTest(TestCase):
             quant=Decimal("100"),
             quantVarRate=None,
             quantVarValue=None,
-            quantUnit=None
+            quantUnit="test_units"
         )
 
     def test(self):
-        assert False
+        cash_flow = self.bcn0.cash_flows(10, CostType("0.06"))
+
+        required_flow = RequiredCashFlow(0, 10)
+        optional_flow = OptionalCashFlow(0, "test_tag", "test_units", 10)
+
+        required_flow.add(self.bcn0, cash_flow)
+        optional_flow.add(self.bcn0, cash_flow)
+
+        alternative_summary = AlternativeSummary(0, 0.06, 10, 15, required_flow, [optional_flow], None, False)
+
+        print(alternative_summary.__dict__)
+
+        pp = pprint.PrettyPrinter()
+        pp.pprint(alternative_summary.__dict__)

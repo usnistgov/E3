@@ -1,4 +1,4 @@
-from typing import Any, Sequence, Callable
+from typing import Any, Sequence, Generator
 
 from API.variables import CostType, FlowType
 
@@ -48,7 +48,7 @@ class Bcn:
         self.bcnInvestBool = kwargs.get("bcnInvestBool", False)
         self.rvBool = kwargs.get("rvBool", None)
         self.recurBool = kwargs.get("recurBool", None)
-        self.recurInterval = kwargs.get("recurInterval", None)
+        self.recurInterval = kwargs.get("recurInterval", 1)
         self.recurVarRate = kwargs.get("recurVarRate", None)
         self.recurVarValue = kwargs.get("recurVarValue", CostType(0))
         self.recurEndDate = kwargs.get("recurEndDate", self.initialOcc)
@@ -62,7 +62,8 @@ class Bcn:
         if not isinstance(self.recurVarValue, Sequence):
             self.recurVarValue = create_list(studyPeriod, default=self.recurVarValue if self.recurVarValue else 0)
         if not isinstance(self.quantVarValue, Sequence):
-            self.quantVarValue = create_list(studyPeriod, default=self.quantVarValue if self.quantVarValue else 0)
+            self.quantVarValue =  ([CostType("0")] * self.initialOcc) + \
+                create_list(studyPeriod - self.initialOcc, default=self.quantVarValue if self.quantVarValue else 0)
         if not isinstance(self.bcnTag, list):
             self.bcnTag = [self.bcnTag]
 
@@ -70,6 +71,8 @@ class Bcn:
         # value.
         if self.recurEndDate is None:
             self.recurEndDate = studyPeriod if self.recurBool else self.initialOcc
+        if self.recurInterval is None:
+            self.recurInterval = 1
 
         # Ensure values are correct type for computation
         if not all([isinstance(value, CostType) for value in self.recurVarValue]):
@@ -77,7 +80,7 @@ class Bcn:
         if not all([isinstance(value, CostType) for value in self.quantVarValue]):
             self.quantVarValue = [CostType(value) for value in self.quantVarValue]
         if not isinstance(self.valuePerQ, CostType):
-            self.valuePerQ = CostType(self.valuePerQ)
+            self.valuePerQ = CostType(self.valuePerQ if self.valuePerQ else 0)
 
     def __repr__(self) -> str:
         return f"BCN ID: {self.bcnID}"
@@ -93,8 +96,8 @@ class Bcn:
         if not isinstance(rate, CostType):
             rate = CostType(rate)
 
-        quantities = self.quantities(study_period)
-        values = self.values(study_period, quantities)
+        quantities = list(self.quantities(study_period))
+        values = list(self.values(study_period, quantities))
 
         if self.rvBool:
             values = self.residual_value(study_period, values)
@@ -103,49 +106,56 @@ class Bcn:
 
         return quantities, values, discounted_values
 
-    def values(self, study_period: int, quantities: list[CostType]) -> list[CostType]:
+    def values(self, study_period: int, quantities: list[CostType]) -> Generator[CostType, None, None]:
         """
         Calculates the non-discounted values for over the study period from the given quantities.
 
         :param study_period: The study period the analysis is over.
-        :param quantities: A list of quantities in the study period.
+        :param quantities: The list of quantities.
         :return: A list of non-discounted values in the correct position in a study period length array.
         """
-        return self.period_calc(
+        return self.generator_base(
             study_period,
-            lambda i, _: quantities[i] * self.valuePerQ * ((1 + self.recurVarValue[i - self.initialOcc - 1]) ** i)
+            lambda i: quantities[i] * self.valuePerQ * ((1 + self.recurVarValue[i - self.initialOcc - 1]) ** i)
         )
 
-    def quantities(self, study_period: int) -> list[CostType]:
+    def quantity_var_value(self) -> Generator[CostType, None, None]:
+        """
+        A generator which calculates the the quantity var values for this BCN.
+
+        :return: A generator returning the next quantity value.
+        """
+        result = 1
+
+        for i in range(0, self.recurEndDate + 1):
+            result = result * (1 + self.quantVarValue[i])
+
+            if i >= self.initialOcc and (i - self.initialOcc) % self.recurInterval == 0:
+                yield result
+
+    def quantities(self, study_period: int) -> Generator[CostType, None, None]:
         """
         Calculates the quantities over the study period.
 
         :param study_period: The study period the analysis is over.
         :return: A list of quantities at the correct position in a study period length array.
         """
-        return self.period_calc(
-            study_period,
-            lambda i, previous: previous * (1 + self.quantVarValue[i - self.initialOcc - 1]),
-            initial=self.quant
-        )
+        quantity_var_value = self.quantity_var_value()
+        return self.generator_base(study_period, lambda _: self.quant * next(quantity_var_value))
 
-    def period_calc(self, study_period: int, calculation: Callable, initial: CostType = None) -> list[CostType]:
+    def generator_base(self, study_period, calculation) -> Generator[CostType, None, None]:
         """
-        Performs the specified calculation on an array from the initial occurrence to the recur end date. The
-        calculation must be a function or lambda that accepts the current index and the previous value as parameters.
-        For the first value, you can specify an initial value to pass to the calculation.
+        Creates a generator which performs the given calculation in the correct time slots or else returns 0.
 
-        :param study_period: The study period of the bcn.
-        :param calculation: The function to run for every index in the BCN range.
-        :param initial: The initial value to pass to the calculation for the first calculation.
-        :return: A list of the study period with the values created by the calculation for the BCN range.
+        :param study_period: The length of the study period, the generator will produce a list of this value plus one.
+        :param calculation: A lambda which takes the current index and returns a CostType.
+        :return: A generator which returns CostType objects.
         """
-        result = create_list(study_period)
-
-        for i in range(self.initialOcc, self.recurEndDate + 1):
-            result[i] = calculation(i, result[i - 1] if i > self.initialOcc else initial)
-
-        return result
+        for i in range(0, study_period + 1):
+            if i < self.initialOcc or (i - self.initialOcc) % self.recurInterval or i > self.recurEndDate:
+                yield CostType("0")
+            else:
+                yield calculation(i)
 
     def residual_value(self, study_period: int, values: Sequence[CostType]) -> list[CostType]:
         """

@@ -26,15 +26,16 @@ def bcr(benefits: CostType, costs_inv: CostType, costs_inv_base: CostType) -> Un
     return check_fraction(benefits, costs_inv - costs_inv_base)
 
 
-def sir(costs_inv: CostType, costs_non_inv: CostType, costs_inv_base: CostType, costs_non_inv_base: CostType) \
+def sir(costs_non_inv_base: CostType, costs_non_inv: CostType, costs_inv_base: CostType, costs_inv: CostType) \
         -> Union[CostType, str]:
     """
     Calculate Saving to Investment Ratio (SIR)
 
-    :param costs_inv:
+    :param costs_non_inv_base:
     :param costs_non_inv:
     :param costs_inv_base:
-    :param costs_non_inv_base:
+    :param costs_inv:
+
     :return: The calculated SIR.
     """
     return check_fraction(costs_non_inv_base - costs_non_inv, costs_inv_base - costs_inv)
@@ -136,29 +137,44 @@ class AlternativeSummary:
         self.netBenefits = net_benefits(self.totalBenefits, self.totalCosts, baseline.totalBenefits,
                                         baseline.totalCosts) if baseline else None
         self.netSavings = net_savings(self.totalCosts, baseline.totalCosts) if baseline else None
-        self.SIR = sir(self.totalCostInv, self.totalCostsNonInv, baseline.totalCostInv,
-                       baseline.totalCostsNonInv) if baseline else None
+        self.SIR = sir(baseline.totalCostsNonInv, self.totalCostsNonInv, baseline.totalCostInv, self.totalCostInv) if baseline else None
         self.IRR = numpy.irr(numpy.subtract(flow.totCostDisc, flow.totBenefitsDisc)) if irr else None
         self.AIRR = airr(self.SIR, reinvest_rate, study_period)
         self.SPP = payback_period(flow.totCostNonDisc, flow.totBenefitsNonDisc)
         self.DPP = payback_period(flow.totCostDisc, flow.totBenefitsDisc)
-        self.BCR = bcr(self.netSavings, self.totalCostInv, baseline.totalCostInv)
+        self.BCR = bcr(self.netSavings, self.totalCostInv, baseline.totalCostInv) if baseline else None
 
-        self.quantSum = [optional.totTagQ for optional in optionals]
-        self.quantUnits = [(optional.tag, optional.quantUnits) for optional in optionals]
+        self.quantSum = calculate_quant_sum(optionals)
+        self.quantUnits = calculate_quant_units(optionals)
 
         self.MARR = marr
 
-        delta_q_list = [optional.totTagQ - baseline.totalCosts if baseline else optional.totTagQ for optional in
-                        optionals]
+        self.deltaQuant = calculate_delta_quant(optionals, baseline.totalCosts if baseline else CostType(0))
+        self.nsPercQuant = calculate_ns_perc_quant(self.netSavings, optionals, baseline)
+        self.nsDeltaQuant = calculate_ns_delta_quant(self.netSavings, self.deltaQuant, optionals, baseline)
+        self.nsElasticityQuant = calculate_ns_elasticity_quant(self.netSavings, self.deltaQuant, self.totalCosts,
+                                                               optionals, baseline)
 
-        self.deltaQuant = delta_q_list
-        self.nsPercQuant = [
-            (optional.tag, ns_per_q(self.netSavings, optional.totTagQ) if baseline else optional.totTagQ) for optional
-            in optionals]
-        self.nsDeltaQuant = [
-            (optional.tag, ns_per_pct_q(self.netSavings, delta_q, baseline.totalCosts) if baseline else "Infinity") for
-            optional, delta_q in zip(optionals, delta_q_list)]
-        self.nsElasticityQuant = [(optional.tag, ns_elasticity(self.netSavings, self.totalCosts, delta_q,
-                                                               baseline.totalCosts) if baseline else "Infinity") for
-                                  optional, delta_q in zip(optionals, delta_q_list)]
+
+def calculate_quant_sum(optionals):
+    return [sum(optional.totTagQ) for optional in optionals]
+
+
+def calculate_quant_units(optionals):
+    return [(optional.tag, optional.quantUnits) for optional in optionals]
+
+
+def calculate_delta_quant(optionals, baseline_total_cost: CostType = CostType(0)):
+    return [optional.totTagQ - baseline_total_cost for optional in optionals]
+
+
+def calculate_ns_perc_quant(savings, optionals, baseline):
+    return [(optional.tag, ns_per_q(savings, optional.totTagQ) if baseline else optional.totTagQ) for optional in optionals]
+
+
+def calculate_ns_delta_quant(savings, delta_q, optionals, baseline):
+    return [(optional.tag, ns_per_pct_q(savings, delta_q, baseline.totalCosts) if baseline else "Infinity") for optional, delta_q in zip(optionals, delta_q)]
+
+
+def calculate_ns_elasticity_quant(savings, delta_q, total_costs, optionals, baseline):
+    return [(optional.tag, ns_elasticity(savings, total_costs, delta_q, baseline.totalCosts) if baseline else "Infinity") for optional, delta_q in zip(optionals, delta_q)]

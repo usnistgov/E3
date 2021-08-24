@@ -208,7 +208,7 @@ class OptionalCashFlow(CashFlow):
 
     def add(self, bcn, flow):
         self.totTagFlowDisc = elementwise_add(self.totTagFlowDisc, flow[2])
-        self.totTagQ = elementwise_add(self.totTagFlowDisc, flow[0])
+        self.totTagQ = elementwise_add(self.totTagQ, flow[0])
 
         return self
 

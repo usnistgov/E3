@@ -65,6 +65,124 @@ class NewBcnTest(TestCase):
             .add(self.bcn0, self.bcn0.cash_flows(10, Decimal("0.03"))) \
             .add(self.bcn1, self.bcn1.cash_flows(10, Decimal("0.03")))
 
+        self.case_2 = {
+            "bcn1": Bcn(
+                10,
+                bcnID=1,
+                altID=[0, 1],
+                bcnType="Cost",
+                bcnSubType="Indirect",
+                bcnName="COST 2",
+                bcnTag=None,
+                initialOcc=1,
+                bcnInvestBool=False,
+                rvBool=False,
+                bcnLife=None,
+                recurBool=True,
+                recurInterval=1,
+                recurVarRate="percDelta",
+                recurVarValue=CostType("0.03"),
+                recurEndDate=None,
+                valuePerQ=CostType("2"),
+                quant=CostType("100"),
+                quantVarRate="percDelta",
+                quantVarValue=CostType("0.05"),
+                quantUnit="kWh"
+            ),
+            "bcn2": Bcn(
+                10,
+                bcnID=2,
+                altID=[1, 2],
+                bcnType="Cost",
+                bcnSubType="Externality",
+                bcnName="EXT 2",
+                bcnTag=None,
+                initialOcc=5,
+                bcnInvestBool=True,
+                rvBool=False,
+                bcnLife=6,
+                recurBool=False,
+                recurInterval=None,
+                recurVarRate=None,
+                recurVarValue=None,
+                recurEndDate=None,
+                valuePerQ=CostType("1"),
+                quant=CostType("500"),
+                quantVarRate=None,
+                quantVarValue=None,
+                quantUnit=None
+            ),
+            "bcn3": Bcn(
+                10,
+                bcnID=3,
+                altID=[1],
+                bcnType="Benefit",
+                bcnSubType="Direct",
+                bcnName="Benefit 1",
+                bcnTag="Tag 1",
+                initialOcc=2,
+                bcnInvestBool=False,
+                rvBool=False,
+                bcnLife=None,
+                recurBool=True,
+                recurInterval=2,
+                recurVarRate="percDelta",
+                recurVarValue=CostType("-0.03"),
+                recurEndDate=None,
+                valuePerQ=CostType("1"),
+                quant=CostType("30"),
+                quantVarRate="percDelta",
+                quantVarValue=[0, 0.01, 0.01, 0.02, 0.02, 0.01, -0.01, 0.02, 0.01, 0, -0.02],
+                quantUnit="m^3"
+            ),
+            "bcn5": Bcn(
+                10,
+                bcnID=5,
+                altID=[1, 2],
+                bcnType="Benefit",
+                bcnSubType="Indirect",
+                bcnName="Benefit 3",
+                bcnTag="Tag 1",
+                initialOcc=0,
+                bcnInvestBool=False,
+                rvBool=False,
+                bcnLife=None,
+                recurBool=True,
+                recurInterval=1,
+                recurVarRate="percDelta",
+                recurVarValue=CostType("0.01"),
+                recurEndDate=7,
+                valuePerQ=CostType("0.1"),
+                quant=CostType("90"),
+                quantVarRate="percDelta",
+                quantVarValue=CostType("-0.03"),
+                quantUnit="m^3"
+            ),
+            "bcn8": Bcn(
+                10,
+                bcnID=8,
+                altID=[1, 2],
+                bcnType="Non-Monetary",
+                bcnSubType="Direct",
+                bcnName="NM 1",
+                bcnTag="Tag 3",
+                initialOcc=0,
+                bcnInvestBool=False,
+                rvBool=False,
+                bcnLife=None,
+                recurBool=True,
+                recurInterval=1,
+                recurVarRate=None,
+                recurVarValue=None,
+                recurEndDate=None,
+                valuePerQ=None,
+                quant=CostType("100"),
+                quantVarRate=None,
+                quantVarValue=None,
+                quantUnit="m^3"
+            )
+        }
+
     def test_create_array(self):
         # Given
         expected1 = [CostType(x) for x in [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]
@@ -83,7 +201,7 @@ class NewBcnTest(TestCase):
         expected = [0, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
         # When
-        quantities = self.bcn0.quantities(10)
+        quantities = list(self.bcn0.quantities(10))
 
         # Expect
         assert quantities == expected
@@ -137,6 +255,14 @@ class NewBcnTest(TestCase):
 
         # Expect
         assert actual == expected
+
+    def test_cash_flow_returns_values_list_quant_var_rate(self):
+        quantities, _, _ = self.case_2["bcn3"].cash_flows(10, CostType("0.02"))
+        result = [x.quantize(PLACES) for x in quantities]
+
+        assert result == [CostType(x).quantize(PLACES) for x in
+                          ["0", "0", "30.603", "0", "31.8393612", "0", "31.83617726388", "0", "32.7976298172492", "0",
+                           "32.1416772209042"]]
 
     def test_discounted_values(self):
         # Given
@@ -428,7 +554,6 @@ class NewBcnTest(TestCase):
 
         # Expect
         assert actual == expected
-
 
     def test_residual_value_study_period_equal_to_life(self):
         # Given

@@ -1,5 +1,6 @@
 from drf_compound_fields.fields import ListOrItemField
-from rest_framework.fields import IntegerField, ListField, ChoiceField, CharField, BooleanField, DecimalField
+from rest_framework.exceptions import ValidationError
+from rest_framework.fields import IntegerField, ListField, ChoiceField, CharField, BooleanField, DecimalField, DateField
 from rest_framework.serializers import Serializer
 
 from API.variables import MAX_DIGITS, DECIMAL_PLACES
@@ -7,6 +8,7 @@ from API.serializers.fields import BooleanOptionField
 import logging
 
 logger = logging.getLogger(__name__)
+
 
 class BCNSerializer(Serializer):
     bcnID = IntegerField(min_value=0, unique=True, required=True)
@@ -62,7 +64,6 @@ class BCNSerializer(Serializer):
         else:
             logger.info("BCN type is unknown. Setting to Default.")
 
-
         if data['recurBool']:
             if not data['recurInterval'] or not data['recurVarRate'] or not data['recurVarValue']:
                 raise ValidationError("You must supply: recurInterval, recurVarRate, recurVarValue if recurBool: True.")
@@ -78,8 +79,5 @@ class BCNSerializer(Serializer):
 
         return data
 
-
     def updateObject(self, varName, newVal):
         self.varName = newVal
-        
-        return
