@@ -127,7 +127,7 @@ class NewBcnTest(TestCase):
                 recurBool=True,
                 recurInterval=2,
                 recurVarRate="percDelta",
-                recurVarValue=CostType("-0.03"),
+                recurVarValue=None,
                 recurEndDate=None,
                 valuePerQ=CostType("1"),
                 quant=CostType("30"),
@@ -152,7 +152,7 @@ class NewBcnTest(TestCase):
                 recurVarRate="percDelta",
                 recurVarValue=CostType("0.01"),
                 recurEndDate=7,
-                valuePerQ=CostType("0.1"),
+                valuePerQ=CostType("0.01"),
                 quant=CostType("90"),
                 quantVarRate="percDelta",
                 quantVarValue=CostType("-0.03"),
@@ -255,14 +255,6 @@ class NewBcnTest(TestCase):
 
         # Expect
         assert actual == expected
-
-    def test_cash_flow_returns_values_list_quant_var_rate(self):
-        quantities, _, _ = self.case_2["bcn3"].cash_flows(10, CostType("0.02"))
-        result = [x.quantize(PLACES) for x in quantities]
-
-        assert result == [CostType(x).quantize(PLACES) for x in
-                          ["0", "0", "30.603", "0", "31.8393612", "0", "31.83617726388", "0", "32.7976298172492", "0",
-                           "32.1416772209042"]]
 
     def test_discounted_values(self):
         # Given
@@ -589,3 +581,72 @@ class NewBcnTest(TestCase):
 
         # Expect
         assert actual == expected
+
+    def test_cash_flow_returns_quantities_list_quant_var_rate(self):
+        quantities, _, _ = self.case_2["bcn3"].cash_flows(10, CostType("0.03"))
+        result = [x.quantize(PLACES) for x in quantities]
+
+        assert result == [CostType(x).quantize(PLACES) for x in
+                          ["0", "0", "30.603", "0", "31.8393612", "0", "31.83617726388", "0", "32.7976298172492", "0",
+                           "32.1416772209042"]]
+
+    def test_cash_flow_returns_values_list_quant_var_rate(self):
+        _, values, _ = self.case_2["bcn3"].cash_flows(10, CostType("0.03"))
+        result = [x.quantize(PLACES) for x in values]
+
+        assert result == [CostType(x).quantize(PLACES) for x in
+                          ["0", "0", "30.603", "0", "31.8393612", "0", "31.83617726388", "0", "32.7976298172492", "0",
+                           "32.1416772209042"]]
+
+    def test_cash_flow_returns_discounted_values_list_quant_var_rate(self):
+        _, _, discounted = self.case_2["bcn3"].cash_flows(10, CostType("0.03"))
+        result = [x.quantize(PLACES) for x in discounted]
+
+        assert result == [CostType(x).quantize(PLACES) for x in
+                          ["0", "0", "28.8462626072203", "0", "28.2888600401093", "0", "26.6622972514896", "0",
+                           "25.8907518413466", "0", "23.9164264346495"]]
+
+    def test_cash_flow_returns_quantities_bcn5(self):
+        quantities, _, _ = self.case_2["bcn5"].cash_flows(10, CostType("0.03"))
+        result = [x.quantize(PLACES) for x in quantities]
+
+        assert result == [CostType(x).quantize(PLACES) for x in
+                          ["90", "87.3", "84.681", "82.14057", "79.6763529", "77.286062313", "74.96748044361",
+                           "72.7184560303017", "0", "0", "0"]]
+
+    def test_cash_flow_returns_values_bcn5(self):
+        _, values, _ = self.case_2["bcn5"].cash_flows(10, CostType("0.03"))
+        result = [x.quantize(PLACES) for x in values]
+
+        assert result == [CostType(x).quantize(PLACES) for x in
+                          ["0.9", "0.88173", "0.863830881", "0.8462951141157", "0.829115323299151", "0.812284282236178",
+                           "0.795794911306784", "0.779640274607256", "0", "0", "0"]]
+
+    def test_cash_flow_returns_discounted_values_bcn5(self):
+        _, _, discounted = self.case_2["bcn5"].cash_flows(10, CostType("0.03"))
+        result = [x.quantize(PLACES) for x in discounted]
+
+        assert result == [CostType(x).quantize(PLACES) for x in
+                          ["0.9", "0.85604854368932", "0.814243454614007", "0.774479915034313", "0.736658225979725",
+                           "0.700683557274113", "0.666465709768396", "0.633918889184561", "0", "0", "0"]]
+
+    def test_cash_flow_returns_quantities_bcn8(self):
+        quantities, _, _ = self.case_2["bcn8"].cash_flows(10, CostType("0.03"))
+        result = [x.quantize(PLACES) for x in quantities]
+
+        assert result == [CostType(x).quantize(PLACES) for x in
+                          ["100"] * 11]
+
+    def test_cash_flow_returns_values_bcn8(self):
+        _, values, _ = self.case_2["bcn8"].cash_flows(10, CostType("0.03"))
+        result = [x.quantize(PLACES) for x in values]
+
+        assert result == [CostType(x).quantize(PLACES) for x in
+                          ["0"] * 11]
+
+    def test_cash_flow_returns_discounted_values_bcn8(self):
+        _, _, discounted = self.case_2["bcn8"].cash_flows(10, CostType("0.03"))
+        result = [x.quantize(PLACES) for x in discounted]
+
+        assert result == [CostType(x).quantize(PLACES) for x in
+                          ["0"] * 11]

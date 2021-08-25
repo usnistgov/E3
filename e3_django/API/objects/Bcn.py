@@ -62,7 +62,7 @@ class Bcn:
         if not isinstance(self.recurVarValue, Sequence):
             self.recurVarValue = create_list(studyPeriod, default=self.recurVarValue if self.recurVarValue else 0)
         if not isinstance(self.quantVarValue, Sequence):
-            self.quantVarValue =  ([CostType("0")] * self.initialOcc) + \
+            self.quantVarValue = ([CostType("0")] * (self.initialOcc if self.initialOcc > 0 else 1)) + \
                 create_list(studyPeriod - self.initialOcc, default=self.quantVarValue if self.quantVarValue else 0)
         if not isinstance(self.bcnTag, list):
             self.bcnTag = [self.bcnTag]
@@ -116,7 +116,7 @@ class Bcn:
         """
         return self.generator_base(
             study_period,
-            lambda i: quantities[i] * self.valuePerQ * ((1 + self.recurVarValue[i - self.initialOcc - 1]) ** i)
+            lambda i: quantities[i] * self.valuePerQ * ((1 + self.recurVarValue[i]) ** i)
         )
 
     def quantity_var_value(self) -> Generator[CostType, None, None]:
