@@ -70,12 +70,12 @@ class RequiredCashFlowTest(TestCase):
             bcnLife=None,
             recurBool=True,
             recurInterval=1,
-            recurVarRate="percDelta",
+            recurVarRate="Percent Delta Timestep X-1",
             recurVarValue=CostType("0"),
             recurEndDate=None,
             valuePerQ=CostType("0"),
             quant=CostType("2"),
-            quantVarRate="percDelta",
+            quantVarRate="Percent Delta Timestep X-1",
             quantVarValue=CostType("0"),
             quantUnit="kWh"
         )
@@ -94,12 +94,12 @@ class RequiredCashFlowTest(TestCase):
             bcnLife=None,
             recurBool=True,
             recurInterval=1,
-            recurVarRate="percDelta",
+            recurVarRate="Percent Delta Timestep X-1",
             recurVarValue=CostType("0"),
             recurEndDate=None,
             valuePerQ=CostType("0"),
             quant=CostType("2"),
-            quantVarRate="percDelta",
+            quantVarRate="Percent Delta Timestep X-1",
             quantVarValue=CostType("0"),
             quantUnit="kWh"
         )
@@ -118,12 +118,12 @@ class RequiredCashFlowTest(TestCase):
             bcnLife=None,
             recurBool=True,
             recurInterval=1,
-            recurVarRate="percDelta",
+            recurVarRate="Percent Delta Timestep X-1",
             recurVarValue=CostType("0"),
             recurEndDate=None,
             valuePerQ=CostType("0"),
             quant=CostType("2"),
-            quantVarRate="percDelta",
+            quantVarRate="Percent Delta Timestep X-1",
             quantVarValue=CostType("0"),
             quantUnit="kWh"
         )

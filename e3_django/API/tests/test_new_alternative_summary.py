@@ -6,10 +6,12 @@ import pytest
 
 from API.objects import Bcn, RequiredCashFlow, OptionalCashFlow
 from API.objects.AlternativeSummary import sir, bcr, net_savings, net_benefits, check_fraction, airr, payback_period, \
-    ns_per_q, ns_per_pct_q, ns_elasticity, AlternativeSummary, calculate_quant_sum
+    ns_per_q, ns_per_pct_q, ns_elasticity, AlternativeSummary, calculate_quant_sum, calculate_quant_units, \
+    calculate_delta_quant, calculate_ns_perc_quant, calculate_ns_delta_quant, calculate_ns_elasticity_quant
 from API.variables import CostType
 
 PLACES = Decimal(10) ** -13
+SIGNIFICANT = Decimal(10) ** -4
 
 AIRR_NOT_CALCULABLE = "AIRR Not Calculable"
 INFINITY = "Infinity"
@@ -33,12 +35,12 @@ class NewAlternativeSummaryFunctionTest(TestCase):
             bcnLife=None,
             recurBool=True,
             recurInterval=1,
-            recurVarRate="percDelta",
+            recurVarRate="Percent Delta Timestep X-1",
             recurVarValue=CostType("0.03"),
             recurEndDate=None,
             valuePerQ=CostType("2"),
             quant=CostType("100"),
-            quantVarRate="percDelta",
+            quantVarRate="Percent Delta Timestep X-1",
             quantVarValue=CostType("0.05"),
             quantUnit="kWh"
         )
@@ -79,13 +81,13 @@ class NewAlternativeSummaryFunctionTest(TestCase):
             bcnLife=None,
             recurBool=True,
             recurInterval=2,
-            recurVarRate="percDelta",
-            recurVarValue=CostType("-0.03"),
+            recurVarRate="Percent Delta Timestep X-1",
+            recurVarValue=None,
             recurEndDate=None,
             valuePerQ=CostType("1"),
             quant=CostType("30"),
-            quantVarRate=[0, 0.01, 0.01, 0.02, 0.02, 0.01, -0.01, 0.02, 0.01, 0, -0.02],
-            quantVarValue=None,
+            quantVarRate="Percent Delta Timestep X-1",
+            quantVarValue=[0, 0.01, 0.01, 0.02, 0.02, 0.01, -0.01, 0.02, 0.01, 0, -0.02],
             quantUnit="m^3"
         )
         self.bcn5 = Bcn(
@@ -102,12 +104,12 @@ class NewAlternativeSummaryFunctionTest(TestCase):
             bcnLife=None,
             recurBool=True,
             recurInterval=1,
-            recurVarRate="percDelta",
+            recurVarRate="Percent Delta Timestep X-1",
             recurVarValue=CostType("0.01"),
             recurEndDate=7,
-            valuePerQ=CostType("0.1"),
+            valuePerQ=CostType("0.01"),
             quant=CostType("90"),
-            quantVarRate="percDelta",
+            quantVarRate="Percent Delta Timestep X-1",
             quantVarValue=CostType("-0.03"),
             quantUnit="m^3"
         )
@@ -132,7 +134,7 @@ class NewAlternativeSummaryFunctionTest(TestCase):
             quant=CostType("100"),
             quantVarRate=None,
             quantVarValue=None,
-            quantUnit="m^3"
+            quantUnit="m"
         )
 
     def test_sir_infinity(self):
@@ -289,15 +291,136 @@ class NewAlternativeSummaryFunctionTest(TestCase):
                 if tag not in optionals:
                     optionals[tag] = OptionalCashFlow(1, tag, bcn.quantUnit, 10)
 
-                optionals[tag].add(bcn, bcn.cash_flows(10, CostType("0.02")))
-
-        print(optionals)
+                optionals[tag].add(bcn, bcn.cash_flows(10, CostType("0.03")))
 
         # When
         result = calculate_quant_sum(optionals.values())
+        result = [x.quantize(SIGNIFICANT) for x in result]
 
         # Expect
-        assert result == [CostType("2"), CostType("8")]
+        assert result == [x.quantize(SIGNIFICANT) for x in [CostType("807.987767188945"), CostType("1100")]]
+
+    def test_calculate_quant_units(self):
+        # Given
+        optionals = {}
+        bcn_list = [self.bcn1, self.bcn2, self.bcn3, self.bcn5, self.bcn8]
+
+        for bcn in bcn_list:
+            for tag in bcn.bcnTag:
+                if tag is None:
+                    continue
+
+                if tag not in optionals:
+                    optionals[tag] = OptionalCashFlow(1, tag, bcn.quantUnit, 10)
+
+                optionals[tag].add(bcn, bcn.cash_flows(10, CostType("0.03")))
+
+        # When
+        result = calculate_quant_units(optionals.values())
+
+        # Expect
+        assert result == [("Tag 1", "m^3"), ("Tag 3", "m")]
+
+    def test_calculate_delta_quant(self):
+        # Given
+        optionals = {}
+        bcn_list = [self.bcn1, self.bcn2, self.bcn3, self.bcn5, self.bcn8]
+
+        for bcn in bcn_list:
+            for tag in bcn.bcnTag:
+                if tag is None:
+                    continue
+
+                if tag not in optionals:
+                    optionals[tag] = OptionalCashFlow(1, tag, bcn.quantUnit, 10)
+
+                optionals[tag].add(bcn, bcn.cash_flows(10, CostType("0.03")))
+
+        # When
+        result = calculate_delta_quant(optionals.values(), {"Tag 1": CostType("100")})
+        result = [(k, v.quantize(SIGNIFICANT)) for k, v in result]
+
+        # Expect
+        assert result == [(k, v.quantize(SIGNIFICANT)) for k, v in
+                          [("Tag 1", CostType("707.987767188945")), ("Tag 3", CostType("1100"))]]
+
+    def test_calculate_ns_perc_quant(self):
+        # Given
+        optionals = {}
+        bcn_list = [self.bcn1, self.bcn2, self.bcn3, self.bcn5, self.bcn8]
+
+        for bcn in bcn_list:
+            for tag in bcn.bcnTag:
+                if tag is None:
+                    continue
+
+                if tag not in optionals:
+                    optionals[tag] = OptionalCashFlow(1, tag, bcn.quantUnit, 10)
+
+                optionals[tag].add(bcn, bcn.cash_flows(10, CostType("0.03")))
+
+        # When
+        result = calculate_ns_perc_quant(CostType("-336.342156896759"), optionals.values(), {"Tag 1": CostType("100")})
+        result = [(k, v.quantize(SIGNIFICANT) if isinstance(v, CostType) else v) for k, v in result]
+
+        # Expect
+        assert result == [("Tag 1", CostType("-41.6271347853347").quantize(SIGNIFICANT)), ("Tag 3", "Infinity")]
+
+    def test_calculate_ns_delta_quant(self):
+        # Given
+        optionals = {}
+        bcn_list = [self.bcn1, self.bcn2, self.bcn3, self.bcn5, self.bcn8]
+
+        for bcn in bcn_list:
+            for tag in bcn.bcnTag:
+                if tag is None:
+                    continue
+
+                if tag not in optionals:
+                    optionals[tag] = OptionalCashFlow(1, tag, bcn.quantUnit, 10)
+
+                optionals[tag].add(bcn, bcn.cash_flows(10, CostType("0.03")))
+
+        # When
+        result = calculate_ns_delta_quant(
+            CostType("-336.342156896759"),
+            calculate_delta_quant(optionals.values(), {"Tag 1": CostType("100")}),
+            optionals.values()
+        )
+        result = [(k, v.quantize(SIGNIFICANT) if isinstance(v, CostType) else v) for k, v in result]
+
+        # Expect
+        assert result == [
+            ("Tag 1", CostType("-0.47506775185142").quantize(SIGNIFICANT)),
+            ("Tag 3", CostType("-0.305765597178871").quantize(SIGNIFICANT))
+        ]
+
+    def test_calculate_ns_elasticity_quant(self):
+        # Given
+        optionals = {}
+        bcn_list = [self.bcn1, self.bcn2, self.bcn3, self.bcn5, self.bcn8]
+
+        for bcn in bcn_list:
+            for tag in bcn.bcnTag:
+                if tag is None:
+                    continue
+
+                if tag not in optionals:
+                    optionals[tag] = OptionalCashFlow(1, tag, bcn.quantUnit, 10)
+
+                optionals[tag].add(bcn, bcn.cash_flows(10, CostType("0.03")))
+
+        # When
+        result = calculate_ns_elasticity_quant(
+            CostType("-336.342156896759"),
+            CostType("1243.95271841771"),
+            optionals.values(),
+            {"Tag 1": CostType("100")}
+        )
+        result = [(k, v.quantize(SIGNIFICANT) if isinstance(v, CostType) else v) for k, v in result]
+
+        # Expect
+        assert result == [("Tag 1", CostType("-0.033463598872378").quantize(SIGNIFICANT)), ("Tag 3", "Infinity")]
 
 
 class NewAlternativeSummaryTest(TestCase):

@@ -3,6 +3,7 @@ from typing import Union
 from celery import shared_task
 
 from API import registry
+from API.objects import AlternativeSummary
 from API.objects.CashFlow import RequiredCashFlow, OptionalCashFlow
 from API.objects.Input import Input
 from API.objects.Output import Output
@@ -26,9 +27,22 @@ def analyze(user_input: Input):
     optionals = calculate_tag_flows(flows, user_input)
 
     # Calculate Measures
+    summaries = calculate_alternative_summaries(required, optionals)
 
-    return OutputSerializer(Output([], required, optionals)).data
+    return OutputSerializer(Output(summaries, required, optionals)).data
 
+def calculate_alternative_summaries(required_flows: list[RequiredCashFlow], optional_flows: list[OptionalCashFlow]) \
+        -> list[AlternativeSummary]:
+    def create_filter(alt_id):
+        def wrapped(flow):
+            return flow.aldID == alt_id
+
+        return wrapped
+
+    for required in required_flows:
+        optionals = filter(create_filter(required.altID), optional_flows)
+
+    return []
 
 def calculate_required_flows(flows, user_input):
     # Generate required cash flows

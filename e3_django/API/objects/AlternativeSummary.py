@@ -1,9 +1,12 @@
-from typing import Union
+from typing import Union, Sequence, Tuple, Iterable
 
 import numpy
 
 from API.objects import RequiredCashFlow, OptionalCashFlow
 from API.variables import CostType
+
+TagMeasure = list[Tuple[str, Union[CostType, str]]]
+BaselineTag = dict[str, CostType]
 
 
 def net_benefits(benefits: CostType, costs: CostType, benefits_base: CostType, costs_base: CostType) -> CostType:
@@ -104,22 +107,43 @@ def ns_elasticity(savings: CostType, total_costs: CostType, delta_q: CostType, t
     if total_costs == 0:
         return "Infinity"
 
+    print(f"{savings} {total_costs} {delta_q} {total_q_base}")
+
     return ns_per_pct_q(savings / total_costs, delta_q, total_q_base)
 
 
-# def generate_tag_measures():
-#     pass
+def calculate_quant_sum(optionals: Iterable[OptionalCashFlow]) -> list[CostType]:
+    return [sum(optional.totTagQ) for optional in optionals]
 
-# def updateMeasure(measureName, flow):
-#     """
-#     Purpose: Based on measureName (string with the exact same name as the variable without
-#     the enclosing brackets if they exist) reset current measure to the input measure.
-#     """
-#     # if variable name `measureName` exists, resets current measure with input flow.
-#     if self.measureName:
-#         self.measureName = flow
-#
-#     return
+
+def calculate_quant_units(optionals: Iterable[OptionalCashFlow]) -> TagMeasure:
+    return [(optional.tag, optional.quantUnits) for optional in optionals]
+
+
+def calculate_delta_quant(optionals: Iterable[OptionalCashFlow], baseline: BaselineTag) -> TagMeasure:
+    return [(optional.tag, sum(optional.totTagQ) - baseline.get(optional.tag, CostType("0")))
+            for optional in optionals]
+
+
+def calculate_ns_perc_quant(savings: CostType, optionals: Iterable[OptionalCashFlow],
+                            baseline: BaselineTag) -> TagMeasure:
+    return [(optional.tag, ns_per_pct_q(
+        savings,
+        sum(optional.totTagQ),
+        baseline.get(optional.tag, CostType("0"))
+    ) if baseline else sum(optional.totTagQ)) for optional in optionals]
+
+
+def calculate_ns_delta_quant(savings: CostType, delta_q: TagMeasure, optionals: Iterable[OptionalCashFlow]) \
+        -> TagMeasure:
+    return [(optional.tag, ns_per_q(savings, delta_q[1])) for optional, delta_q in zip(optionals, delta_q)]
+
+
+def calculate_ns_elasticity_quant(savings: CostType, total_costs: CostType, optionals: Iterable[OptionalCashFlow],
+                                  baseline: BaselineTag) -> TagMeasure:
+    return [(optional.tag, ns_elasticity(savings, total_costs, sum(optional.totTagQ),
+                                         baseline.get(optional.tag, CostType("0"))) if baseline else "Infinity") for
+            optional in optionals]
 
 
 class AlternativeSummary:
@@ -128,7 +152,8 @@ class AlternativeSummary:
     """
 
     def __init__(self, alt_id, reinvest_rate, study_period, marr, flow: RequiredCashFlow,
-                 optionals: list[OptionalCashFlow], baseline: "AlternativeSummary" = None, irr: bool = False):
+                 optionals: list[OptionalCashFlow], baseline: "AlternativeSummary" = None,
+                 baseline_tags: BaselineTag = None, irr: bool = False):
         self.altID = alt_id
         self.totalBenefits = sum(flow.totBenefitsDisc)
         self.totalCosts = sum(flow.totCostDisc)
@@ -137,7 +162,8 @@ class AlternativeSummary:
         self.netBenefits = net_benefits(self.totalBenefits, self.totalCosts, baseline.totalBenefits,
                                         baseline.totalCosts) if baseline else None
         self.netSavings = net_savings(self.totalCosts, baseline.totalCosts) if baseline else None
-        self.SIR = sir(baseline.totalCostsNonInv, self.totalCostsNonInv, baseline.totalCostInv, self.totalCostInv) if baseline else None
+        self.SIR = sir(baseline.totalCostsNonInv, self.totalCostsNonInv, baseline.totalCostInv,
+                       self.totalCostInv) if baseline else None
         self.IRR = numpy.irr(numpy.subtract(flow.totCostDisc, flow.totBenefitsDisc)) if irr else None
         self.AIRR = airr(self.SIR, reinvest_rate, study_period)
         self.SPP = payback_period(flow.totCostNonDisc, flow.totBenefitsNonDisc)
@@ -149,32 +175,8 @@ class AlternativeSummary:
 
         self.MARR = marr
 
-        self.deltaQuant = calculate_delta_quant(optionals, baseline.totalCosts if baseline else CostType(0))
-        self.nsPercQuant = calculate_ns_perc_quant(self.netSavings, optionals, baseline)
-        self.nsDeltaQuant = calculate_ns_delta_quant(self.netSavings, self.deltaQuant, optionals, baseline)
-        self.nsElasticityQuant = calculate_ns_elasticity_quant(self.netSavings, self.deltaQuant, self.totalCosts,
-                                                               optionals, baseline)
-
-
-def calculate_quant_sum(optionals):
-    return [sum(optional.totTagQ) for optional in optionals]
-
-
-def calculate_quant_units(optionals):
-    return [(optional.tag, optional.quantUnits) for optional in optionals]
-
-
-def calculate_delta_quant(optionals, baseline_total_cost: CostType = CostType(0)):
-    return [optional.totTagQ - baseline_total_cost for optional in optionals]
-
-
-def calculate_ns_perc_quant(savings, optionals, baseline):
-    return [(optional.tag, ns_per_q(savings, optional.totTagQ) if baseline else optional.totTagQ) for optional in optionals]
-
-
-def calculate_ns_delta_quant(savings, delta_q, optionals, baseline):
-    return [(optional.tag, ns_per_pct_q(savings, delta_q, baseline.totalCosts) if baseline else "Infinity") for optional, delta_q in zip(optionals, delta_q)]
-
-
-def calculate_ns_elasticity_quant(savings, delta_q, total_costs, optionals, baseline):
-    return [(optional.tag, ns_elasticity(savings, total_costs, delta_q, baseline.totalCosts) if baseline else "Infinity") for optional, delta_q in zip(optionals, delta_q)]
+        self.deltaQuant = calculate_delta_quant(optionals, baseline_tags)
+        self.nsPercQuant = calculate_ns_perc_quant(self.netSavings, optionals, baseline_tags)
+        self.nsDeltaQuant = calculate_ns_delta_quant(self.netSavings, self.deltaQuant, optionals)
+        self.nsElasticityQuant = calculate_ns_elasticity_quant(self.netSavings, self.totalCosts, optionals,
+                                                               baseline_tags)

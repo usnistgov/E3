@@ -1,12 +1,11 @@
-from rest_framework.serializers import Serializer
-from rest_framework.exceptions import ValidationError
 from rest_framework.fields import DecimalField, ListField, CharField
+from rest_framework.serializers import Serializer
 
 from API.variables import MAX_DIGITS, DECIMAL_PLACES
 
 
 class AlternativeSummarySerializer(Serializer):
-    altID = ListField(unique=True, required=True)
+    altID = ListField(required=True)
     totalBenefits = DecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES)
     totalCosts = DecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES)
     totalCostsInv = DecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES)
@@ -30,5 +29,5 @@ class AlternativeSummarySerializer(Serializer):
 
     def validate(self, data):
         # check that MARR is taken directly from Analysis object.
-        
+
         return data

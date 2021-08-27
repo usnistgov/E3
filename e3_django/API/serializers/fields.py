@@ -7,8 +7,8 @@ class BooleanOptionField(Field):
         'invalid': 'Input must be a valid option.'
     }
 
-    def __init__(self, true_values, false_values, required=False):
-        super().__init__(required=required)
+    def __init__(self, true_values, false_values, **kwargs):
+        super().__init__(**kwargs)
 
         self.original_value = None
 

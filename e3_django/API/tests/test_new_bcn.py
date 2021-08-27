@@ -51,12 +51,12 @@ class NewBcnTest(TestCase):
             bcnLife=None,
             recurBool=True,
             recurInterval=1,
-            recurVarRate="percDelta",
+            recurVarRate="Percent Delta Timestep X-1",
             recurVarValue=Decimal("0.03"),
             recurEndDate=None,
             valuePerQ=Decimal("0.087"),
             quant=Decimal("1000"),
-            quantVarRate="percDelta",
+            quantVarRate="Percent Delta Timestep X-1",
             quantVarValue=Decimal("0.05"),
             quantUnit="kWh"
         )
@@ -80,12 +80,12 @@ class NewBcnTest(TestCase):
                 bcnLife=None,
                 recurBool=True,
                 recurInterval=1,
-                recurVarRate="percDelta",
+                recurVarRate="Percent Delta Timestep X-1",
                 recurVarValue=CostType("0.03"),
                 recurEndDate=None,
                 valuePerQ=CostType("2"),
                 quant=CostType("100"),
-                quantVarRate="percDelta",
+                quantVarRate="Percent Delta Timestep X-1",
                 quantVarValue=CostType("0.05"),
                 quantUnit="kWh"
             ),
@@ -126,12 +126,12 @@ class NewBcnTest(TestCase):
                 bcnLife=None,
                 recurBool=True,
                 recurInterval=2,
-                recurVarRate="percDelta",
+                recurVarRate="Percent Delta Timestep X-1",
                 recurVarValue=None,
                 recurEndDate=None,
                 valuePerQ=CostType("1"),
                 quant=CostType("30"),
-                quantVarRate="percDelta",
+                quantVarRate="Percent Delta Timestep X-1",
                 quantVarValue=[0, 0.01, 0.01, 0.02, 0.02, 0.01, -0.01, 0.02, 0.01, 0, -0.02],
                 quantUnit="m^3"
             ),
@@ -149,12 +149,12 @@ class NewBcnTest(TestCase):
                 bcnLife=None,
                 recurBool=True,
                 recurInterval=1,
-                recurVarRate="percDelta",
+                recurVarRate="Percent Delta Timestep X-1",
                 recurVarValue=CostType("0.01"),
                 recurEndDate=7,
                 valuePerQ=CostType("0.01"),
                 quant=CostType("90"),
-                quantVarRate="percDelta",
+                quantVarRate="Percent Delta Timestep X-1",
                 quantVarValue=CostType("-0.03"),
                 quantUnit="m^3"
             ),
@@ -179,7 +179,7 @@ class NewBcnTest(TestCase):
                 quant=CostType("100"),
                 quantVarRate=None,
                 quantVarValue=None,
-                quantUnit="m^3"
+                quantUnit="m"
             )
         }
 
