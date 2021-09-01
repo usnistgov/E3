@@ -23,21 +23,25 @@ requests.
 
 Note: If you are _running it for the first time_, you need to create a superuser:
 
-1. Run the following commands:
+1. Run the following command:
 ```
-docker exec -it a53625a76fcd bash
+docker ps
+```
+2. From the output list, find your CONTAINER ID for the IMAGE `e3_api`. Then run the following commands:
+```
+docker exec -it [CONTAINER ID] bash
 python manage.py makemigrations
 python manage.py migrate
 python manage.py createsuperuser
 ```
-2. Enter your email and password when prompted.
+3. Enter your email and password when prompted.
 
-3. Go to `localhost:8000/login`, and login with your email and password.
+4. Go to `localhost:8000/login`, and login with your email and password.
 
 
-4. Obtain your *unique API key* (Please COPY and store somewhere safe - you will only be shown this once).
+5. Obtain your *unique API key* (Please COPY and store somewhere safe - you will only be shown this once).
 
-5. Finally, navigate to:
+6. Finally, navigate to:
 ```
 http://localhost:8000/api/v1/analysis/?key=[YOUR_API_KEY]
 ```
