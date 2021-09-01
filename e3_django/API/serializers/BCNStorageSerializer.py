@@ -1,7 +1,8 @@
 from rest_framework.fields import IntegerField, CharField, ListField, BooleanField, DecimalField
+from rest_framework.serializers import Serializer
 
 from API.variables import MAX_DIGITS, DECIMAL_PLACES
-from API.serializers.fields import BooleanOptionField
+
 
 class BCNStorageSerializer(Serializer):
     bcnID = IntegerField(required=True)
@@ -14,12 +15,12 @@ class BCNStorageSerializer(Serializer):
     bcnDiscFlow = ListField(child=DecimalField(max_digit=MAX_DIGITS, decimal_places=DECIMAL_PLACES))
     quantList = ListField(DecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES))
     quantUnits = CharField(required=True, default="")
-    sensBool = BooleanField(required=false, child=DecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES))
+    sensBool = BooleanField(required=False)
     sensFlowNonDisc = ListField(child=IntegerField())
     sensFlowDisc = ListField(child=DecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES))
     sensQuantList = ListField(DecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES))
-    uncBool = BooleanField(required=false)
-    uncFlowNonDisc =ListField(child=DecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES))
+    uncBool = BooleanField(required=False)
+    uncFlowNonDisc = ListField(child=DecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES))
     uncFlowDisc = ListField(child=DecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES))
     uncQuantList = ListField(child=DecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES))
 
