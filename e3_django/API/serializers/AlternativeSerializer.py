@@ -18,7 +18,8 @@ def validate(self, data):
         # Ensure that only one alternative has baselineBool = True.
         boolCount = 0
         for i, x in enumerate(objectList.bcnObject):
-            if x.baselineBool: boolCount += 1
+            if x.baselineBool: 
+                boolCount += 1
         if boolCount > 1:
             raise ValidationError("only one alternative can have baselineBool = True")
 

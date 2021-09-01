@@ -327,8 +327,3 @@ class AnalysisTest(TestCase):
 		assert calculate_inflation_rate(1, 1) == 0
 		assert calculate_inflation_rate(0.1, 0.1) == 0
 		assert calculate_inflation_rate(1, 0.1) == 9
-
-
-	def test_create_model(self):
-		created = self.create_model()
-		self.assertTrue(isinstance(created, Analysis))
