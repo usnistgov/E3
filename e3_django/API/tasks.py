@@ -1,9 +1,10 @@
-from typing import Union
+import logging
+from typing import Union, Iterable
 
 from celery import shared_task
 
 from API import registry
-from API.objects import AlternativeSummary
+from API.objects import AlternativeSummary, Analysis, Alternative
 from API.objects.CashFlow import RequiredCashFlow, OptionalCashFlow
 from API.objects.Input import Input
 from API.objects.Output import Output
@@ -27,22 +28,34 @@ def analyze(user_input: Input):
     optionals = calculate_tag_flows(flows, user_input)
 
     # Calculate Measures
-    summaries = calculate_alternative_summaries(required, optionals)
+    summaries = list(
+        calculate_alternative_summaries(user_input.analysisObject, required, optionals, user_input.alternativeObjects)
+    )
 
     return OutputSerializer(Output(summaries, required, optionals)).data
 
-def calculate_alternative_summaries(required_flows: list[RequiredCashFlow], optional_flows: list[OptionalCashFlow]) \
-        -> list[AlternativeSummary]:
-    def create_filter(alt_id):
-        def wrapped(flow):
-            return flow.aldID == alt_id
 
-        return wrapped
+def calculate_alternative_summaries(analysis: Analysis, required_flows: Iterable[RequiredCashFlow],
+                                    optional_flows: Iterable[OptionalCashFlow], alternatives: Iterable[Alternative]) \
+        -> Iterable[AlternativeSummary]:
+    baseline_alt = list(filter(lambda x: x.baselineBool, alternatives))[0]
+    baseline_required_flow = list(filter(lambda x: x.altID == baseline_alt.altID, required_flows))[0]
+
+    optionals = list(filter(lambda flow: flow.altID == baseline_alt.altID, optional_flows))
+
+    baseline_summary = AlternativeSummary(baseline_alt.altID, analysis.reinvestRate, analysis.studyPeriod,
+                                          analysis.Marr, baseline_required_flow, optionals, None, None, False)
+
+    yield baseline_summary
 
     for required in required_flows:
-        optionals = filter(create_filter(required.altID), optional_flows)
+        optionals = list(filter(lambda flow: flow.altID == required.altID, optional_flows))
 
-    return []
+        summary = AlternativeSummary(required.altID, analysis.reinvestRate, analysis.studyPeriod, analysis.Marr,
+                                     required, optionals, baseline_summary, None, False)
+
+        yield summary
+
 
 def calculate_required_flows(flows, user_input):
     # Generate required cash flows

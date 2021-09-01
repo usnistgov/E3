@@ -1,9 +1,10 @@
 import operator
-import pprint
 
 from API.objects import Bcn
 from API.variables import CostType, FlowType
 
+COST = "Cost"
+BENEFIT = "Benefit"
 
 def elementwise_add(x, y):
     """
@@ -99,62 +100,62 @@ class RequiredCashFlow(CashFlow):
         self.totBenefitsExt = default
         self.totBenefitsExtDisc = default
 
-    @bcn_type("Cost")
+    @bcn_type(COST)
     def add_base_cost(self, flow: FlowType):
         self.totCostNonDisc = elementwise_add(self.totCostNonDisc, flow[1])
         self.totCostDisc = elementwise_add(self.totCostDisc, flow[2])
 
-    @bcn_type("Benefits")
+    @bcn_type(BENEFIT)
     def add_base_benefits(self, flow: FlowType):
         self.totBenefitsNonDisc = elementwise_add(self.totBenefitsNonDisc, flow[1])
         self.totBenefitsDisc = elementwise_add(self.totBenefitsDisc, flow[2])
 
-    @bcn_type("Cost")
+    @bcn_type(COST)
     def add_invest_cost(self, flow: FlowType):
         self.totCostsNonDiscInv = elementwise_add(self.totCostsNonDiscInv, flow[1])
         self.totCostsDiscInv = elementwise_add(self.totCostsDiscInv, flow[2])
 
-    @bcn_type("Benefits")
+    @bcn_type(BENEFIT)
     def add_invest_benefits(self, flow: FlowType):
         self.totBenefitsNonDiscInv = elementwise_add(self.totBenefitsNonDiscInv, flow[1])
         self.totBenefitsDiscInv = elementwise_add(self.totBenefitsDiscInv, flow[2])
 
-    @bcn_type("Cost")
+    @bcn_type(COST)
     def add_non_invest_cost(self, flow: FlowType):
         self.totCostNonDiscNonInv = elementwise_add(self.totCostNonDiscNonInv, flow[1])
         self.totCostDiscNonInv = elementwise_add(self.totCostDiscNonInv, flow[2])
 
-    @bcn_type("Benefits")
+    @bcn_type(BENEFIT)
     def add_non_invest_benefits(self, flow: FlowType):
         self.totBenefitsNonDiscNonInv = elementwise_add(self.totBenefitsNonDiscNonInv, flow[1])
         self.totBenefitsDiscNonInv = elementwise_add(self.totBenefitsDiscNonInv, flow[2])
 
-    @bcn_type("Cost")
+    @bcn_type(COST)
     def add_direct_cost(self, flow: FlowType):
         self.totCostDir = elementwise_add(self.totCostDir, flow[1])
         self.totCostDirDisc = elementwise_add(self.totCostDirDisc, flow[2])
 
-    @bcn_type("Benefits")
+    @bcn_type(BENEFIT)
     def add_direct_benefits(self, flow: FlowType):
         self.totBenefitsDir = elementwise_add(self.totBenefitsDir, flow[1])
         self.totBenefitsDirDisc = elementwise_add(self.totBenefitsDirDisc, flow[2])
 
-    @bcn_type("Cost")
+    @bcn_type(COST)
     def add_indirect_cost(self, flow: FlowType):
         self.totCostInd = elementwise_add(self.totCostInd, flow[1])
         self.totCostIndDisc = elementwise_add(self.totCostIndDisc, flow[2])
 
-    @bcn_type("Benefits")
+    @bcn_type(BENEFIT)
     def add_indirect_benefits(self, flow: FlowType):
         self.totBenefitsInd = elementwise_add(self.totBenefitsInd, flow[1])
         self.totBenefitsIndDisc = elementwise_add(self.totBenefitsIndDisc, flow[2])
 
-    @bcn_type("Cost")
+    @bcn_type(COST)
     def add_external_cost(self, flow: FlowType):
         self.totCostExt = elementwise_add(self.totCostExt, flow[1])
         self.totCostExtDisc = elementwise_add(self.totCostExtDisc, flow[2])
 
-    @bcn_type("Benefits")
+    @bcn_type(BENEFIT)
     def add_external_benefits(self, flow: FlowType):
         self.totBenefitsExt = elementwise_add(self.totBenefitsExt, flow[1])
         self.totBenefitsExtDisc = elementwise_add(self.totBenefitsExtDisc, flow[2])
@@ -189,6 +190,39 @@ class RequiredCashFlow(CashFlow):
     
     def updateAllFlows(self, bcn: Bcn, flowsList):
         return self
+
+    def print(self):
+        print("---Required Cash Flow---")
+        print(f"totCostNonDisc: {[str(x) for x in self.totCostNonDisc]}")
+        print(f"totCostDisc: {[str(x) for x in self.totCostDisc]}")
+        print(f"totBenefitsNonDisc: {[str(x) for x in self.totBenefitsNonDisc]}")
+        print(f"totBenefitsDisc: {[str(x) for x in self.totBenefitsDisc]}")
+
+        print(f"totCostsNonDiscInv: {[str(x) for x in self.totCostsNonDiscInv]}")
+        print(f"totCostsDiscInv: {[str(x) for x in self.totCostsDiscInv]}")
+        print(f"totBenefitsNonDiscInv: {[str(x) for x in self.totBenefitsNonDiscInv]}")
+        print(f"totBenefitsDiscInv: {[str(x) for x in self.totBenefitsDiscInv]}")
+
+        print(f"totCostNonDiscNonInv: {[str(x) for x in self.totCostNonDiscNonInv]}")
+        print(f"totCostDiscNonInv: {[str(x) for x in self.totCostDiscNonInv]}")
+        print(f"totBenefitsNonDiscNonInv: {[str(x) for x in self.totBenefitsNonDiscNonInv]}")
+        print(f"totBenefitsDiscNonInv: {[str(x) for x in self.totBenefitsDiscNonInv]}")
+
+        print(f"totCostDir: {[str(x) for x in self.totCostDir]}")
+        print(f"totCostDirDisc: {[str(x) for x in self.totCostDirDisc]}")
+        print(f"totBenefitsDir: {[str(x) for x in self.totBenefitsDir]}")
+        print(f"totBenefitsDirDisc: {[str(x) for x in self.totBenefitsDirDisc]}")
+
+        print(f"totCostInd: {[str(x) for x in self.totCostInd]}")
+        print(f"totCostIndDisc: {[str(x) for x in self.totCostIndDisc]}")
+        print(f"totBenefitsInd: {[str(x) for x in self.totBenefitsInd]}")
+        print(f"totBenefitsIndDisc: {[str(x) for x in self.totBenefitsIndDisc]}")
+
+        print(f"totCostExt: {[str(x) for x in self.totCostExt]}")
+        print(f"totCostExtDisc: {[str(x) for x in self.totCostExtDisc]}")
+        print(f"totBenefitsExt: {[str(x) for x in self.totBenefitsExt]}")
+        print(f"totBenefitsExtDisc: {[str(x) for x in self.totBenefitsExtDisc]}")
+        print("---End Required Cash Flow---")
 
 
 class OptionalCashFlow(CashFlow):

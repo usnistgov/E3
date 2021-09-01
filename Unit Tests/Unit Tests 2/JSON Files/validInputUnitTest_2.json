@@ -13,7 +13,7 @@
     "timestepComp": 1,
     "outputRealBool": false,
     "interestRate": 0.05,
-    "dRateReal": null,
+    "dRateReal": 0.03,
     "dRateNom": 0.02,
     "inflationRate": 0.02,
     "Marr": 0.04,

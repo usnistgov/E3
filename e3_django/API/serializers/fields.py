@@ -1,4 +1,34 @@
-from rest_framework.fields import MultipleChoiceField, Field
+from decimal import Decimal
+
+from rest_framework.fields import MultipleChoiceField, Field, DecimalField
+
+
+class SpecialValueDecimalField(DecimalField):
+    def to_representation(self, value):
+        if value is None or not isinstance(value, Decimal):
+            self.fail(f"{self.field_name} must be a Decimal, given {type(value)} instead.")
+
+        if value.is_nan():
+            return "NAN"
+        if value.is_infinite():
+            return "Infinity"
+
+        return super().to_representation(value)
+
+    def to_internal_value(self, data):
+        if not isinstance(data, str) or not isinstance(data, float) or not isinstance(data, int):
+            self.fail(f"{self.field_name} must be a float, int, or string, given {type(data)}")
+
+        if isinstance(data, str):
+            if data.lower() == "infinity":
+                return Decimal("Infinity")
+            if data.lower() == "nan":
+                return Decimal("NAN")
+
+        try:
+            return super().to_internal_value(data)
+        except Exception as e:
+            self.fail(f"Could not create Decimal for field {self.field_name} from value {data}. Exception:\n{e}")
 
 
 class BooleanOptionField(Field):

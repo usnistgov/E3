@@ -13,10 +13,8 @@ from API.variables import CostType
 PLACES = Decimal(10) ** -13
 SIGNIFICANT = Decimal(10) ** -4
 
-AIRR_NOT_CALCULABLE = "AIRR Not Calculable"
-INFINITY = "Infinity"
-NOT_CALCULABLE = "Not Calculable"
-AIRR_NOT_CALCULABLE = "AIRR Not Calculable"
+INFINITY = Decimal("Infinity")
+NOT_CALCULABLE = CostType("Nan")
 
 
 class NewAlternativeSummaryFunctionTest(TestCase):
@@ -140,7 +138,7 @@ class NewAlternativeSummaryFunctionTest(TestCase):
     def test_sir_infinity(self):
         result = sir(Decimal("431.304392192082"), Decimal("133.831872126668"), Decimal("94.9622352953234"),
                      Decimal("1148.99048312239"))
-        assert result == INFINITY
+        assert result.is_infinite()
 
     def test_sir_0(self):
         result = sir(Decimal("1148.99048"), Decimal("1148.99048"), Decimal("139.60787"), Decimal("0"))
@@ -149,7 +147,7 @@ class NewAlternativeSummaryFunctionTest(TestCase):
     def test_sir_not_calculable(self):
         result = sir(Decimal("431.304392192082"), Decimal("1148.99048312239"), Decimal("94.9622352953234"),
                      Decimal("1148.99048312239"))
-        assert result == NOT_CALCULABLE
+        assert result.is_nan()
 
     def test_sir(self):
         result = sir(Decimal("550"), Decimal("300"), Decimal("200"), Decimal("100"))
@@ -157,7 +155,7 @@ class NewAlternativeSummaryFunctionTest(TestCase):
 
     def test_bcr_not_calculable(self):
         result = bcr(Decimal("-301.340592511856"), Decimal("94.9622352953234"), Decimal("431.304392192082"))
-        assert result == NOT_CALCULABLE
+        assert result.is_nan()
 
     def test_bcr(self):
         result = bcr(Decimal("4711.42470789861"), Decimal("431.304392192082"), Decimal("94.9622352953234"))
@@ -165,7 +163,7 @@ class NewAlternativeSummaryFunctionTest(TestCase):
 
     def test_bcr_infinity(self):
         result = bcr(Decimal("139.607870189127"), Decimal("0"), Decimal("139.607870189127"))
-        assert result == INFINITY
+        assert result.is_infinite()
 
     def test_net_savings(self):
         result1 = net_savings(Decimal("1243.95271841771"), Decimal("1580.29487531447"))
@@ -186,11 +184,11 @@ class NewAlternativeSummaryFunctionTest(TestCase):
 
     def test_check_fraction_infinity(self):
         result = check_fraction(Decimal("1"), Decimal("-2"))
-        assert result == INFINITY
+        assert result.is_infinite()
 
     def test_check_fraction_not_calculable(self):
         result = check_fraction(Decimal("-1"), Decimal("-2"))
-        assert result == NOT_CALCULABLE
+        assert result.is_nan()
 
     def test_airr(self):
         result = airr(Decimal("1"), Decimal("0.05"), 10)
@@ -201,15 +199,15 @@ class NewAlternativeSummaryFunctionTest(TestCase):
 
     def test_airr_not_calculable(self):
         result = airr(Decimal("0"), Decimal("0.05"), 10)
-        assert result == AIRR_NOT_CALCULABLE
+        assert result.is_nan()
 
     def test_airr_not_calculable_if_sir_infinity(self):
         result = airr(INFINITY, Decimal("0.05"), 10)
-        assert result == AIRR_NOT_CALCULABLE
+        assert result.is_nan()
 
     def test_airr_not_calculable_if_sir_not_calculable(self):
         result = airr(NOT_CALCULABLE, Decimal("0.05"), 10)
-        assert result == AIRR_NOT_CALCULABLE
+        assert result.is_nan()
 
     def test_payback_period_parameters_same_length(self):
         with pytest.raises(ValueError) as exec_info:
@@ -223,14 +221,14 @@ class NewAlternativeSummaryFunctionTest(TestCase):
 
     def test_payback_period_default_is_none(self):
         index = payback_period([2], [1])
-        assert index is INFINITY
+        assert index.is_infinite()
 
     def test_ns_per_q_infinity(self):
         result1 = ns_per_q(Decimal("0"), Decimal("0"))
         result2 = ns_per_q(Decimal("1"), Decimal("0"))
 
-        assert result1 == INFINITY
-        assert result2 == INFINITY
+        assert result1.is_infinite()
+        assert result2.is_infinite()
 
     def test_ns_per_q(self):
         result1 = ns_per_q(Decimal("1"), Decimal("1"))
@@ -243,8 +241,8 @@ class NewAlternativeSummaryFunctionTest(TestCase):
         result1 = ns_per_pct_q(Decimal("0"), Decimal("0"), Decimal("0"))
         result2 = ns_per_pct_q(Decimal("1"), Decimal("1"), Decimal("0"))
 
-        assert result1 == INFINITY
-        assert result2 == INFINITY
+        assert result1.is_infinite()
+        assert result2.is_infinite()
 
     def test_ns_per_pct_q(self):
         result1 = ns_per_pct_q(Decimal("1"), Decimal("4"), Decimal("2"))
@@ -257,8 +255,8 @@ class NewAlternativeSummaryFunctionTest(TestCase):
         result1 = ns_elasticity(Decimal("1"), Decimal("0"), Decimal("1"), Decimal("1"))
         result2 = ns_elasticity(Decimal("1"), Decimal("1"), Decimal("1"), Decimal("0"))
 
-        assert result1 == INFINITY
-        assert result2 == INFINITY
+        assert result1.is_infinite()
+        assert result2.is_infinite()
 
     def test_ns_elasticity(self):
         result1 = ns_elasticity(Decimal("1"), Decimal("2"), Decimal("1"), Decimal("2"))
@@ -319,7 +317,7 @@ class NewAlternativeSummaryFunctionTest(TestCase):
         result = calculate_quant_units(optionals.values())
 
         # Expect
-        assert result == [("Tag 1", "m^3"), ("Tag 3", "m")]
+        assert result == {"Tag 1": "m^3", "Tag 3": "m"}
 
     def test_calculate_delta_quant(self):
         # Given
@@ -338,11 +336,12 @@ class NewAlternativeSummaryFunctionTest(TestCase):
 
         # When
         result = calculate_delta_quant(optionals.values(), {"Tag 1": CostType("100")})
-        result = [(k, v.quantize(SIGNIFICANT)) for k, v in result]
+        result = {k: v.quantize(SIGNIFICANT) for k, v in result.items()}
 
         # Expect
-        assert result == [(k, v.quantize(SIGNIFICANT)) for k, v in
-                          [("Tag 1", CostType("707.987767188945")), ("Tag 3", CostType("1100"))]]
+        assert len(result) == 2
+        assert result["Tag 1"] == CostType("707.987767188945").quantize(SIGNIFICANT)
+        assert result["Tag 3"] == CostType("1100").quantize(SIGNIFICANT)
 
     def test_calculate_ns_perc_quant(self):
         # Given
@@ -361,10 +360,11 @@ class NewAlternativeSummaryFunctionTest(TestCase):
 
         # When
         result = calculate_ns_perc_quant(CostType("-336.342156896759"), optionals.values(), {"Tag 1": CostType("100")})
-        result = [(k, v.quantize(SIGNIFICANT) if isinstance(v, CostType) else v) for k, v in result]
 
         # Expect
-        assert result == [("Tag 1", CostType("-41.6271347853347").quantize(SIGNIFICANT)), ("Tag 3", "Infinity")]
+        assert len(result) == 2
+        assert result["Tag 1"].quantize(SIGNIFICANT) == CostType("-41.6271347853347").quantize(SIGNIFICANT)
+        assert result["Tag 3"].is_infinite()
 
     def test_calculate_ns_delta_quant(self):
         # Given
@@ -387,13 +387,13 @@ class NewAlternativeSummaryFunctionTest(TestCase):
             calculate_delta_quant(optionals.values(), {"Tag 1": CostType("100")}),
             optionals.values()
         )
-        result = [(k, v.quantize(SIGNIFICANT) if isinstance(v, CostType) else v) for k, v in result]
+        result = {k: v.quantize(SIGNIFICANT) if isinstance(v, CostType) else v for k, v in result.items()}
 
         # Expect
-        assert result == [
-            ("Tag 1", CostType("-0.47506775185142").quantize(SIGNIFICANT)),
-            ("Tag 3", CostType("-0.305765597178871").quantize(SIGNIFICANT))
-        ]
+        assert result == {
+            "Tag 1": CostType("-0.47506775185142").quantize(SIGNIFICANT),
+            "Tag 3": CostType("-0.305765597178871").quantize(SIGNIFICANT)
+        }
 
     def test_calculate_ns_elasticity_quant(self):
         # Given
@@ -417,10 +417,11 @@ class NewAlternativeSummaryFunctionTest(TestCase):
             optionals.values(),
             {"Tag 1": CostType("100")}
         )
-        result = [(k, v.quantize(SIGNIFICANT) if isinstance(v, CostType) else v) for k, v in result]
 
         # Expect
-        assert result == [("Tag 1", CostType("-0.033463598872378").quantize(SIGNIFICANT)), ("Tag 3", "Infinity")]
+        assert len(result) == 2
+        assert result["Tag 1"].quantize(SIGNIFICANT) == CostType("-0.033463598872378").quantize(SIGNIFICANT)
+        assert result["Tag 3"].is_infinite()
 
 
 class NewAlternativeSummaryTest(TestCase):
