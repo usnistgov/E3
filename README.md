@@ -20,6 +20,30 @@ This will run the django development server at http://localhost:8000/. PostgreSQ
 will be used as the database and RabbitMQ and a worker will be created for API
 requests.
 
+
+Note: If you are _running it for the first time_, you need to create a superuser:
+
+1. Run the following commands:
+```
+docker exec -it a53625a76fcd bash
+python manage.py makemigrations
+python manage.py migrate
+python manage.py createsuperuser
+```
+2. Enter your email and password when prompted.
+
+3. Go to `localhost:8000/login`, and login with your email and password.
+
+
+4. Obtain your *unique API key* (Please COPY and store somewhere safe - you will only be shown this once).
+
+5. Finally, navigate to:
+```
+http://localhost:8000/api/v1/analysis/?key=[YOUR_API_KEY]
+```
+
+You can now select 'media type', and paste your inputs in the 'contents' box, to send data to E3.
+
 ## Getting Started
 Clone the repository from [Github](https://github.com/usnistgov/E3.git).
 
