@@ -65,7 +65,7 @@ class NewBcnTest(TestCase):
             .add(self.bcn0, self.bcn0.cash_flows(10, Decimal("0.03"))) \
             .add(self.bcn1, self.bcn1.cash_flows(10, Decimal("0.03")))
 
-    def test_create_array(self):
+    def test_create_list(self):
         # Given
         expected1 = [CostType(x) for x in [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]
         expected2 = [CostType(x) for x in [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]]
