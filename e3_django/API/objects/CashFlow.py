@@ -193,6 +193,7 @@ class RequiredCashFlow(CashFlow):
 
     def print(self):
         print("---Required Cash Flow---")
+        print(f"{self.altID}")
         print(f"totCostNonDisc: {[str(x) for x in self.totCostNonDisc]}")
         print(f"totCostDisc: {[str(x) for x in self.totCostDisc]}")
         print(f"totBenefitsNonDisc: {[str(x) for x in self.totBenefitsNonDisc]}")

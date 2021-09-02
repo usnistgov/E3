@@ -1,7 +1,10 @@
 import logging
+from decimal import Decimal
 from typing import Union, Iterable
 
 from celery import shared_task
+from rest_framework.fields import DecimalField
+from rest_framework.serializers import Serializer
 
 from API import registry
 from API.objects import AlternativeSummary, Analysis, Alternative
@@ -9,6 +12,7 @@ from API.objects.CashFlow import RequiredCashFlow, OptionalCashFlow
 from API.objects.Input import Input
 from API.objects.Output import Output
 from API.serializers.OutputSerializer import OutputSerializer
+from API.serializers.fields import InfinityDecimalField
 
 
 @shared_task
@@ -22,7 +26,16 @@ def analyze(user_input: Input):
 
     analysis = user_input.analysisObject
 
-    flows = {bcn: bcn.cash_flows(analysis.studyPeriod, analysis.dRateReal) for bcn in user_input.bcnObjects}
+    discount_rate = analysis.dRateReal if analysis.outputRealBool else analysis.dRateNom
+
+    flows = {bcn: bcn.cash_flows(analysis.studyPeriod, discount_rate) for bcn in user_input.bcnObjects}
+
+    for bcn, flow in flows.items():
+        print(f"--Flow for BCN: {bcn.bcnID}--")
+        print(f"{flow[0]}")
+        print(f"{flow[1]}")
+        print(f"{flow[2]}")
+
 
     required = calculate_required_flows(flows, user_input)
     optionals = calculate_tag_flows(flows, user_input)
@@ -31,6 +44,9 @@ def analyze(user_input: Input):
     summaries = list(
         calculate_alternative_summaries(user_input.analysisObject, required, optionals, user_input.alternativeObjects)
     )
+
+    # logging.info(TestSerializer(Test()).data)
+    # return TestSerializer(Test()).data
 
     return OutputSerializer(Output(summaries, required, optionals)).data
 
@@ -44,15 +60,15 @@ def calculate_alternative_summaries(analysis: Analysis, required_flows: Iterable
     optionals = list(filter(lambda flow: flow.altID == baseline_alt.altID, optional_flows))
 
     baseline_summary = AlternativeSummary(baseline_alt.altID, analysis.reinvestRate, analysis.studyPeriod,
-                                          analysis.Marr, baseline_required_flow, optionals, None, None, False)
+                                          analysis.Marr, baseline_required_flow, optionals, None, False)
 
     yield baseline_summary
 
-    for required in required_flows:
+    for required in filter(lambda x: x.altID != baseline_alt.altID, required_flows):
         optionals = list(filter(lambda flow: flow.altID == required.altID, optional_flows))
 
         summary = AlternativeSummary(required.altID, analysis.reinvestRate, analysis.studyPeriod, analysis.Marr,
-                                     required, optionals, baseline_summary, None, False)
+                                     required, optionals, baseline_summary, False)
 
         yield summary
 
@@ -81,16 +97,16 @@ def create_empty_tag_flows(user_input):
 
     for bcn in user_input.bcnObjects:
         for tag in bcn.bcnTag:
-            if not bcn.bcnTag:
+            if not tag:
                 continue
 
-            for alt in user_input.alternativeObjects:
-                key = (alt.altID, tag)
+            for alt_id in bcn.altID:
+                key = (alt_id, tag)
 
                 if key in result:
                     continue
 
-                result[key] = OptionalCashFlow(alt.altID, tag, bcn.quantUnit, user_input.analysisObject.studyPeriod)
+                result[key] = OptionalCashFlow(alt_id, tag, bcn.quantUnit, user_input.analysisObject.studyPeriod)
 
     return result
 
@@ -107,6 +123,9 @@ def calculate_tag_flows(flows, user_input):
 
     for bcn in user_input.bcnObjects:
         for tag in bcn.bcnTag:
+            if not tag:
+                continue
+
             for alt in bcn.altID:
                 key = (alt, tag)
                 optionals[key].add(bcn, flows[bcn])

@@ -13,7 +13,7 @@
     "timestepComp": 1,
     "outputRealBool": false,
     "interestRate": 0.05,
-    "dRateReal": 0.03,
+    "dRateReal": null,
     "dRateNom": 0.03,
     "inflationRate": 0.02,
     "Marr": 0.04,
@@ -26,7 +26,7 @@
       "20879"
     ],
     "noAlt": 3,
-    "baseAlt": 1
+    "baseAlt": 0
   },
   "alternativeObjects": [
     {
@@ -34,7 +34,8 @@
       "altName": "Alternative 1",
       "altBCNList": [
         0,
-        1
+        1,
+        6
       ],
       "baselineBool": true
     },
@@ -42,7 +43,11 @@
       "altID": 1,
       "altName": "Alternative 2",
       "altBCNList": [
-        1
+        1,
+        2,
+        3,
+        5,
+        8
       ],
       "baselineBool": false
     },
@@ -50,7 +55,11 @@
       "altID": 2,
       "altName": "Alternative 3",
       "altBCNList": [
-        1
+        2,
+        4,
+        5,
+        7,
+        8
       ],
       "baselineBool": false
     }
@@ -67,7 +76,6 @@
       "bcnTag": "Tag 1",
       "initialOcc": 1,
       "rvBool": true,
-      "bcnRealBool": false,
       "bcnInvestBool": true,
       "bcnLife": 30,
       "recurBool": null,
@@ -79,7 +87,7 @@
       "quant": 100,
       "quantVarRate": null,
       "quantVarValue": null,
-      "quantUnit": " m^3"
+      "quantUnit": "m^3"
     },
     {
       "bcnID": 1,
@@ -92,7 +100,6 @@
       "bcnName": "COST 2",
       "bcnTag": null,
       "initialOcc": 1,
-      "bcnRealBool": false,
       "bcnInvestBool": false,
       "rvBool": false,
       "bcnLife": null,
@@ -115,7 +122,7 @@
       ],
       "bcnType": "Cost",
       "bcnSubType": "Externality",
-      "bcnName": "EXT 2",
+      "bcnName": "EXT 1",
       "bcnTag": null,
       "initialOcc": 5,
       "bcnInvestBool": true,
@@ -142,14 +149,13 @@
       "bcnName": "Benefit 1",
       "bcnTag": "Tag 1",
       "initialOcc": 2,
-      "bcnRealBool": false,
       "bcnInvestBool": false,
       "rvBool": false,
       "bcnLife": null,
       "recurBool": true,
       "recurInterval": 2,
       "recurVarRate": "Percent Delta Timestep X-1",
-      "recurVarValue": null,
+      "recurVarValue": -0.03,
       "recurEndDate": null,
       "valuePerQ": 1,
       "quant": 30,
@@ -179,7 +185,6 @@
       "bcnName": "Benefit 2",
       "bcnTag": null,
       "initialOcc": 3,
-      "bcnRealBool": false,
       "bcnInvestBool": false,
       "rvBool": false,
       "bcnLife": null,
@@ -217,7 +222,6 @@
       "bcnName": "Benefit 3",
       "bcnTag": "Tag 1",
       "initialOcc": 0,
-      "bcnRealBool": false,
       "bcnInvestBool": false,
       "rvBool": false,
       "bcnLife": null,
@@ -226,7 +230,7 @@
       "recurVarRate": "Percent Delta Timestep X-1",
       "recurVarValue": 0.01,
       "recurEndDate": 7,
-      "valuePerQ": 0.01,
+      "valuePerQ": 0.1,
       "quant": 90,
       "quantVarRate": "Percent Delta Timestep X-1",
       "quantVarValue": -0.03,
@@ -242,7 +246,6 @@
       "bcnName": "Benefit 4",
       "bcnTag": null,
       "initialOcc": 6,
-      "bcnRealBool": false,
       "bcnInvestBool": false,
       "rvBool": false,
       "bcnLife": null,
@@ -263,20 +266,19 @@
         2
       ],
       "bcnType": "Cost",
-      "bcnSubType": "Indirect",
+      "bcnSubType": "Direct",
       "bcnName": "Cost 3",
       "bcnTag": "Tag 2",
       "initialOcc": 0,
-      "bcnRealBool": false,
       "bcnInvestBool": true,
       "rvBool": true,
       "bcnLife": 4,
       "recurBool": true,
-      "recurInterval": 5,
+      "recurInterval": 4,
       "recurVarRate": "Percent Delta Timestep X-1",
       "recurVarValue": 0.01,
       "recurEndDate": null,
-      "valuePerQ": 0.5,
+      "valuePerQ": 1,
       "quant": 100,
       "quantVarRate": null,
       "quantVarValue": null,
@@ -293,7 +295,6 @@
       "bcnName": "NM 1",
       "bcnTag": "Tag 3",
       "initialOcc": 0,
-      "bcnRealBool": false,
       "bcnInvestBool": false,
       "rvBool": false,
       "bcnLife": null,

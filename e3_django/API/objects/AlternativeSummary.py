@@ -16,8 +16,8 @@ def net_benefits(benefits: CostType, costs: CostType, benefits_base: CostType, c
     return (benefits - benefits_base) - (costs - costs_base)
 
 
-def net_savings(costs: CostType, costs_base: CostType) -> CostType:
-    return costs - costs_base
+def net_savings(costs_base: CostType, costs: CostType) -> CostType:
+    return costs_base - costs
 
 
 def bcr(benefits: CostType, costs_inv: CostType, costs_inv_base: CostType) -> CostType:
@@ -109,13 +109,11 @@ def ns_elasticity(savings: CostType, total_costs: CostType, delta_q: CostType, t
     if total_costs == 0:
         return CostType("Infinity")
 
-    print(f"{savings} {total_costs} {delta_q} {total_q_base}")
-
     return ns_per_pct_q(savings / total_costs, delta_q, total_q_base)
 
 
-def calculate_quant_sum(optionals: Iterable[OptionalCashFlow]) -> list[CostType]:
-    return [sum(optional.totTagQ) for optional in optionals]
+def calculate_quant_sum(optionals: Iterable[OptionalCashFlow]) -> dict[str, CostType]:
+    return {optional.tag: sum(optional.totTagQ) for optional in optionals}
 
 
 def calculate_quant_units(optionals: Iterable[OptionalCashFlow]) -> dict[str, str]:
@@ -157,8 +155,9 @@ class AlternativeSummary:
     """
 
     def __init__(self, alt_id, reinvest_rate, study_period, marr, flow: RequiredCashFlow,
-                 optionals: list[OptionalCashFlow], baseline: "AlternativeSummary" = None,
-                 baseline_tags: BaselineTag = None, irr: bool = False):
+                 optionals: list[OptionalCashFlow], baseline: "AlternativeSummary" = None, irr: bool = False):
+        flow.print()
+
         self.altID = alt_id
         self.totalBenefits = sum(flow.totBenefitsDisc)
         self.totalCosts = sum(flow.totCostDisc)
@@ -166,7 +165,7 @@ class AlternativeSummary:
         self.totalCostsNonInv = sum(flow.totCostDiscNonInv)
         self.netBenefits = net_benefits(self.totalBenefits, self.totalCosts, baseline.totalBenefits,
                                         baseline.totalCosts) if baseline else None
-        self.netSavings = net_savings(self.totalCosts, baseline.totalCosts) if baseline else None
+        self.netSavings = net_savings(baseline.totalCosts, self.totalCosts) if baseline else None
         self.SIR = sir(baseline.totalCostsNonInv, self.totalCostsNonInv, baseline.totalCostsInv,
                        self.totalCostsInv) if baseline else None
         self.IRR = numpy.irr(numpy.subtract(flow.totCostDisc, flow.totBenefitsDisc)) if irr else None
@@ -180,8 +179,8 @@ class AlternativeSummary:
 
         self.MARR = marr
 
-        self.deltaQuant = calculate_delta_quant(optionals, baseline_tags) if baseline else None
-        self.nsPercQuant = calculate_ns_perc_quant(self.netSavings, optionals, baseline_tags) if baseline else None
+        self.deltaQuant = calculate_delta_quant(optionals, baseline.quantSum) if baseline else None
+        self.nsPercQuant = calculate_ns_perc_quant(self.netSavings, optionals, baseline.quantSum) if baseline else None
         self.nsDeltaQuant = calculate_ns_delta_quant(self.netSavings, self.deltaQuant, optionals) if baseline else None
-        self.nsElasticityQuant = calculate_ns_elasticity_quant(self.netSavings, self.totalCosts, optionals,
-                                                               baseline_tags) if baseline else None
+        self.nsElasticityQuant = calculate_ns_elasticity_quant(self.netSavings, baseline.totalCosts, optionals,
+                                                               baseline.quantSum) if baseline else None

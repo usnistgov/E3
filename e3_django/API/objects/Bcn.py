@@ -170,7 +170,7 @@ class Bcn:
         if study_period >= self.bcnLife + self.initialOcc - 1:
             remaining_life = 0
         else:
-            remaining_life = self.bcnLife - (study_period - self.initialOcc) - 1
+            remaining_life = (self.bcnLife - (study_period - self.initialOcc) - 1) % self.bcnLife
 
         result[study_period] = CostType(-remaining_life / self.bcnLife) * values[self.initialOcc]
 
