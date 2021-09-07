@@ -30,13 +30,6 @@ def analyze(user_input: Input):
 
     flows = {bcn: bcn.cash_flows(analysis.studyPeriod, discount_rate) for bcn in user_input.bcnObjects}
 
-    for bcn, flow in flows.items():
-        print(f"--Flow for BCN: {bcn.bcnID}--")
-        print(f"{flow[0]}")
-        print(f"{flow[1]}")
-        print(f"{flow[2]}")
-
-
     required = calculate_required_flows(flows, user_input)
     optionals = calculate_tag_flows(flows, user_input)
 
@@ -44,9 +37,6 @@ def analyze(user_input: Input):
     summaries = list(
         calculate_alternative_summaries(user_input.analysisObject, required, optionals, user_input.alternativeObjects)
     )
-
-    # logging.info(TestSerializer(Test()).data)
-    # return TestSerializer(Test()).data
 
     return OutputSerializer(Output(summaries, required, optionals)).data
 

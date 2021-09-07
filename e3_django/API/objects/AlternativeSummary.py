@@ -1,4 +1,3 @@
-import logging
 from typing import Union, Tuple, Iterable
 
 import numpy
@@ -16,8 +15,8 @@ def net_benefits(benefits: CostType, costs: CostType, benefits_base: CostType, c
     return (benefits - benefits_base) - (costs - costs_base)
 
 
-def net_savings(costs_base: CostType, costs: CostType) -> CostType:
-    return costs_base - costs
+def net_savings(costs_baseline: CostType, costs: CostType) -> CostType:
+    return costs_baseline - costs
 
 
 def bcr(benefits: CostType, costs_inv: CostType, costs_inv_base: CostType) -> CostType:
@@ -32,19 +31,19 @@ def bcr(benefits: CostType, costs_inv: CostType, costs_inv_base: CostType) -> Co
     return check_fraction(benefits, costs_inv - costs_inv_base)
 
 
-def sir(costs_non_inv_base: CostType, costs_non_inv: CostType, costs_inv_base: CostType, costs_inv: CostType) \
+def sir(costs_non_inv_base: CostType, costs_non_inv: CostType, costs_inv: CostType, costs_inv_base: CostType) \
         -> CostType:
     """
     Calculate Saving to Investment Ratio (SIR)
 
     :param costs_non_inv_base:
     :param costs_non_inv:
-    :param costs_inv_base:
     :param costs_inv:
+    :param costs_inv_base:
 
     :return: The calculated SIR.
     """
-    return check_fraction(costs_non_inv_base - costs_non_inv, costs_inv_base - costs_inv)
+    return check_fraction(costs_non_inv_base - costs_non_inv, costs_inv - costs_inv_base)
 
 
 def check_fraction(numerator: CostType, denominator: CostType) -> CostType:
@@ -80,12 +79,15 @@ def airr(sir_value: CostType, reinvest_rate: CostType, study_period: int) -> Cos
     return (1 + reinvest_rate) * sir_value ** CostType(1 / study_period) - 1
 
 
-def payback_period(tot_costs, tot_benefits):  # used for both simple and discounted payback
-    if len(tot_costs) != len(tot_benefits):
+def payback_period(total_costs, total_benefits):  # used for both simple and discounted payback
+    if len(total_costs) != len(total_benefits):
         raise ValueError("Total Costs and Total Benefits must be the same length.")
 
-    for i in range(len(tot_costs)):
-        if numpy.subtract(tot_costs[i], tot_benefits[i]) <= 0:
+    accumulator = 0
+    for i, (x, y) in enumerate(zip(total_costs, total_benefits)):
+        accumulator += x - y
+
+        if accumulator <= 0:
             return i
 
     return CostType("Infinity")
@@ -156,8 +158,6 @@ class AlternativeSummary:
 
     def __init__(self, alt_id, reinvest_rate, study_period, marr, flow: RequiredCashFlow,
                  optionals: list[OptionalCashFlow], baseline: "AlternativeSummary" = None, irr: bool = False):
-        flow.print()
-
         self.altID = alt_id
         self.totalBenefits = sum(flow.totBenefitsDisc)
         self.totalCosts = sum(flow.totCostDisc)
@@ -166,13 +166,13 @@ class AlternativeSummary:
         self.netBenefits = net_benefits(self.totalBenefits, self.totalCosts, baseline.totalBenefits,
                                         baseline.totalCosts) if baseline else None
         self.netSavings = net_savings(baseline.totalCosts, self.totalCosts) if baseline else None
-        self.SIR = sir(baseline.totalCostsNonInv, self.totalCostsNonInv, baseline.totalCostsInv,
-                       self.totalCostsInv) if baseline else None
+        self.SIR = sir(baseline.totalCostsNonInv, self.totalCostsNonInv, self.totalCostsInv,
+                       baseline.totalCostsInv) if baseline else None
         self.IRR = numpy.irr(numpy.subtract(flow.totCostDisc, flow.totBenefitsDisc)) if irr else None
         self.AIRR = airr(self.SIR, reinvest_rate, study_period)
-        self.SPP = payback_period(flow.totCostNonDisc, flow.totBenefitsNonDisc)
-        self.DPP = payback_period(flow.totCostDisc, flow.totBenefitsDisc)
-        self.BCR = bcr(self.netSavings, self.totalCostsInv, baseline.totalCostsInv) if baseline else None
+        self.SPP = payback_period(flow.totCostNonDisc, flow.totBenefitsNonDisc) if baseline else CostType("Infinity")
+        self.DPP = payback_period(flow.totCostDisc, flow.totBenefitsDisc) if baseline else CostType("Infinity")
+        self.BCR = bcr(self.netBenefits, self.totalCostsInv, baseline.totalCostsInv) if baseline else None
 
         self.quantSum = calculate_quant_sum(optionals)
         self.quantUnits = calculate_quant_units(optionals)
@@ -182,5 +182,5 @@ class AlternativeSummary:
         self.deltaQuant = calculate_delta_quant(optionals, baseline.quantSum) if baseline else None
         self.nsPercQuant = calculate_ns_perc_quant(self.netSavings, optionals, baseline.quantSum) if baseline else None
         self.nsDeltaQuant = calculate_ns_delta_quant(self.netSavings, self.deltaQuant, optionals) if baseline else None
-        self.nsElasticityQuant = calculate_ns_elasticity_quant(self.netSavings, baseline.totalCosts, optionals,
+        self.nsElasticityQuant = calculate_ns_elasticity_quant(self.netSavings, self.totalCosts, optionals,
                                                                baseline.quantSum) if baseline else None

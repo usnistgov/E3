@@ -17,7 +17,7 @@
     "dRateNom": 0.03,
     "inflationRate": 0.02,
     "Marr": 0.04,
-    "reinvestRate": 0.05,
+    "reinvestRate": 0.02,
     "incomeRateFed": 0.26,
     "incomeRateOther": 0.26,
     "location": [
