@@ -49,25 +49,64 @@ class Analysis:
             incomeRateOther=None,
             location=None,
     ):
+        # Type of this analysis request.
         self.analysisType = analysisType
+
+        # List of output objects to calculate as strings.
         self.objToReport = objToReport
+
+        # Length of study period.
         self.studyPeriod = studyPeriod
+
+        # Base date for this analysis. (Unused)
         self.baseDate = baseDate
+
+        # Type of timestep, e.g. "Year", "month", etc.
         self.timestepVal = timestepVal
+
+        # Number of timestep types between each time period.
         self.timestepComp = timestepComp
+
+        # MARR.
         self.Marr = Marr
+
+        # Number of alternatives.
         self.noAlt = noAlt
+
+        # ID of baseline alternative.
         self.baseAlt = baseAlt
+
+        # Reinvestment rate.
         self.reinvestRate = reinvestRate
+
+        # Project Type.
         self.projectType = projectType
+
+        # Service Date.
         self.serviceDate = serviceDate
+
+        # True if the output should be real or false if output should be nominal.
         self.outputRealBool = outputRealBool
+
+        # Interest Rate.
         self.interestRate = interestRate
+
+        # Real discount rate.
         self.dRateReal = dRateReal
+
+        # Nominal discount rate.
         self.dRateNom = dRateNom
+
+        # Inflation Rate.
         self.inflationRate = inflationRate
+
+        # Federal income rate tax.
         self.incomeRateFed = incomeRateFed
+
+        # Other income rate tax.
         self.incomeRateOther = incomeRateOther
+
+        # Location of analysis given as list of strings, e.g. ["United States", "Maryland", "20879"]
         self.location = location
 
         # Calculate missing discount/inflation rate if necessary.

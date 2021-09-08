@@ -6,6 +6,10 @@ from API.variables import MAX_DIGITS, DECIMAL_PLACES
 
 
 class AlternativeSummarySerializer(Serializer):
+    """
+    Object serializer for alternative summary.
+    """
+
     altID = IntegerField(required=True)
     totalBenefits = InfinityDecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES)
     totalCosts = InfinityDecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES)
@@ -26,9 +30,3 @@ class AlternativeSummarySerializer(Serializer):
     nsPercQuant = DictField(child=InfinityDecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES), allow_null=True)
     nsDeltaQuant = DictField(child=InfinityDecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES), allow_null=True)
     nsElasticityQuant = DictField(child=InfinityDecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES), allow_null=True)
-
-
-    def validate(self, data):
-        # check that MARR is taken directly from Analysis object.
-
-        return data

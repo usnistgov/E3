@@ -5,6 +5,10 @@ from API.variables import MAX_DIGITS, DECIMAL_PLACES
 
 
 class RequiredCashFlowSerializer(Serializer):
+    """
+    Object serializer for required cash flow objects.
+    """
+
     altID = IntegerField(required=True)
     totCostNonDisc = ListField(child=DecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES),
                                required=False)
@@ -57,6 +61,10 @@ class RequiredCashFlowSerializer(Serializer):
 
 
 class OptionalCashFlowSerializer(Serializer):
+    """
+    Object serializers for optional cash flow serializers.
+    """
+
     altID = IntegerField(required=True)
     tag = CharField(required=True)
     totTagFlowDisc = ListField(child=DecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES),

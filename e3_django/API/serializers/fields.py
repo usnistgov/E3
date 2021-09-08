@@ -4,6 +4,10 @@ from rest_framework.fields import MultipleChoiceField, Field, DecimalField
 
 
 class InfinityDecimalField(DecimalField):
+    """
+    Custom serializer field that allows for decimals that can be infinity.
+    """
+
     def to_representation(self, value):
         if isinstance(value, Decimal) and value.is_infinite():
             return "Infinity"
@@ -18,6 +22,10 @@ class InfinityDecimalField(DecimalField):
 
 
 class BooleanOptionField(Field):
+    """
+    Custom serializer field that allows for custom true and false sets.
+    """
+
     default_error_messages = {
         'none': 'Original value cannot be None.',
         'invalid': 'Input must be a valid option.'
@@ -52,6 +60,10 @@ class BooleanOptionField(Field):
 
 
 class ListMultipleChoiceField(MultipleChoiceField):
+    """
+    Custom serializer field that allows for multiple choice options in a list.
+    """
+
     def to_internal_value(self, data):
         if isinstance(data, str) or not hasattr(data, '__iter__'):
             self.fail('not_a_list', input_type=type(data).__name__)

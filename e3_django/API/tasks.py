@@ -1,10 +1,6 @@
-import logging
-from decimal import Decimal
 from typing import Union, Iterable
 
 from celery import shared_task
-from rest_framework.fields import DecimalField
-from rest_framework.serializers import Serializer
 
 from API import registry
 from API.objects import AlternativeSummary, Analysis, Alternative
@@ -12,7 +8,6 @@ from API.objects.CashFlow import RequiredCashFlow, OptionalCashFlow
 from API.objects.Input import Input
 from API.objects.Output import Output
 from API.serializers.OutputSerializer import OutputSerializer
-from API.serializers.fields import InfinityDecimalField
 
 
 @shared_task
@@ -44,6 +39,15 @@ def analyze(user_input: Input):
 def calculate_alternative_summaries(analysis: Analysis, required_flows: Iterable[RequiredCashFlow],
                                     optional_flows: Iterable[OptionalCashFlow], alternatives: Iterable[Alternative]) \
         -> Iterable[AlternativeSummary]:
+    """
+    Calculates alternative summary objects.
+
+    :param analysis: The analysis object used for general parameters.
+    :param required_flows: A list of required cash flows.
+    :param optional_flows: A list of optional cash flows.
+    :param alternatives: A list of alternatives.
+    :return: A generator yielding alternative summaries.
+    """
     baseline_alt = list(filter(lambda x: x.baselineBool, alternatives))[0]
     baseline_required_flow = list(filter(lambda x: x.altID == baseline_alt.altID, required_flows))[0]
 
@@ -64,7 +68,13 @@ def calculate_alternative_summaries(analysis: Analysis, required_flows: Iterable
 
 
 def calculate_required_flows(flows, user_input):
-    # Generate required cash flows
+    """
+    Generate required cash flows.
+
+    :param flows: A list of BCN cash flows.
+    :param user_input: The user input object used for analysis parameters.
+    :return: A list of required cash flows.
+    """
     required = {}
     for bcn in user_input.bcnObjects:
         for alt in bcn.altID:
@@ -82,7 +92,6 @@ def create_empty_tag_flows(user_input):
     :param user_input: The input object.
     :return: A dict of (alt, tag) to empty cash flows for every tag for every bcn.
     """
-    # FIXME: Maybe have all tags defined in one place so we don't have to search through all bcns for them.
     result = {}
 
     for bcn in user_input.bcnObjects:

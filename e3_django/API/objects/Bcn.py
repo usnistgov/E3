@@ -28,6 +28,13 @@ def create_list(size: int, default: Any = 0):
 
 
 def discount_values(rate: CostType, values: list[CostType]):
+    """
+    Discounts the given list of values to their present values with the given rate.
+
+    :param rate: The discount rate.
+    :param values: The list of values to discount.
+    :return: A list of discounted values.
+    """
     return list(map(lambda x: present_value(x[1], rate, CostType(x[0])), enumerate(values)))
 
 
@@ -37,26 +44,67 @@ class Bcn:
     """
 
     def __init__(self, studyPeriod, **kwargs):
+        # BCN ID
         self.bcnID = kwargs.get("bcnID", None)
+
+        # List of alternative IDs this BCN is a part of
         self.altID = kwargs.get("altID", [])
+
+        # Type of this BCN
         self.bcnType = kwargs.get("bcnType", None)
+
+        # Tag list for this BCN that determine which optional cash flows it is a part of
         self.bcnTag = kwargs.get("bcnTag", [])
+
+        # Subtype of this BCN
         self.bcnSubType = kwargs.get("bcnSubType", None)
+
+        # Name of this BCN
         self.bcnName = kwargs.get("bcnName", None)
+
+        # The timestep where this BCN begins.
         self.initialOcc = kwargs.get("initialOcc", 0)
+
+        # The number of timesteps before the BCN needs to be replaced.
         self.bcnLife = kwargs.get("bcnLife", None)
+
+        # BCN real boolean
         self.bcnRealBool = kwargs.get("bcnRealBool", None)
+
+        # BCN invest boolean
         self.bcnInvestBool = kwargs.get("bcnInvestBool", False)
+
+        # Residual value boolean
         self.rvBool = kwargs.get("rvBool", None)
+
+        # Recurrence boolean, determines whether this BCN is interpreted as a single value or a series of values.
         self.recurBool = kwargs.get("recurBool", None)
+
+        # Number of timesteps between each recurrence step.
         self.recurInterval = kwargs.get("recurInterval", 1)
+
+        # Type of recurrence variability.
         self.recurVarRate = kwargs.get("recurVarRate", None)
+
+        # A single or list of values that define how the recurrence changes over timesteps.
         self.recurVarValue = kwargs.get("recurVarValue", CostType(0))
+
+        # The timestep where the recurrence ends.
         self.recurEndDate = kwargs.get("recurEndDate", self.initialOcc)
+
+        # The value of each quantity of this BCN.
         self.valuePerQ = kwargs.get("valuePerQ", 0)
+
+        # The quantity of this BCN.
         self.quant = kwargs.get("quant", None)
+
+        # Type of quantity variability.
         self.quantVarRate = kwargs.get("quantVarRate", None)
+
+        # A single or list of values that define how the quantity changes over timesteps.
         self.quantVarValue = kwargs.get("quantVarValue", CostType(0))
+
+        # Units of the quantity.
         self.quantUnit = kwargs.get("quantUnit", None)
 
         self.is_single_recur_value = isinstance(self.recurVarValue, CostType)

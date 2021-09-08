@@ -3,8 +3,10 @@ import operator
 from API.objects import Bcn
 from API.variables import CostType, FlowType
 
+# Static Variables
 COST = "Cost"
 BENEFIT = "Benefit"
+
 
 def elementwise_add(x, y):
     """
@@ -49,14 +51,6 @@ class CashFlow:
         """
         pass
 
-    def update(self, bcn, flow):
-        """To be added later for updating bcn values to this cash flow."""
-        pass
-    
-    def updateAllFlows(self, bcn, flowsList):
-        """To be added later for updating ALL bcn values to this cash flow."""
-        pass
-
 
 class RequiredCashFlow(CashFlow):
     """
@@ -66,8 +60,10 @@ class RequiredCashFlow(CashFlow):
     def __init__(self, alt: int, study_period: int):
         default = [CostType(0)] * (study_period + 1)
 
+        # List of BCNs that this cash flow contains.
         self.bcn_list = []
 
+        # The alternative ID that this cash flow is associated with.
         self.altID = alt
 
         self.totCostNonDisc = default
@@ -185,46 +181,6 @@ class RequiredCashFlow(CashFlow):
 
         return self
 
-    def update(self, bcn: Bcn, flow: FlowType):
-        return self
-    
-    def updateAllFlows(self, bcn: Bcn, flowsList):
-        return self
-
-    def print(self):
-        print("---Required Cash Flow---")
-        print(f"{self.altID}")
-        print(f"totCostNonDisc: {[str(x) for x in self.totCostNonDisc]}")
-        print(f"totCostDisc: {[str(x) for x in self.totCostDisc]}")
-        print(f"totBenefitsNonDisc: {[str(x) for x in self.totBenefitsNonDisc]}")
-        print(f"totBenefitsDisc: {[str(x) for x in self.totBenefitsDisc]}")
-
-        print(f"totCostsNonDiscInv: {[str(x) for x in self.totCostsNonDiscInv]}")
-        print(f"totCostsDiscInv: {[str(x) for x in self.totCostsDiscInv]}")
-        print(f"totBenefitsNonDiscInv: {[str(x) for x in self.totBenefitsNonDiscInv]}")
-        print(f"totBenefitsDiscInv: {[str(x) for x in self.totBenefitsDiscInv]}")
-
-        print(f"totCostNonDiscNonInv: {[str(x) for x in self.totCostNonDiscNonInv]}")
-        print(f"totCostDiscNonInv: {[str(x) for x in self.totCostDiscNonInv]}")
-        print(f"totBenefitsNonDiscNonInv: {[str(x) for x in self.totBenefitsNonDiscNonInv]}")
-        print(f"totBenefitsDiscNonInv: {[str(x) for x in self.totBenefitsDiscNonInv]}")
-
-        print(f"totCostDir: {[str(x) for x in self.totCostDir]}")
-        print(f"totCostDirDisc: {[str(x) for x in self.totCostDirDisc]}")
-        print(f"totBenefitsDir: {[str(x) for x in self.totBenefitsDir]}")
-        print(f"totBenefitsDirDisc: {[str(x) for x in self.totBenefitsDirDisc]}")
-
-        print(f"totCostInd: {[str(x) for x in self.totCostInd]}")
-        print(f"totCostIndDisc: {[str(x) for x in self.totCostIndDisc]}")
-        print(f"totBenefitsInd: {[str(x) for x in self.totBenefitsInd]}")
-        print(f"totBenefitsIndDisc: {[str(x) for x in self.totBenefitsIndDisc]}")
-
-        print(f"totCostExt: {[str(x) for x in self.totCostExt]}")
-        print(f"totCostExtDisc: {[str(x) for x in self.totCostExtDisc]}")
-        print(f"totBenefitsExt: {[str(x) for x in self.totBenefitsExt]}")
-        print(f"totBenefitsExtDisc: {[str(x) for x in self.totBenefitsExtDisc]}")
-        print("---End Required Cash Flow---")
-
 
 class OptionalCashFlow(CashFlow):
     """
@@ -234,19 +190,33 @@ class OptionalCashFlow(CashFlow):
     def __init__(self, altID, tag, units, studyPeriod):
         default = [CostType(0)] * (studyPeriod + 1)
 
+        # ID of the alternative this cash flow is associated with.
         self.altID = altID
+
+        # Optional tag this cash flow is associated with.
         self.tag = tag
 
+        # Total discount flow that will be mutated by the add method.
         self.totTagFlowDisc = default
+
+        # Total quantity that will be mutated by the add method.
         self.totTagQ = default
+
+        # Quantity units of the optoinal.
         self.quantUnits = units
 
     def add(self, bcn, flow):
+        """
+        Add the given BCN to this optional cash flow. Raises ValueError if the BCN is a part of this optional.
+
+        :param bcn: The BCN object being added.
+        :param flow: The BCN cash flow values to add.
+        :return: This cash flow instance.
+        """
+        if self.tag not in bcn.bcnTag:
+            raise ValueError(f"Optional of tag {self.tag} cannot accept BCN with tags {bcn.bcnTag}")
+
         self.totTagFlowDisc = elementwise_add(self.totTagFlowDisc, flow[2])
         self.totTagQ = elementwise_add(self.totTagQ, flow[0])
 
-        return self
-
-    def update(self, bcn, flow):
-        """To be added later for updating optional cash flow."""
         return self
