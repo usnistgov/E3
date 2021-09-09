@@ -1,3 +1,6 @@
+import logging
+
+from rest_framework.exceptions import ValidationError
 from rest_framework.fields import ListField
 from rest_framework.serializers import Serializer
 
@@ -7,11 +10,23 @@ from API.serializers import AnalysisSerializer, AlternativeSerializer, BCNSerial
 
 
 class InputSerializer(Serializer):
+    """
+    Object serializer for main input object.
+    """
+
     analysisObject = AnalysisSerializer(required=True)
     alternativeObjects = ListField(child=AlternativeSerializer(), required=True)
     bcnObjects = ListField(child=BCNSerializer(), required=True)
     sensitivityObject = SensitivitySerializer(required=False)
     scenarioObject = ScenarioSerializer(required=False)
+
+    def validate(self, data):
+        logging.info(data["analysisObject"])
+
+        # Ensure that only one alternative has baselineBool = True.
+        if len([x for x in data["alternativeObjects"] if x["baselineBool"]]) != 1:
+            raise ValidationError("Only one alternative can be the baseline")
+        return data
 
     def create(self, validated_data):
         analysis = Analysis(**validated_data.pop("analysisObject"))

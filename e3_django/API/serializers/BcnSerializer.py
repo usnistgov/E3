@@ -11,6 +11,10 @@ logger = logging.getLogger(__name__)
 
 
 class BCNSerializer(Serializer):
+    """
+    Object serializer for BCN objects.
+    """
+
     bcnID = IntegerField(min_value=0, required=True)
     altID = ListField(child=IntegerField(min_value=0, required=False), required=True)
     bcnType = ChoiceField(["Benefit", "Cost", "Non-Monetary", "0", "1", "2"], required=True)
@@ -34,23 +38,12 @@ class BCNSerializer(Serializer):
     quantUnit = CharField(required=False, default='dollars', allow_null=True)
 
     def validate(self, data):
-        # Ensure initialOcc occurs at valid timestep
-
-        # Ensure initialOcc is less than studyPeriod
-        #if data["initialOcc"] >= data["studyPeriod"]:
-        #    raise ValidationError("initialOcc must be less than studyPeriod")
-        
-        # Ensure recurEndDate is less than studyPeriod
-        #if data["recurEndDate"] >= data["studyPeriod"]:
-        #    raise ValidationError("recurEndDate must be less than studyPeriod")
-
         # Check all required inputs are given, based on chosen bcnType.
         if data['bcnType'] == 'Benefit':
             if data['initialOcc'] is None or data['bcnRealBool'] is None or not data['valuePerQ']:
                 raise ValidationError(f"You must supply: initialOcc, bcnRealBool, valuePerQ if bcnType: Benefit.")
             if not data['quantUnit']:
                 logger.info("quantUnit was not provided. Value will be assumed in dollars.")
-
         elif data['bcnType'] == 'Cost':
             if data['bcnRealBool'] is None or data['bcnInvestBool'] is None or not data['valuePerQ']:
                 raise ValidationError(f"You must supply: bcnRealBool, bcnInvestBool, valuePerQ if bcnType: Cost. "
@@ -58,17 +51,12 @@ class BCNSerializer(Serializer):
                                       f"{data['bcnInvestBool']} valuePerQ: {data['valuePerQ']}")
             if not data['quantUnit']:
                 logger.info("quantUnit was not provided. Value will be assumed in dollars.")
-        
         elif data['bcnType'] == 'NonMonetary':
             if not data['bcnTag'] or not data['quantUnit']:
                 raise ValidationError("You must supply: bcnTag, quantUnit if bcnType: NonMonetary.")
-
         else:
             logger.info("BCN type is unknown. Setting to Default.")
 
-        #if data['recurBool']:
-        #    if not data['recurInterval'] or not data['recurVarRate'] or not data['recurVarValue']:
-        #        raise ValidationError("You must supply: recurInterval, recurVarRate, recurVarValue if recurBool: True.")
         if data['quantVarRate']:
             if not data['quantVarValue']:
                 raise ValidationError("You must supply: quantVarValue if quantVarRate exists.")
@@ -80,6 +68,3 @@ class BCNSerializer(Serializer):
             logger.warning('Warning: %s', 'The quantity unit supplied is blank.')
 
         return data
-
-    def updateObject(self, varName, newVal):
-        self.varName = newVal

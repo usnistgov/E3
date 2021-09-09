@@ -59,7 +59,7 @@ class RequiredCashFlowTest(TestCase):
             4,
             bcnID=1,
             altID=[0, 1],
-            bcnType="Benefits",
+            bcnType="Benefit",
             bcnSubType="Indirect",
             bcnName="BCN 2",
             bcnTag=None,
@@ -107,7 +107,7 @@ class RequiredCashFlowTest(TestCase):
             4,
             bcnID=1,
             altID=[0, 1],
-            bcnType="Benefits",
+            bcnType="Benefit",
             bcnSubType="Other",
             bcnName="BCN 2",
             bcnTag=None,
@@ -192,7 +192,7 @@ class RequiredCashFlowTest(TestCase):
 
     def test_add_base_cost_when_type_is_benefits(self):
         # When
-        self.required_flow.add_base_cost("Benefits", self.flow)
+        self.required_flow.add_base_cost("Benefit", self.flow)
 
         # Expect
         self.assertDefault()
@@ -206,7 +206,7 @@ class RequiredCashFlowTest(TestCase):
 
     def test_add_base_benefits_when_type_is_benefits(self):
         # When
-        self.required_flow.add_base_benefits("Benefits", self.flow)
+        self.required_flow.add_base_benefits("Benefit", self.flow)
 
         # Expect
         assert self.required_flow.totBenefitsNonDisc == self.flow[1]
@@ -224,7 +224,7 @@ class RequiredCashFlowTest(TestCase):
 
     def test_add_invest_cost_when_type_is_benefits(self):
         # When
-        self.required_flow.add_invest_cost("Benefits", self.flow)
+        self.required_flow.add_invest_cost("Benefit", self.flow)
 
         # Expect
         self.assertDefault()
@@ -238,7 +238,7 @@ class RequiredCashFlowTest(TestCase):
 
     def test_add_invest_benefits_when_type_is_benefits(self):
         # When
-        self.required_flow.add_invest_benefits("Benefits", self.flow)
+        self.required_flow.add_invest_benefits("Benefit", self.flow)
 
         # Expect
         assert self.required_flow.totBenefitsNonDiscInv == self.flow[1]
@@ -256,7 +256,7 @@ class RequiredCashFlowTest(TestCase):
 
     def test_add_non_invest_cost_when_type_is_benefits(self):
         # When
-        self.required_flow.add_non_invest_cost("Benefits", self.flow)
+        self.required_flow.add_non_invest_cost("Benefit", self.flow)
 
         # Expect
         self.assertDefault()
@@ -270,7 +270,7 @@ class RequiredCashFlowTest(TestCase):
 
     def test_add_non_invest_benefits_when_type_is_benefits(self):
         # When
-        self.required_flow.add_non_invest_benefits("Benefits", self.flow)
+        self.required_flow.add_non_invest_benefits("Benefit", self.flow)
 
         # Expect
         assert self.required_flow.totBenefitsNonDiscNonInv == self.flow[1]
@@ -288,7 +288,7 @@ class RequiredCashFlowTest(TestCase):
 
     def test_add_direct_cost_when_type_is_benefits(self):
         # When
-        self.required_flow.add_direct_cost("Benefits", self.flow)
+        self.required_flow.add_direct_cost("Benefit", self.flow)
 
         # Expect
         self.assertDefault()
@@ -302,7 +302,7 @@ class RequiredCashFlowTest(TestCase):
 
     def test_add_direct_benefits_when_type_is_benefits(self):
         # When
-        self.required_flow.add_direct_benefits("Benefits", self.flow)
+        self.required_flow.add_direct_benefits("Benefit", self.flow)
 
         # Expect
         assert self.required_flow.totBenefitsDir == self.flow[1]
@@ -320,7 +320,7 @@ class RequiredCashFlowTest(TestCase):
 
     def test_add_indirect_cost_when_type_is_benefits(self):
         # When
-        self.required_flow.add_indirect_cost("Benefits", self.flow)
+        self.required_flow.add_indirect_cost("Benefit", self.flow)
 
         # Expect
         self.assertDefault()
@@ -334,7 +334,7 @@ class RequiredCashFlowTest(TestCase):
 
     def test_add_indirect_benefits_when_type_is_benefits(self):
         # When
-        self.required_flow.add_indirect_benefits("Benefits", self.flow)
+        self.required_flow.add_indirect_benefits("Benefit", self.flow)
 
         # Expect
         assert self.required_flow.totBenefitsInd == self.flow[1]
@@ -352,7 +352,7 @@ class RequiredCashFlowTest(TestCase):
 
     def test_add_external_cost_when_type_is_benefits(self):
         # When
-        self.required_flow.add_external_cost("Benefits", self.flow)
+        self.required_flow.add_external_cost("Benefit", self.flow)
 
         # Expect
         self.assertDefault()
@@ -366,7 +366,7 @@ class RequiredCashFlowTest(TestCase):
 
     def test_add_external_benefits_when_type_is_benefits(self):
         # When
-        self.required_flow.add_external_benefits("Benefits", self.flow)
+        self.required_flow.add_external_benefits("Benefit", self.flow)
 
         # Expect
         assert self.required_flow.totBenefitsExt == self.flow[1]
@@ -500,7 +500,6 @@ class RequiredCashFlowTest(TestCase):
         self.required_flow.add(self.bcn3, self.flow)
         self.required_flow.add(self.bcn3, self.flow)
 
-
         # Expect
         assert self.required_flow.totCostExt == [CostType(2)] * 5
         assert self.required_flow.totCostExtDisc == [CostType(3)] * 5
@@ -525,6 +524,243 @@ class RequiredCashFlowTest(TestCase):
         # Expect
         assert isinstance(cash_flow, RequiredCashFlow)
         assert cash_flow == self.required_flow
+
+
+class RequiredCashFlowSecondCaseTest(TestCase):
+    def setUp(self):
+        self.bcns = {
+            "bcn0": Bcn(
+                10,
+                bcnID=0,
+                altID=[0],
+                bcnType="Cost",
+                bcnSubType="Direct",
+                bcnName="COST 1",
+                bcnTag="Tag 1",
+                initialOcc=1,
+                bcnInvestBool=True,
+                rvBool=True,
+                bcnLife=30,
+                recurBool=None,
+                recurInterval=None,
+                recurVarRate=None,
+                recurVarValue=None,
+                recurEndDate=None,
+                valuePerQ=CostType("2"),
+                quant=CostType("100"),
+                quantVarRate=None,
+                quantVarValue=None,
+                quantUnit="m^3"
+            ),
+            "bcn1": Bcn(
+                10,
+                bcnID=1,
+                altID=[0, 1],
+                bcnType="Cost",
+                bcnSubType="Indirect",
+                bcnName="COST 2",
+                bcnTag=None,
+                initialOcc=1,
+                bcnInvestBool=False,
+                rvBool=False,
+                bcnLife=None,
+                recurBool=True,
+                recurInterval=1,
+                recurVarRate="Percent Delta Timestep X-1",
+                recurVarValue=CostType("0.03"),
+                recurEndDate=None,
+                valuePerQ=CostType("0.087"),
+                quant=CostType("1000"),
+                quantVarRate="Percent Delta Timestep X-1",
+                quantVarValue=CostType("0.05"),
+                quantUnit="kWh"
+            ),
+            "bcn2": Bcn(
+                10,
+                bcnID=2,
+                altID=[1, 2],
+                bcnType="Cost",
+                bcnSubType="Externality",
+                bcnName="EXT 2",
+                bcnTag=None,
+                initialOcc=5,
+                bcnInvestBool=True,
+                rvBool=False,
+                bcnLife=6,
+                recurBool=False,
+                recurInterval=None,
+                recurVarRate=None,
+                recurVarValue=None,
+                recurEndDate=None,
+                valuePerQ=CostType("1"),
+                quant=CostType("500"),
+                quantVarRate=None,
+                quantVarValue=None,
+                quantUnit=None
+            ),
+            "bcn3": Bcn(
+                10,
+                bcnID=3,
+                altID=[1],
+                bcnType="Benefit",
+                bcnSubType="Direct",
+                bcnName="Benefit 1",
+                bcnTag="Tag 1",
+                initialOcc=2,
+                bcnInvestBool=False,
+                rvBool=False,
+                bcnLife=None,
+                recurBool=True,
+                recurInterval=2,
+                recurVarRate="Percent Delta Timestep X-1",
+                recurVarValue=None,
+                recurEndDate=None,
+                valuePerQ=CostType("1"),
+                quant=CostType("30"),
+                quantVarRate="Percent Delta Timestep X-1",
+                quantVarValue=[0, 0.01, 0.01, 0.02, 0.02, 0.01, -0.01, 0.02, 0.01, 0, -0.02],
+                quantUnit="m^3"
+            ),
+            "bcn4": Bcn(
+                10,
+                bcnID=4,
+                altID=[2],
+                bcnType="Benefit",
+                bcnSubType="Indirect",
+                bcnName="Benefit 2",
+                bcnTag=None,
+                initialOcc=3,
+                bcnRealBool=False,
+                bcnInvestBool=False,
+                rvBool=False,
+                bcnLife=None,
+                recurBool=True,
+                recurInterval=1,
+                recurVarRate="Percent Delta Timestep X-1",
+                recurVarValue=[0, 0.04, 0.05, 0.02, 0.01, -0.03, 0.06, 0.02, -0.01, -0.03, 0.09],
+                recurEndDate=6,
+                valuePerQ=CostType("3"),
+                quant=CostType("350.5"),
+                quantVarRate=None,
+                quantVarValue=None,
+                quantUnit="tonnes"
+            ),
+            "bcn5": Bcn(
+                10,
+                bcnID=5,
+                altID=[1, 2],
+                bcnType="Benefit",
+                bcnSubType="Indirect",
+                bcnName="Benefit 3",
+                bcnTag="Tag 1",
+                initialOcc=0,
+                bcnInvestBool=False,
+                rvBool=False,
+                bcnLife=None,
+                recurBool=True,
+                recurInterval=1,
+                recurVarRate="Percent Delta Timestep X-1",
+                recurVarValue=CostType("0.01"),
+                recurEndDate=7,
+                valuePerQ=CostType("0.01"),
+                quant=CostType("90"),
+                quantVarRate="Percent Delta Timestep X-1",
+                quantVarValue=CostType("-0.03"),
+                quantUnit="m^3"
+            ),
+            "bcn6": Bcn(
+                10,
+                bcnID=6,
+                altID=[0],
+                bcnType="Benefit",
+                bcnSubType="Indirect",
+                bcnName="Benefit 4",
+                bcnTag=None,
+                initialOcc=6,
+                bcnInvestBool=False,
+                rvBool=False,
+                bcnLife=None,
+                recurBool=False,
+                recurInterval=None,
+                recurVarRate=None,
+                recurVarValue=None,
+                recurEndDate=None,
+                valuePerQ=CostType("0.5"),
+                quant=CostType("250"),
+                quantVarRate=None,
+                quantVarValue=None,
+                quantUnit=None
+            ),
+            "bcn7": Bcn(
+                10,
+                bcnID=7,
+                altID=[2],
+                bcnType="Cost",
+                bcnSubType="Indirect",
+                bcnName="Cost 3",
+                bcnTag="Tag 2",
+                initialOcc=0,
+                bcnInvestBool=True,
+                rvBool=True,
+                bcnLife=4,
+                recurBool=True,
+                recurInterval=5,
+                recurVarRate="Percent Delta Timestep X-1",
+                recurVarValue=CostType("0.01"),
+                recurEndDate=None,
+                valuePerQ=CostType("1"),
+                quant=CostType("100"),
+                quantVarRate=None,
+                quantVarValue=None,
+                quantUnit="m^2"
+            ),
+            "bcn8": Bcn(
+                10,
+                bcnID=8,
+                altID=[1, 2],
+                bcnType="Non-Monetary",
+                bcnSubType="Direct",
+                bcnName="NM 1",
+                bcnTag="Tag 3",
+                initialOcc=0,
+                bcnInvestBool=False,
+                rvBool=False,
+                bcnLife=None,
+                recurBool=True,
+                recurInterval=1,
+                recurVarRate=None,
+                recurVarValue=None,
+                recurEndDate=None,
+                valuePerQ=None,
+                quant=CostType("100"),
+                quantVarRate=None,
+                quantVarValue=None,
+                quantUnit="m"
+            )
+        }
+
+    def test_required_flow(self):
+        required = {}
+        for bcn in self.bcns.values():
+            for alt in bcn.altID:
+                flow = bcn.cash_flows(10, CostType("0.03"))
+
+                print(f"{alt} {bcn.bcnID}")
+
+                print("---Flow---")
+                for x in flow:
+                    print(f"{[str(y) for y in x]}")
+
+                required[alt] = required \
+                    .get(alt, RequiredCashFlow(alt, 10)) \
+                    .add(bcn, flow)
+
+        for x in required.values():
+            x.print()
+
+        print(f"Alternative Summary Sum: {sum(required[0].totCostDisc)}")
+
+
 
 
 class OptionalCashFlowTest(TestCase):

@@ -11,6 +11,10 @@ logger = logging.getLogger(__name__)
 
 
 class AnalysisSerializer(Serializer):
+    """
+    Object serializer for analysis object.
+    """
+
     analysisType = ChoiceField(["LCCA", "BCA", "Cost-Loss", "Profit Maximization", "Other"], default="Default", required=False)
     projectType = ChoiceField(["Buildings", "Infrastructure", "Resilience", "Manufacturing Process", "Other"],
                               required=False)

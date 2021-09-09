@@ -1,3 +1,4 @@
+import math
 from typing import Any, Sequence, Generator
 
 from API.variables import CostType, FlowType
@@ -27,6 +28,13 @@ def create_list(size: int, default: Any = 0):
 
 
 def discount_values(rate: CostType, values: list[CostType]):
+    """
+    Discounts the given list of values to their present values with the given rate.
+
+    :param rate: The discount rate.
+    :param values: The list of values to discount.
+    :return: A list of discounted values.
+    """
     return list(map(lambda x: present_value(x[1], rate, CostType(x[0])), enumerate(values)))
 
 
@@ -36,27 +44,71 @@ class Bcn:
     """
 
     def __init__(self, studyPeriod, **kwargs):
+        # BCN ID
         self.bcnID = kwargs.get("bcnID", None)
+
+        # List of alternative IDs this BCN is a part of
         self.altID = kwargs.get("altID", [])
+
+        # Type of this BCN
         self.bcnType = kwargs.get("bcnType", None)
+
+        # Tag list for this BCN that determine which optional cash flows it is a part of
         self.bcnTag = kwargs.get("bcnTag", [])
+
+        # Subtype of this BCN
         self.bcnSubType = kwargs.get("bcnSubType", None)
+
+        # Name of this BCN
         self.bcnName = kwargs.get("bcnName", None)
+
+        # The timestep where this BCN begins.
         self.initialOcc = kwargs.get("initialOcc", 0)
+
+        # The number of timesteps before the BCN needs to be replaced.
         self.bcnLife = kwargs.get("bcnLife", None)
+
+        # BCN real boolean
         self.bcnRealBool = kwargs.get("bcnRealBool", None)
+
+        # BCN invest boolean
         self.bcnInvestBool = kwargs.get("bcnInvestBool", False)
+
+        # Residual value boolean
         self.rvBool = kwargs.get("rvBool", None)
+
+        # Recurrence boolean, determines whether this BCN is interpreted as a single value or a series of values.
         self.recurBool = kwargs.get("recurBool", None)
+
+        # Number of timesteps between each recurrence step.
         self.recurInterval = kwargs.get("recurInterval", 1)
+
+        # Type of recurrence variability.
         self.recurVarRate = kwargs.get("recurVarRate", None)
+
+        # A single or list of values that define how the recurrence changes over timesteps.
         self.recurVarValue = kwargs.get("recurVarValue", CostType(0))
+
+        # The timestep where the recurrence ends.
         self.recurEndDate = kwargs.get("recurEndDate", self.initialOcc)
+
+        # The value of each quantity of this BCN.
         self.valuePerQ = kwargs.get("valuePerQ", 0)
+
+        # The quantity of this BCN.
         self.quant = kwargs.get("quant", None)
+
+        # Type of quantity variability.
         self.quantVarRate = kwargs.get("quantVarRate", None)
+
+        # A single or list of values that define how the quantity changes over timesteps.
         self.quantVarValue = kwargs.get("quantVarValue", CostType(0))
+
+        # Units of the quantity.
         self.quantUnit = kwargs.get("quantUnit", None)
+
+        self.is_single_recur_value = isinstance(self.recurVarValue, CostType)
+        self.is_recur_end_date_none = self.recurEndDate is None
 
         # Inflate single values to arrays to make later computations easier
         if not isinstance(self.recurVarValue, Sequence):
@@ -114,21 +166,32 @@ class Bcn:
         :param quantities: The list of quantities.
         :return: A list of non-discounted values in the correct position in a study period length array.
         """
+        recur_var_value = self.single_value() if self.is_single_recur_value else self.var_value(self.recurVarValue)
         return self.generator_base(
             study_period,
-            lambda i: quantities[i] * self.valuePerQ * ((1 + self.recurVarValue[i]) ** i)
+            lambda i: quantities[i] * self.valuePerQ * next(recur_var_value)
         )
 
-    def quantity_var_value(self) -> Generator[CostType, None, None]:
+    def single_value(self) -> Generator[CostType, None, None]:
         """
-        A generator which calculates the the quantity var values for this BCN.
+        A generator which calculates the var values for this BCN if they are not compounding.
 
-        :return: A generator returning the next quantity value.
+        :return: A generator returning the next var value.
+        """
+        for i in range(0, self.recurEndDate + 1):
+            if i >= self.initialOcc and (i - self.initialOcc) % self.recurInterval == 0:
+                yield (1 + self.recurVarValue[i]) ** i
+
+    def var_value(self, var_value_list) -> Generator[CostType, None, None]:
+        """
+        A generator which calculates the the var values for this BCN if they should be compounding.
+
+        :return: A generator returning the next var value.
         """
         result = 1
 
         for i in range(0, self.recurEndDate + 1):
-            result = result * (1 + self.quantVarValue[i])
+            result = result * (1 + var_value_list[i])
 
             if i >= self.initialOcc and (i - self.initialOcc) % self.recurInterval == 0:
                 yield result
@@ -140,7 +203,7 @@ class Bcn:
         :param study_period: The study period the analysis is over.
         :return: A list of quantities at the correct position in a study period length array.
         """
-        quantity_var_value = self.quantity_var_value()
+        quantity_var_value = self.var_value(self.quantVarValue)
         return self.generator_base(study_period, lambda _: self.quant * next(quantity_var_value))
 
     def generator_base(self, study_period, calculation) -> Generator[CostType, None, None]:
@@ -166,12 +229,33 @@ class Bcn:
         :return: The list of values with the new residual value added.
         """
         result = list(values)
+        remaining_life = self.remaining_life(study_period)
 
-        if study_period >= self.bcnLife + self.initialOcc - 1:
-            remaining_life = 0
-        else:
-            remaining_life = self.bcnLife - (study_period - self.initialOcc) - 1
-
-        result[study_period] = CostType(-remaining_life / self.bcnLife) * values[self.initialOcc]
+        result[study_period] += CostType(-remaining_life / self.bcnLife) * values[self.initialOcc]
 
         return result
+
+    def remaining_life(self, study_period: int):
+        """
+        Calculate the remaining life of this bcn. This can change depending on if it is recurring, the properties
+        of the recursion, or if it is a single cost.
+        
+        :param study_period: The length of the study period.
+        :return: The remaining life of the bcn.
+        """
+        def end_date_within_period():
+            return not self.is_recur_end_date_none and self.recurEndDate <= study_period
+
+        def lifetime_within_period():
+            if self.recurBool and self.is_recur_end_date_none:
+                return False
+
+            return study_period >= self.bcnLife + self.initialOcc - 1
+
+        if end_date_within_period() or lifetime_within_period():
+            return 0
+        elif self.recurBool:
+            last_interval = math.floor((study_period - self.initialOcc) / self.recurInterval) * self.recurInterval
+            return self.bcnLife - (study_period - self.initialOcc - last_interval) - 1
+        else:
+            return self.bcnLife - (study_period - self.initialOcc) - 1

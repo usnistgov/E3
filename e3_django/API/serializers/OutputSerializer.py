@@ -5,6 +5,10 @@ from API.serializers import RequiredCashFlowSerializer, OptionalCashFlowSerializ
 
 
 class OutputSerializer(Serializer):
+    """
+    Object serializer for the main output object.
+    """
+
     alternativeSummary = ListField(child=AlternativeSummarySerializer(), required=True)
     reqCashFlowObjects = ListField(child=RequiredCashFlowSerializer(), required=True)
     optCashFlowObjects = ListField(child=OptionalCashFlowSerializer(), required=False)
