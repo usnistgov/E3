@@ -1,6 +1,0 @@
-This folder is designed to hold input templates and example input files to be used in unit tests.
-
-File List (I tried uploading the JSON files directly but the updload altered their format for some reason, convert all files to .json before using):
-validInput - a file that should create valid user defined objects. Note that dRateNom may be calculated
-missingRateReal - a file that should create valid used defined objects but requires the code to generate the real discount rate
-missingRateNom - a file that should create valid used defined objects but requires the code to generate the real discount rate
