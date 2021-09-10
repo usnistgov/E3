@@ -21,11 +21,25 @@ class InputSerializer(Serializer):
     scenarioObject = ScenarioSerializer(required=False)
 
     def validate(self, data):
-        logging.info(data["analysisObject"])
+        study_period = data["analysisObject"]["studyPeriod"]
+        for bcn in data["bcnObjects"]:
+            quant_var_value = bcn["quantVarValue"]
+            recur_var_value = bcn["recurVarValue"]
+
+            if quant_var_value is not None and isinstance(quant_var_value, list) and \
+                    len(quant_var_value) != study_period:
+                raise ValidationError(f"The length of quantVarValue for BCN {bcn['bcnID']} is not equal to the study "
+                                      f"period {study_period}. Given {quant_var_value}")
+
+            if recur_var_value is not None and isinstance(recur_var_value, list) and \
+                    len(recur_var_value) != study_period:
+                raise ValidationError(f"The length of recurVarValue for BCN {bcn['bcnID']} is not equal to the study "
+                                      f"period {study_period}. Given {recur_var_value}")
 
         # Ensure that only one alternative has baselineBool = True.
         if len([x for x in data["alternativeObjects"] if x["baselineBool"]]) != 1:
             raise ValidationError("Only one alternative can be the baseline")
+
         return data
 
     def create(self, validated_data):

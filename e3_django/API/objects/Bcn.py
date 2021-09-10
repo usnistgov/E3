@@ -77,6 +77,9 @@ class Bcn:
         # Residual value boolean
         self.rvBool = kwargs.get("rvBool", None)
 
+        # Only include residual value in cash flow and ignore all other values
+        self.rvOnly = kwargs.get("rvOnly", False)
+
         # Recurrence boolean, determines whether this BCN is interpreted as a single value or a series of values.
         self.recurBool = kwargs.get("recurBool", None)
 
@@ -228,7 +231,7 @@ class Bcn:
         :param values: The list of values to place the result in to.
         :return: The list of values with the new residual value added.
         """
-        result = list(values)
+        result = [CostType(0)] * len(values) if self.rvOnly else list(values)
         remaining_life = self.remaining_life(study_period)
 
         result[study_period] += CostType(-remaining_life / self.bcnLife) * values[self.initialOcc]

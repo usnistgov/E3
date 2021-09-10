@@ -61,6 +61,32 @@ class NewBcnTest(TestCase):
             quantUnit="kWh"
         )
 
+        self.rv_only_bcn = Bcn(
+            10,
+            bcnID=0,
+            altID=[0],
+            bcnType="Cost",
+            bcnSubType="Direct",
+            bcnName="BCN 1",
+            bcnTag=None,
+            initialOcc=1,
+            bcnRealBool=False,
+            bcnInvestBool=True,
+            rvBool=True,
+            rvOnly=True,
+            bcnLife=30,
+            recurBool=False,
+            recurInterval=None,
+            recurVarRate=None,
+            recurVarValue=None,
+            recurEndDate=None,
+            valuePerQ=Decimal("2"),
+            quant=Decimal("100"),
+            quantVarRate=None,
+            quantVarValue=None,
+            quantUnit=None
+        )
+
         self.required_flow = RequiredCashFlow(0, 10) \
             .add(self.bcn0, self.bcn0.cash_flows(10, Decimal("0.03"))) \
             .add(self.bcn1, self.bcn1.cash_flows(10, Decimal("0.03")))
@@ -652,3 +678,14 @@ class NewBcnTest(TestCase):
 
         assert result == [CostType(x).quantize(PLACES) for x in
                           ["0"] * 11]
+
+    def test_residual_value_only(self):
+        # Given
+        values = [CostType(x) for x in [0, 200, 0, 0, 0, 0, 0, 0, 0, 0, 0]]
+        expected = [CostType(x).quantize(PLACES) for x in [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, "-133.333333333"]]
+
+        # When
+        actual = [CostType(x).quantize(PLACES) for x in self.rv_only_bcn.residual_value(10, values)]
+
+        # Expect
+        assert actual == expected

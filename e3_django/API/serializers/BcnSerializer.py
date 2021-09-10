@@ -26,6 +26,7 @@ class BCNSerializer(Serializer):
     bcnInvestBool = BooleanField(required=False)
     bcnLife = IntegerField(min_value=1, required=False, allow_null=True)
     rvBool = BooleanField(required=False)
+    rvOnly = BooleanField(required=False, default=False)
     recurBool = BooleanField(required=True, allow_null=True)
     recurInterval = IntegerField(min_value=1, required=False, allow_null=True)
     recurVarRate = ChoiceField(["Percent Delta Timestep X-1"], required=False, allow_null=True)
@@ -38,30 +39,31 @@ class BCNSerializer(Serializer):
     quantUnit = CharField(required=False, default='dollars', allow_null=True)
 
     def validate(self, data):
+        if 'valuePerQ' not in data:
+            data['valuePerQ'] = 0
+
         # Check all required inputs are given, based on chosen bcnType.
         if data['bcnType'] == 'Benefit':
-            if data['initialOcc'] is None or data['bcnRealBool'] is None or not data['valuePerQ']:
-                raise ValidationError(f"You must supply: initialOcc, bcnRealBool, valuePerQ if bcnType: Benefit.")
+            if data['initialOcc'] is None or data['valuePerQ'] is None:
+                raise ValidationError(f"You must supply: initialOcc, valuePerQ if bcnType: Benefit.")
             if not data['quantUnit']:
                 logger.info("quantUnit was not provided. Value will be assumed in dollars.")
         elif data['bcnType'] == 'Cost':
-            if data['bcnRealBool'] is None or data['bcnInvestBool'] is None or not data['valuePerQ']:
-                raise ValidationError(f"You must supply: bcnRealBool, bcnInvestBool, valuePerQ if bcnType: Cost. "
-                                      f"Given:\nbcnRealBool: {data['bcnRealBool']} bcnInvestBool: "
-                                      f"{data['bcnInvestBool']} valuePerQ: {data['valuePerQ']}")
+            if data['bcnInvestBool'] is None or data['valuePerQ'] is None:
+                raise ValidationError(f"You must supply: bcnInvestBool, valuePerQ if bcnType: Cost. "
+                                      f"Given: bcnInvestBool: {data['bcnInvestBool']} valuePerQ: {data['valuePerQ']}")
             if not data['quantUnit']:
                 logger.info("quantUnit was not provided. Value will be assumed in dollars.")
         elif data['bcnType'] == 'NonMonetary':
-            if not data['bcnTag'] or not data['quantUnit']:
+            if data['bcnTag'] is None or data['quantUnit'] is None:
                 raise ValidationError("You must supply: bcnTag, quantUnit if bcnType: NonMonetary.")
         else:
             logger.info("BCN type is unknown. Setting to Default.")
 
-        if data['quantVarRate']:
-            if not data['quantVarValue']:
-                raise ValidationError("You must supply: quantVarValue if quantVarRate exists.")
+        if data['quantVarRate'] is not None and data['quantVarValue'] is None:
+            raise ValidationError("You must supply: quantVarValue if quantVarRate exists.")
 
-        if not data['recurEndDate']:
+        if data['recurEndDate'] is None:
             logger.info("recurEndDate was not provided. BCN will occur for the entire studyPeriod.")
 
         if data['quantUnit'] == "":

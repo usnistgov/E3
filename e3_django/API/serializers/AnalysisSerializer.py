@@ -42,7 +42,7 @@ class AnalysisSerializer(Serializer):
 
     def validate(self, data):
         # Ensure service date is after base date
-        if data["serviceDate"] <= data["baseDate"]:
+        if data["serviceDate"] < data["baseDate"]:
             raise ValidationError("Service Date must be after base date")
 
         # Ensure timestepComp is less than studyPeriod
