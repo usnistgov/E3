@@ -1,6 +1,0 @@
-This directory contains the unit tests for the E3 code. There are 5 sets:
-Unit Tests 1 - Basic set of tests to ensure general functionality
-Unit Tests 2 - More complicated tests to ensure looping of multiple objects, tags, and optional inputs are working properly
-Unit Tests 3 - Tests for exception handling, error catching and reporting for the basic calculations
-Unit Tests 4 - Tests for Sensitivity calculations
-Unit Tests 5 - Tests for Uncertainty calculations
