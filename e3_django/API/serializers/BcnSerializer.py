@@ -63,7 +63,7 @@ class BCNSerializer(Serializer):
         if data['quantVarRate'] is not None and data['quantVarValue'] is None:
             raise ValidationError("You must supply: quantVarValue if quantVarRate exists.")
 
-        if data['recurEndDate'] is None:
+        if 'recurEndDate' not in data or data['recurEndDate'] is None:
             logger.info("recurEndDate was not provided. BCN will occur for the entire studyPeriod.")
 
         if data['quantUnit'] == "":

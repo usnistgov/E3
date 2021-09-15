@@ -1,3 +1,4 @@
+import logging
 import math
 from typing import Any, Sequence, Generator
 
@@ -117,7 +118,7 @@ class Bcn:
         if not isinstance(self.recurVarValue, Sequence):
             self.recurVarValue = create_list(studyPeriod, default=self.recurVarValue if self.recurVarValue else 0)
         if not isinstance(self.quantVarValue, Sequence):
-            self.quantVarValue = ([CostType("0")] * (self.initialOcc if self.initialOcc > 0 else 1)) + \
+            self.quantVarValue = ([CostType("0")] * (self.initialOcc if self.initialOcc > 0 else 0)) + \
                 create_list(studyPeriod - self.initialOcc, default=self.quantVarValue if self.quantVarValue else 0)
         if not isinstance(self.bcnTag, list):
             self.bcnTag = [self.bcnTag]
