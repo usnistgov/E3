@@ -11,4 +11,4 @@ class AlternativeSerializer(Serializer):
     altID = IntegerField(min_value=0, required=True)
     altName = CharField(required=False)
     altBCNList = ListField(child=IntegerField(), required=True)
-    baselineBool = BooleanField(required=False)
+    baselineBool = BooleanField(required=False, default=False)

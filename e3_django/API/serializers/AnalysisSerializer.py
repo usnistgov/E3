@@ -36,7 +36,7 @@ class AnalysisSerializer(Serializer):
     reinvestRate = DecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES, required=False)
     incomeRateFed = DecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES, required=False)
     incomeRateOther = DecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES, required=False)
-    location = ListField(child=CharField(), required=False)
+    location = ListField(child=CharField(allow_blank=True), required=False)
     noAlt = IntegerField(min_value=0, required=True)
     baseAlt = IntegerField(min_value=0, required=True)
 

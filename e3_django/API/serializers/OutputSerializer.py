@@ -9,6 +9,6 @@ class OutputSerializer(Serializer):
     Object serializer for the main output object.
     """
 
-    alternativeSummary = ListField(child=AlternativeSummarySerializer(), required=True)
+    alternativeSummaryObjects = ListField(child=AlternativeSummarySerializer(), required=True)
     reqCashFlowObjects = ListField(child=RequiredCashFlowSerializer(), required=True)
     optCashFlowObjects = ListField(child=OptionalCashFlowSerializer(), required=False)
