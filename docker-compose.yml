@@ -22,16 +22,19 @@ services:
       - default
   api:
     build: e3_django/
+    hostname: api
     environment:
       BROKER_URL: "amqp://admin:password@rabbitmq:5672"
       BACKEND_URL: "rpc://"
     depends_on:
       - rabbitmq
       - postgres
-    ports:
-      - "8000:8000"
+    expose:
+      - 8000
     networks:
       - default
+    volumes:
+      - static_volume:/usr/src/app/staticfiles
   worker:
     build: e3_django/
     deploy:
@@ -46,3 +49,16 @@ services:
     networks:
       - default
     command: celery -A API worker -l INFO
+  nginx:
+    build: ./nginx
+    ports:
+      - "80:80"
+    depends_on:
+      - api
+    networks:
+      - default
+    volumes:
+      - static_volume:/usr/src/app/staticfiles
+
+volumes:
+  static_volume:

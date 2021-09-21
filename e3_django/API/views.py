@@ -46,6 +46,8 @@ class AnalysisViewSet(ViewSet):
 
         task = tasks.analyze.delay(serializer.save())
 
+        logging.debug(f"\nAnalysis finished\n")
+
         return Response(task.get())
 
         # return Response(status=HTTP_202_ACCEPTED, headers={

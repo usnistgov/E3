@@ -26,11 +26,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'yzp=q+*3e--r4ie+hzgj_@2$auyfk38l4#@1jj6tgshv0)dga2jn'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = ["e3test.el.nist.gov", "localhost"]
+ALLOWED_HOSTS = ["e3test.el.nist.gov", "localhost", "127.0.0.1"]
 
 STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR / "staticfiles"
 
 # CORS settings
 CORS_ALLOW_ALL_ORIGINS = True
