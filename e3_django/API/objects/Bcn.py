@@ -195,6 +195,9 @@ class Bcn:
         result = 1
 
         for i in range(0, self.recurEndDate + 1):
+            if result == 0 and var_value_list[i] != 0:
+                result = 1
+
             result = result * (1 + var_value_list[i])
 
             if i >= self.initialOcc and (i - self.initialOcc) % self.recurInterval == 0:
