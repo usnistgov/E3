@@ -37,7 +37,8 @@ def net_savings(costs_baseline: CostType, costs: CostType) -> CostType:
     return costs_baseline - costs
 
 
-def bcr(benefits: CostType, costs_inv: CostType, costs_inv_base: CostType) -> CostType:
+def bcr(benefits: CostType, costs_inv: CostType, costs_inv_base: CostType,
+        costs_non_inv: CostType, costs_non_inv_base: CostType) -> CostType:
     """
     Calculate Benefit-cost Ratio (BCR).
 
@@ -46,7 +47,7 @@ def bcr(benefits: CostType, costs_inv: CostType, costs_inv_base: CostType) -> Co
     :param costs_inv_base: The total costs invest of the baseline alternative.
     :return: The calculated BCR.
     """
-    return check_fraction(benefits, costs_inv - costs_inv_base)
+    return check_fraction(benefits, (costs_inv - costs_inv_base) + (costs_non_inv - costs_non_inv_base))
 
 
 def sir(costs_non_inv_base: CostType, costs_non_inv: CostType, costs_inv: CostType, costs_inv_base: CostType) \
@@ -96,24 +97,32 @@ def airr(sir_value: CostType, reinvest_rate: CostType, study_period: int) -> Cos
     return (1 + reinvest_rate) * sir_value ** CostType(1 / study_period) - 1
 
 
-def payback_period(total_costs, total_benefits):
+def payback_period(benefits, baseline_benefits, baseline_costs, costs):
     """
     Finds the year in which benefits sum exceeds costs sum. Parameter lists must be the same length. If benefits never
     exceeds costs, "Infinity" will be returned.
 
-    :param total_costs: List of costs for this alternative.
-    :param total_benefits: List of benefits for this alternative.
+    :param benefits: List of benefits for this alternative.
+    :param baseline_benefits: List of benefits for the baseline alternative.
+    :param baseline_costs: List of costs for the baseline alternative.
+    :param costs: List of costs for this alternative.
     :return: The year in which benefits exceeds costs or "Infinity" if benefits never exceeds costs.
     """
-    if len(total_costs) != len(total_benefits):
-        raise ValueError("Total Costs and Total Benefits must be the same length.")
+    length = len(benefits)
+    for flow in [benefits, baseline_benefits, baseline_costs, costs]:
+        if len(flow) != length:
+            raise ValueError(
+                f"Calculation of payback period requires all cash flows to be of the same length. Given:"
+                f"\n{benefits}\n{baseline_benefits}\n{baseline_costs}\n{costs}"
+            )
 
     accumulator = 0
-    for i, (x, y) in enumerate(zip(total_costs, total_benefits)):
-        accumulator += x - y
+    for i, (benefit, baseline_benefit, baseline_cost, cost) in \
+            enumerate(zip(benefits, baseline_benefits, baseline_costs, costs)):
+        accumulator += (benefit - baseline_benefit) - (baseline_cost - cost)
 
         if accumulator <= 0:
-            return i
+            return CostType(i)
 
     return CostType("Infinity")
 
@@ -253,6 +262,10 @@ class AlternativeSummary:
 
     def __init__(self, alt_id, reinvest_rate, study_period, marr, flow: RequiredCashFlow,
                  optionals: list[OptionalCashFlow], baseline: "AlternativeSummary" = None, irr: bool = False):
+        # Maintain reference to flow object for further calculations.
+        # Note: Not included in output, only for internal calculations.
+        self.flow = flow
+
         # Alternative ID
         self.altID = alt_id
 
@@ -286,13 +299,24 @@ class AlternativeSummary:
         self.AIRR = airr(self.SIR, reinvest_rate, study_period)
 
         # Non-discount Payback Period. "Infinity" if no baseline is provided.
-        self.SPP = payback_period(flow.totCostNonDisc, flow.totBenefitsNonDisc) if baseline else CostType("Infinity")
+        self.SPP = payback_period(
+            flow.totBenefitsNonDisc,
+            baseline.flow.totBenefitsNonDisc,
+            baseline.flow.totCostNonDisc,
+            flow.totCostNonDisc
+        ) if baseline else CostType("Infinity")
 
         # Discounted Payback Period. "Infinity" if no baseline is provided.
-        self.DPP = payback_period(flow.totCostDisc, flow.totBenefitsDisc) if baseline else CostType("Infinity")
+        self.DPP = payback_period(
+            flow.totBenefitsDisc,
+            baseline.flow.totBenefitsDisc,
+            baseline.flow.totCostDisc,
+            flow.totCostDisc,
+        ) if baseline else CostType("Infinity")
 
         # BCR of this alternative. None if not baseline is provided.
-        self.BCR = bcr(self.netBenefits, self.totalCostsInv, baseline.totalCostsInv) if baseline else None
+        self.BCR = bcr(self.netBenefits, self.totalCostsInv, baseline.totalCostsInv,
+                       self.totalCostsNonInv, baseline.totalCostsNonInv) if baseline else None
 
         # Dictionary of optional tags to quantity sums.
         self.quantSum = calculate_quant_sum(optionals)
