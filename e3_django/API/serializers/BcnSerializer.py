@@ -3,7 +3,7 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.fields import IntegerField, ListField, ChoiceField, CharField, BooleanField, DecimalField, DateField
 from rest_framework.serializers import Serializer
 
-from API.variables import MAX_DIGITS, DECIMAL_PLACES
+from API.variables import MAX_DIGITS, DECIMAL_PLACES, VAR_RATE_OPTIONS
 from API.serializers.fields import BooleanOptionField
 import logging
 
@@ -29,12 +29,12 @@ class BCNSerializer(Serializer):
     rvOnly = BooleanField(required=False, default=False)
     recurBool = BooleanField(required=True, allow_null=True)
     recurInterval = IntegerField(min_value=1, required=False, allow_null=True)
-    recurVarRate = ChoiceField(["Percent Delta Timestep X-1"], required=False, allow_null=True)
+    recurVarRate = ChoiceField(VAR_RATE_OPTIONS, required=False, allow_null=True)
     recurVarValue = ListOrItemField(DecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES), required=False, allow_null=True)
     recurEndDate = IntegerField(required=False, allow_null=True)
     valuePerQ = DecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES, required=False)
     quant = DecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES, required=True)
-    quantVarRate = ChoiceField(["Percent Delta Timestep X-1"], required=False, allow_null=True)
+    quantVarRate = ChoiceField(VAR_RATE_OPTIONS, required=False, allow_null=True)
     quantVarValue = ListOrItemField(DecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES), required=False, allow_null=True)
     quantUnit = CharField(required=False, default='dollars', allow_null=True)
 

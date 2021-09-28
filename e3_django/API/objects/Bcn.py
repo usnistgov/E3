@@ -1,8 +1,7 @@
-import logging
 import math
 from typing import Any, Sequence, Generator
 
-from API.variables import CostType, FlowType
+from API.variables import CostType, FlowType, VAR_RATE_OPTIONS
 
 
 def present_value(v: CostType, d: CostType, t: CostType) -> CostType:
@@ -170,11 +169,29 @@ class Bcn:
         :param quantities: The list of quantities.
         :return: A list of non-discounted values in the correct position in a study period length array.
         """
-        recur_var_value = self.single_value() if self.is_single_recur_value else self.var_value(self.recurVarValue)
+        recur_var_value = self.get_recur_generator()
         return self.generator_base(
             study_period,
             lambda i: quantities[i] * self.valuePerQ * next(recur_var_value)
         )
+
+    def get_recur_generator(self) -> Generator[CostType, None, None]:
+        if self.is_single_recur_value:
+            return self.single_value()
+
+        if self.recurVarRate == VAR_RATE_OPTIONS[1]:
+            return self.year_by_year(self.recurVarValue)
+
+        return self.var_value(self.recurVarValue)
+
+    def year_by_year(self, var_value_list) -> Generator[CostType, None, None]:
+        """
+        A generator which calculates var values year by year.
+
+        :return: A generator returning the next var value.
+        """
+        for i in range(self.initialOcc, self.recurEndDate + 1):
+            yield var_value_list[i]
 
     def single_value(self) -> Generator[CostType, None, None]:
         """
