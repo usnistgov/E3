@@ -118,7 +118,8 @@ class Bcn:
             self.recurVarValue = create_list(studyPeriod, default=self.recurVarValue if self.recurVarValue else 0)
         if not isinstance(self.quantVarValue, Sequence):
             self.quantVarValue = ([CostType("0")] * (self.initialOcc if self.initialOcc > 0 else 0)) + \
-                create_list(studyPeriod - self.initialOcc, default=self.quantVarValue if self.quantVarValue else 0)
+                                 create_list(studyPeriod - self.initialOcc,
+                                             default=self.quantVarValue if self.quantVarValue else 0)
         if not isinstance(self.bcnTag, list):
             self.bcnTag = [self.bcnTag]
 
@@ -155,7 +156,10 @@ class Bcn:
         values = list(self.values(study_period, quantities))
 
         if self.rvBool:
+            print(self.altID)
+            print(values)
             values = self.residual_value(study_period, values)
+            print(values)
 
         discounted_values = discount_values(rate, values)
 
@@ -268,6 +272,11 @@ class Bcn:
         :param study_period: The length of the study period.
         :return: The remaining life of the bcn.
         """
+
+        def last_interval():
+            return math.floor((study_period - self.initialOcc) / self.recurInterval) * self.recurInterval \
+                   + self.initialOcc
+
         def end_date_within_period():
             return not self.is_recur_end_date_none and self.recurEndDate <= study_period
 
@@ -275,12 +284,11 @@ class Bcn:
             if self.recurBool and self.is_recur_end_date_none:
                 return False
 
-            return study_period >= self.bcnLife + self.initialOcc - 1
+            return study_period >= self.bcnLife + last_interval() - 1
 
         if end_date_within_period() or lifetime_within_period():
             return 0
         elif self.recurBool:
-            last_interval = math.floor((study_period - self.initialOcc) / self.recurInterval) * self.recurInterval
-            return self.bcnLife - (study_period - self.initialOcc - last_interval) - 1
+            return self.bcnLife - (study_period - self.initialOcc - last_interval()) - 1
         else:
             return self.bcnLife - (study_period - self.initialOcc) - 1
