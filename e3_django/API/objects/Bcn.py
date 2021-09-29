@@ -231,7 +231,7 @@ class Bcn:
         :param study_period: The study period the analysis is over.
         :return: A list of quantities at the correct position in a study period length array.
         """
-        quantity_var_value = self.year_by_year(self.recurVarValue) if self.recurVarRate == VAR_RATE_OPTIONS[1] \
+        quantity_var_value = self.year_by_year(self.quantVarValue) if self.quantVarRate == VAR_RATE_OPTIONS[1] \
             else self.var_value(self.quantVarValue)
         return self.generator_base(study_period, lambda _: self.quant * next(quantity_var_value))
 
