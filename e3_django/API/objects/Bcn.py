@@ -68,7 +68,7 @@ class Bcn:
         # The number of timesteps before the BCN needs to be replaced.
         self.bcnLife = kwargs.get("bcnLife", None)
 
-        # BCN real boolean
+        # If true then value will be discounted, otherwise no discounting is done.
         self.bcnRealBool = kwargs.get("bcnRealBool", None)
 
         # BCN invest boolean
@@ -156,10 +156,7 @@ class Bcn:
         values = list(self.values(study_period, quantities))
 
         if self.rvBool:
-            print(self.altID)
-            print(values)
             values = self.residual_value(study_period, values)
-            print(values)
 
         discounted_values = discount_values(rate, values)
 
