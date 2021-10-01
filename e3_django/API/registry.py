@@ -1,5 +1,6 @@
+import logging
 from functools import lru_cache
-from typing import Optional, TypeVar, Generic, Callable, Any, Union
+from typing import Optional, TypeVar, Generic, Callable, Any, Union, Tuple, Iterable
 
 from django.apps import AppConfig
 
@@ -8,11 +9,11 @@ T = TypeVar('T')
 
 class E3AppConfig(AppConfig, Generic[T]):
     """
-    Sets configuration options for an E# module. This includes the name, its optional dependency, and the ID of what
+    Sets configuration options for an E3 module. This includes the name, its optional dependency, and the ID of what
     this module outputs.
     """
     name: str = ""
-    depends_on: Optional[str] = None
+    depends_on: Optional[Iterable[str]] = None
     output: str = ""
 
     def __init__(self, app_name, app_module):
@@ -26,23 +27,28 @@ class E3AppConfig(AppConfig, Generic[T]):
 
         modules.add(self)
 
-    @lru_cache
-    def run(self, baseInput: Any, steps: Optional[tuple] = None) -> T:
+    def run(self, base_input: Any, steps: Optional[tuple] = None) -> T:
         """
         A cached version of the analyze method. All calls to analyze should be done through this method.
 
-        :param baseInput: The user provided JSON input.
+        :param base_input: The user provided JSON input.
         :param steps: Any previous calculates in the dependency graph.
         :return: The result of the analyze method.
         """
-        return self.analyze(baseInput, steps)
+        if self.output in cache:
+            return cache[self.output]
 
-    def analyze(self, baseInput: Any, steps: Optional[tuple] = None) -> T:
+        result = self.analyze(base_input, steps)
+        cache[self.output] = result
+
+        return result
+
+    def analyze(self, base_input: Any, steps: Optional[tuple] = None) -> T:
         """
         Main analysis method. This method will be overridden by an E3 module and include any calculations to create the
         desired output.
 
-        :param baseInput: The user provided JSON input.
+        :param base_input: The user provided JSON input.
         :param steps: Any previous calculates in the dependency graph.
         :return: The result of the defined calculation.
         """
@@ -52,6 +58,8 @@ class E3AppConfig(AppConfig, Generic[T]):
 modules: set[E3AppConfig] = set()
 moduleFunctions: dict[str, Callable[[Any], T]] = {}
 
+cache = {}
+
 
 def init():
     """
@@ -60,13 +68,16 @@ def init():
     global moduleFunctions
 
     outputs = {module.output: module for module in modules}
-    moduleFunctions = {module.output: createAnalysisFunction(module, outputs) for module in modules}
-
-    for function in moduleFunctions.values():
-        function(10)
+    moduleFunctions = {module.output: create_analysis_function(module, outputs) for module in modules}
 
 
-def createAnalysisFunction(module: E3AppConfig, outputs: dict[str, E3AppConfig]) -> Callable[[Any], T]:
+def reset():
+    global cache
+
+    cache = {}
+
+
+def create_analysis_function(module: E3AppConfig, outputs: dict[str, E3AppConfig]) -> Callable[[Any], T]:
     """
     Helper function that wraps analysis methods in case they require dependencies to be computed first.
 
@@ -78,7 +89,7 @@ def createAnalysisFunction(module: E3AppConfig, outputs: dict[str, E3AppConfig])
     if module.depends_on is None:
         return module.run
 
-    return lambda *args, **kwargs: resolve(module, outputs)(*args, **kwargs)[0]
+    return lambda *args, **kwargs: resolve(module, outputs)(*args, **kwargs)
 
 
 def resolve(module: E3AppConfig, outputs: dict[str, E3AppConfig]) -> Callable[[Any], tuple]:
@@ -95,14 +106,11 @@ def resolve(module: E3AppConfig, outputs: dict[str, E3AppConfig]) -> Callable[[A
         return module.run
 
     # If there are dependencies, get a function that recursively calls them all.
-    inner = resolve(outputs[module.depends_on], outputs)
+    inner_functions = [resolve(outputs[dependency], outputs) for dependency in module.depends_on]
 
     # Creates a function which passes through all required arguments to dependency functions.
     def wrapped(*args, **kwargs):
-        steps = inner(*args, **kwargs)
-        if not isinstance(steps, tuple):
-            steps = (steps,)
-
-        return module.run(*args, steps=steps), *steps
+        steps = tuple(inner(*args, **kwargs) for inner in inner_functions)
+        return module.run(*args, steps=steps)
 
     return wrapped

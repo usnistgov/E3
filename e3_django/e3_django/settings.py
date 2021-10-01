@@ -53,7 +53,12 @@ INSTALLED_APPS = [
 
     # created
     'API.apps.ApiConfig',
-    'frontend.apps.FrontendConfig'
+    'frontend.apps.FrontendConfig',
+
+    'compute.cashflow.apps.CashFlowConfig',
+    'compute.required.apps.RequiredCashFlowConfig',
+    'compute.optional.apps.OptionalCashFlowConfig',
+    'compute.measures.apps.AlternativeSummaryConfig'
 ]
 
 MIDDLEWARE = [
