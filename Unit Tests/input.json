@@ -4,7 +4,8 @@
     "projectType": "Buildings",
     "objToReport": [
       "MeasureSummary",
-      "FlowSummary"
+      "FlowSummary",
+      "OptionalSummary"
     ],
     "studyPeriod": 10,
     "baseDate": "2012-04-23",
