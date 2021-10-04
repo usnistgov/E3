@@ -2,8 +2,9 @@ from typing import Iterable
 
 from rest_framework.fields import ListField
 
+from API.objects import Analysis, Alternative
 from API.registry import E3AppConfig
-from compute.objects import Analysis, RequiredCashFlow, OptionalCashFlow, Alternative, AlternativeSummary
+from compute.objects import RequiredCashFlow, OptionalCashFlow, AlternativeSummary
 from compute.serializers import AlternativeSummarySerializer
 
 
