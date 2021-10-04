@@ -21,11 +21,11 @@ def analyze(user_input: Input):
     """
     registry.reset()
 
-    summaries = registry.moduleFunctions["MeasureSummary"](user_input)
-    required = registry.moduleFunctions["FlowSummary"](user_input)
-    optionals = registry.moduleFunctions["OptionalSummary"](user_input)
+    output_objects = {
+        name: registry.moduleFunctions[name](user_input) for name in user_input.analysisObject.objToReport
+    }
 
-    return OutputSerializer(Output(MeasureSummary=summaries, FlowSummary=required, OptionalSummary=optionals)).data
+    return OutputSerializer(Output(**output_objects)).data
 
 
 def calculate_alternative_summaries(analysis: Analysis, required_flows: Iterable[RequiredCashFlow],

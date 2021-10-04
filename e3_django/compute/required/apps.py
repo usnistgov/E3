@@ -11,7 +11,7 @@ class RequiredCashFlowConfig(E3AppConfig):
 
     depends_on = ["internal:cash-flows"]
     output = "FlowSummary"
-    serializer = ListField(child=RequiredCashFlowSerializer(), required=True)
+    serializer = ListField(child=RequiredCashFlowSerializer(), required=False)
 
     def analyze(self, base_input, steps=None):
         required = {}

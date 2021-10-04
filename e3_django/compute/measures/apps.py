@@ -13,7 +13,7 @@ class AlternativeSummaryConfig(E3AppConfig):
 
     depends_on = ["FlowSummary", "OptionalSummary"]
     output = "MeasureSummary"
-    serializer = ListField(child=AlternativeSummarySerializer(), required=True)
+    serializer = ListField(child=AlternativeSummarySerializer(), required=False)
 
     def analyze(self, base_input, steps=None):
         def calculate_alternative_summaries(analysis: Analysis, required_flows: Iterable[RequiredCashFlow],

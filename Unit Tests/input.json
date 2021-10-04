@@ -3,8 +3,8 @@
     "analysisType": "LCCA",
     "projectType": "Buildings",
     "objToReport": [
-      "FlowSummary",
-      "MeasureSummary"
+      "MeasureSummary",
+      "FlowSummary"
     ],
     "studyPeriod": 10,
     "baseDate": "2012-04-23",

@@ -257,12 +257,7 @@ class Bcn:
         result = [CostType(0)] * len(values) if self.rvOnly else list(values)
         remaining_life = self.remaining_life(study_period)
 
-        print(f"---BCN: {self.bcnID}")
-        print(f"Remaining Life: {remaining_life}, BCN Life: {self.bcnLife}, value: {values[self.initialOcc]}")
-
         result[study_period] += CostType(-remaining_life / self.bcnLife) * values[self.initialOcc]
-
-        print(f"Residual Value: {result}")
 
         return result
 
