@@ -10,6 +10,8 @@ class CashFlowConfig(E3AppConfig):
     output = "internal:cash-flows"
 
     def analyze(self, base_input, steps=None):
+        print("Running cash flow")
+
         analysis = base_input.analysisObject
         discount_rate = analysis.dRateReal if analysis.outputRealBool else analysis.dRateNom
 

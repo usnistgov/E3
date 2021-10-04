@@ -1,4 +1,4 @@
-from typing import Optional, TypeVar, Generic, Callable, Any, Iterable
+from typing import Optional, TypeVar, Generic, Any, Iterable
 
 from django.apps import AppConfig
 from rest_framework.fields import Field
@@ -27,28 +27,12 @@ class E3AppConfig(AppConfig, Generic[T]):
         if not self.output:
             raise AssertionError(f"E3 Module must define an output, value was {self.output}")
 
-        modules.add(self)
+        ModuleGraph().add_module(self)
 
         if self.serializer is not None:
             register_output_serializer(self.output, self.serializer)
 
-    def run(self, base_input: Any, steps: Optional[tuple] = None) -> T:
-        """
-        A cached version of the analyze method. All calls to analyze should be done through this method.
-
-        :param base_input: The user provided JSON input.
-        :param steps: Any previous calculates in the dependency graph.
-        :return: The result of the analyze method.
-        """
-        if self.output in cache:
-            return cache[self.output]
-
-        result = self.analyze(base_input, steps)
-        cache[self.output] = result
-
-        return result
-
-    def analyze(self, base_input: Any, steps: Optional[tuple] = None) -> T:
+    def analyze(self, base_input: Any, steps: Optional[dict] = None) -> T:
         """
         Main analysis method. This method will be overridden by an E3 module and include any calculations to create the
         desired output.
@@ -60,62 +44,74 @@ class E3AppConfig(AppConfig, Generic[T]):
         pass
 
 
-modules: set[E3AppConfig] = set()
-moduleFunctions: dict[str, Callable[[Any], T]] = {}
+class Node:
+    def __init__(self, module: E3AppConfig):
+        self.dependencies = []
+        self.module = module
 
-cache = {}
+    def add_dependency(self, node: "Node"):
+        if node is self:
+            raise AssertionError(f"Module outputting {self.module.output} cannot depend on itself")
 
+        self.dependencies.append(node)
 
-def init():
-    """
-    Initialization function that stores modules in global variables.
-    """
-    global moduleFunctions
+    def run(self, base_input, cache):
+        if self.module.output in cache:
+            return cache[self.module.output]
 
-    outputs = {module.output: module for module in modules}
-    moduleFunctions = {module.output: create_analysis_function(module, outputs) for module in modules}
+        result = self.module.analyze(
+            base_input,
+            {dep.module.output: dep.run(base_input, cache) for dep in self.dependencies}
+        )
+        cache[self.module.output] = result
 
+        return result
 
-def reset():
-    global cache
-
-    cache = {}
-
-
-def create_analysis_function(module: E3AppConfig, outputs: dict[str, E3AppConfig]) -> Callable[[Any], T]:
-    """
-    Helper function that wraps analysis methods in case they require dependencies to be computed first.
-
-    :param module: The current module to look at.
-    :param outputs: A dictionary of output object pointing to their associated modules.
-    :return: Either the normal module function if no dependencies are defined or a wrapped function that calls all
-    required dependencies beforehand.
-    """
-    if module.depends_on is None:
-        return module.run
-
-    return lambda *args, **kwargs: resolve(module, outputs)(*args, **kwargs)
+    def get_str(self):
+        return f"{[dep.get_str() for dep in self.dependencies]} -> {self.module.output}"
 
 
-def resolve(module: E3AppConfig, outputs: dict[str, E3AppConfig]) -> Callable[[Any], tuple]:
-    """
-    Helper function that recursively resolves any dependencies in a module.
+class Singleton(type):
+    _instances = {}
 
-    :param module: The current module to look at.
-    :param outputs: A dictionary of output object pointing to their associated modules.
-    :return: A wrapped function which returns the result of an analysis method and a list of its inputs.
-    """
+    def __call__(cls, *args, **kwargs):
+        if cls not in cls._instances:
+            cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
+        return cls._instances[cls]
 
-    # If we have no dependencies, return the modules run method.
-    if module.depends_on is None:
-        return module.run
 
-    # If there are dependencies, get a function that recursively calls them all.
-    inner_functions = [resolve(outputs[dependency], outputs) for dependency in module.depends_on]
+class ModuleGraph(metaclass=Singleton):
+    nodes = {}
 
-    # Creates a function which passes through all required arguments to dependency functions.
-    def wrapped(*args, **kwargs):
-        steps = tuple(inner(*args, **kwargs) for inner in inner_functions)
-        return module.run(*args, steps=steps)
+    open_nodes: list[Node] = []
 
-    return wrapped
+    def add_module(self, module: E3AppConfig):
+        if module.output in self.nodes:
+            raise ValueError(f"Cannot add module with output {module.output}! Module with this output already exists.")
+
+        new_node = Node(module)
+        self.nodes[module.output] = new_node
+
+        if new_node.module.depends_on is not None:
+            for output, node in self.nodes.items():
+                if output in new_node.module.depends_on:
+                    new_node.add_dependency(node)
+
+            if len(new_node.dependencies) != len(new_node.module.depends_on):
+                self.open_nodes.append(new_node)
+
+        for open_node in self.open_nodes:
+            if new_node.module.output in open_node.module.depends_on:
+                open_node.add_dependency(new_node)
+
+            if len(open_node.dependencies) == len(open_node.module.depends_on):
+                self.open_nodes.remove(open_node)
+
+    def run(self, name, base_input, cache):
+        return self.nodes[name].run(base_input, cache)
+
+    def __repr__(self):
+        result = f"ModuleGraph [\n"
+        for node in self.nodes.values():
+            result += "\t" + node.get_str() + "\n"
+        return result + "]"

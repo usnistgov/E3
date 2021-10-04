@@ -14,6 +14,8 @@ class OptionalCashFlowConfig(E3AppConfig):
     serializer = ListField(child=OptionalCashFlowSerializer(), required=False)
 
     def analyze(self, base_input, steps=None):
+        print("Running optional cash flows")
+
         def create_empty_tag_flows(user_input):
             """
             Generate empty cash flows for every tag in the bcn object set.
@@ -60,5 +62,5 @@ class OptionalCashFlowConfig(E3AppConfig):
 
             return list(optionals.values())
 
-        return calculate_tag_flows(steps[0], base_input)
+        return calculate_tag_flows(steps["internal:cash-flows"], base_input)
 

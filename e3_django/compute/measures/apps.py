@@ -17,6 +17,8 @@ class AlternativeSummaryConfig(E3AppConfig):
     serializer = ListField(child=AlternativeSummarySerializer(), required=False)
 
     def analyze(self, base_input, steps=None):
+        print("Running alternative summary")
+
         def calculate_alternative_summaries(analysis: Analysis, required_flows: Iterable[RequiredCashFlow],
                                             optional_flows: Iterable[OptionalCashFlow],
                                             alternatives: Iterable[Alternative]) \
@@ -48,5 +50,5 @@ class AlternativeSummaryConfig(E3AppConfig):
 
                 yield summary
 
-        return list(calculate_alternative_summaries(base_input.analysisObject, steps[0], steps[1],
-                                                    base_input.alternativeObjects))
+        return list(calculate_alternative_summaries(base_input.analysisObject, steps["FlowSummary"],
+                                                    steps["OptionalSummary"], base_input.alternativeObjects))

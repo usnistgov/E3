@@ -14,11 +14,13 @@ class RequiredCashFlowConfig(E3AppConfig):
     serializer = ListField(child=RequiredCashFlowSerializer(), required=False)
 
     def analyze(self, base_input, steps=None):
+        print("running required cash flows")
+
         required = {}
         for bcn in base_input.bcnObjects:
             for alt in bcn.altID:
                 required[alt] = required \
                     .get(alt, RequiredCashFlow(alt, base_input.analysisObject.studyPeriod)) \
-                    .add(bcn, steps[0][bcn])
+                    .add(bcn, steps["internal:cash-flows"][bcn])
 
         return list(required.values())
