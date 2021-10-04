@@ -25,7 +25,7 @@ def analyze(user_input: Input):
     required = registry.moduleFunctions["FlowSummary"](user_input)
     optionals = registry.moduleFunctions["OptionalSummary"](user_input)
 
-    return OutputSerializer(Output(summaries, required, optionals)).data
+    return OutputSerializer(Output(MeasureSummary=summaries, FlowSummary=required, OptionalSummary=optionals)).data
 
 
 def calculate_alternative_summaries(analysis: Analysis, required_flows: Iterable[RequiredCashFlow],
