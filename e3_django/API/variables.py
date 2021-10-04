@@ -1,7 +1,7 @@
 from decimal import Decimal
 
-MAX_DIGITS = 40
-DECIMAL_PLACES = 20
+MAX_DIGITS = 60
+DECIMAL_PLACES = 30
 
 CostType = Decimal
 FlowType = tuple[list[CostType], list[CostType], list[CostType]]

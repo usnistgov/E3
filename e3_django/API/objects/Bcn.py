@@ -68,7 +68,7 @@ class Bcn:
         # The number of timesteps before the BCN needs to be replaced.
         self.bcnLife = kwargs.get("bcnLife", None)
 
-        # BCN real boolean
+        # If true then value will be discounted, otherwise no discounting is done.
         self.bcnRealBool = kwargs.get("bcnRealBool", None)
 
         # BCN invest boolean
@@ -228,7 +228,7 @@ class Bcn:
         :param study_period: The study period the analysis is over.
         :return: A list of quantities at the correct position in a study period length array.
         """
-        quantity_var_value = self.year_by_year(self.recurVarValue) if self.recurVarRate == VAR_RATE_OPTIONS[1] \
+        quantity_var_value = self.year_by_year(self.quantVarValue) if self.quantVarRate == VAR_RATE_OPTIONS[1] \
             else self.var_value(self.quantVarValue)
         return self.generator_base(study_period, lambda _: self.quant * next(quantity_var_value))
 
@@ -257,7 +257,12 @@ class Bcn:
         result = [CostType(0)] * len(values) if self.rvOnly else list(values)
         remaining_life = self.remaining_life(study_period)
 
+        print(f"---BCN: {self.bcnID}")
+        print(f"Remaining Life: {remaining_life}, BCN Life: {self.bcnLife}, value: {values[self.initialOcc]}")
+
         result[study_period] += CostType(-remaining_life / self.bcnLife) * values[self.initialOcc]
+
+        print(f"Residual Value: {result}")
 
         return result
 
@@ -288,4 +293,4 @@ class Bcn:
         elif self.recurBool:
             return self.bcnLife - (study_period - self.initialOcc - last_interval()) - 1
         else:
-            return self.bcnLife - (study_period - self.initialOcc) - 1
+            return self.bcnLife - (study_period - self.initialOcc)
