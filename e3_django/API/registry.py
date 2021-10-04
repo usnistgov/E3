@@ -1,8 +1,9 @@
-import logging
-from functools import lru_cache
-from typing import Optional, TypeVar, Generic, Callable, Any, Union, Tuple, Iterable
+from typing import Optional, TypeVar, Generic, Callable, Any, Iterable
 
 from django.apps import AppConfig
+from rest_framework.fields import Field
+
+from API.serializers.OutputSerializer import register_output_serializer
 
 T = TypeVar('T')
 
@@ -15,6 +16,7 @@ class E3AppConfig(AppConfig, Generic[T]):
     name: str = ""
     depends_on: Optional[Iterable[str]] = None
     output: str = ""
+    serializer: Field = None
 
     def __init__(self, app_name, app_module):
         """
@@ -26,6 +28,9 @@ class E3AppConfig(AppConfig, Generic[T]):
             raise AssertionError(f"E3 Module must define an output, value was {self.output}")
 
         modules.add(self)
+
+        if self.serializer is not None:
+            register_output_serializer(self.output, self.serializer)
 
     def run(self, base_input: Any, steps: Optional[tuple] = None) -> T:
         """

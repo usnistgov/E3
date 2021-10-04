@@ -1,7 +1,8 @@
-import logging
+from rest_framework.fields import ListField
 
 from API.registry import E3AppConfig
 from compute.objects import OptionalCashFlow
+from compute.serializers import OptionalCashFlowSerializer
 
 
 class OptionalCashFlowConfig(E3AppConfig):
@@ -10,10 +11,9 @@ class OptionalCashFlowConfig(E3AppConfig):
 
     depends_on = ["internal:cash-flows"]
     output = "OptionalSummary"
+    serializer = ListField(child=OptionalCashFlowSerializer(), required=False)
 
     def analyze(self, base_input, steps=None):
-        logging.info(f"Running: {self.verbose_name}")
-
         def create_empty_tag_flows(user_input):
             """
             Generate empty cash flows for every tag in the bcn object set.

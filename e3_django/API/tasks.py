@@ -19,21 +19,6 @@ def analyze(user_input: Input):
     :param user_input: The input object the user provides.
     :return: The json output created by the analysis.
     """
-
-    analysis = user_input.analysisObject
-
-    #discount_rate = analysis.dRateReal if analysis.outputRealBool else analysis.dRateNom
-
-    #flows = {bcn: bcn.cash_flows(analysis.studyPeriod, discount_rate) for bcn in user_input.bcnObjects}
-
-    #required = calculate_required_flows(flows, user_input)
-    #optionals = calculate_tag_flows(flows, user_input)
-
-    # Calculate Measures
-    #summaries = list(
-    #    calculate_alternative_summaries(user_input.analysisObject, required, optionals, user_input.alternativeObjects)
-    #)
-
     registry.reset()
 
     summaries = registry.moduleFunctions["MeasureSummary"](user_input)

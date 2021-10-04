@@ -1,7 +1,8 @@
-import logging
+from rest_framework.fields import ListField
 
 from API.registry import E3AppConfig
 from compute.objects import RequiredCashFlow
+from compute.serializers import RequiredCashFlowSerializer
 
 
 class RequiredCashFlowConfig(E3AppConfig):
@@ -10,6 +11,7 @@ class RequiredCashFlowConfig(E3AppConfig):
 
     depends_on = ["internal:cash-flows"]
     output = "FlowSummary"
+    serializer = ListField(child=RequiredCashFlowSerializer(), required=True)
 
     def analyze(self, base_input, steps=None):
         required = {}
