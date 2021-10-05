@@ -13,7 +13,9 @@ def analyze(user_input: Input):
     :param user_input: The input object the user provides.
     :return: The json output created by the analysis.
     """
+    module_graph = ModuleGraph()
     cache = {}
-    result = {obj: ModuleGraph().run(obj, user_input, cache) for obj in user_input.analysisObject.objToReport}
+
+    result = {name: module_graph.run(name, user_input, cache) for name in user_input.analysisObject.objToReport}
 
     return OutputSerializer(Output(**result)).data

@@ -9,6 +9,10 @@ from compute.serializers import AlternativeSummarySerializer
 
 
 class AlternativeSummaryConfig(E3AppConfig):
+    """
+    This module calculates alternative summaries based on the required and optional cash flows.
+    """
+
     name = "compute.measures"
     verbose_name = 'E3 Measure Summary Objects'
 
@@ -17,38 +21,37 @@ class AlternativeSummaryConfig(E3AppConfig):
     serializer = ListField(child=AlternativeSummarySerializer(), required=False)
 
     def analyze(self, base_input, steps=None):
-        print("Running alternative summary")
+        return list(
+            calculate_alternative_summaries(base_input.analysisObject, steps["FlowSummary"], steps["OptionalSummary"],
+                                            base_input.alternativeObjects))
 
-        def calculate_alternative_summaries(analysis: Analysis, required_flows: Iterable[RequiredCashFlow],
-                                            optional_flows: Iterable[OptionalCashFlow],
-                                            alternatives: Iterable[Alternative]) \
-                -> Iterable[AlternativeSummary]:
-            """
-            Calculates alternative summary objects.
 
-            :param analysis: The analysis object used for general parameters.
-            :param required_flows: A list of required cash flows.
-            :param optional_flows: A list of optional cash flows.
-            :param alternatives: A list of alternatives.
-            :return: A generator yielding alternative summaries.
-            """
-            baseline_alt = list(filter(lambda x: x.baselineBool, alternatives))[0]
-            baseline_required_flow = list(filter(lambda x: x.altID == baseline_alt.altID, required_flows))[0]
+def calculate_alternative_summaries(analysis: Analysis, required_flows: Iterable[RequiredCashFlow],
+                                    optional_flows: Iterable[OptionalCashFlow], alternatives: Iterable[Alternative]) \
+        -> Iterable[AlternativeSummary]:
+    """
+    Calculates alternative summary objects.
 
-            optionals = list(filter(lambda flow: flow.altID == baseline_alt.altID, optional_flows))
+    :param analysis: The analysis object used for general parameters.
+    :param required_flows: A list of required cash flows.
+    :param optional_flows: A list of optional cash flows.
+    :param alternatives: A list of alternatives.
+    :return: A generator yielding alternative summaries.
+    """
+    baseline_alt = list(filter(lambda x: x.baselineBool, alternatives))[0]
+    baseline_required_flow = list(filter(lambda x: x.altID == baseline_alt.altID, required_flows))[0]
 
-            baseline_summary = AlternativeSummary(baseline_alt.altID, analysis.reinvestRate, analysis.studyPeriod,
-                                                  analysis.Marr, baseline_required_flow, optionals, None, False)
+    optionals = list(filter(lambda flow: flow.altID == baseline_alt.altID, optional_flows))
 
-            yield baseline_summary
+    baseline_summary = AlternativeSummary(baseline_alt.altID, analysis.reinvestRate, analysis.studyPeriod,
+                                          analysis.Marr, baseline_required_flow, optionals, None, False)
 
-            for required in filter(lambda x: x.altID != baseline_alt.altID, required_flows):
-                optionals = list(filter(lambda flow: flow.altID == required.altID, optional_flows))
+    yield baseline_summary
 
-                summary = AlternativeSummary(required.altID, analysis.reinvestRate, analysis.studyPeriod, analysis.Marr,
-                                             required, optionals, baseline_summary, False)
+    for required in filter(lambda x: x.altID != baseline_alt.altID, required_flows):
+        optionals = list(filter(lambda flow: flow.altID == required.altID, optional_flows))
 
-                yield summary
+        summary = AlternativeSummary(required.altID, analysis.reinvestRate, analysis.studyPeriod, analysis.Marr,
+                                     required, optionals, baseline_summary, False)
 
-        return list(calculate_alternative_summaries(base_input.analysisObject, steps["FlowSummary"],
-                                                    steps["OptionalSummary"], base_input.alternativeObjects))
+        yield summary

@@ -10,6 +10,7 @@ class CashFlowConfig(E3AppConfig):
     """
     This module calculates the cash flows from BCN objects.
     """
+
     name = "compute.cashflow"
     verbose_name = 'E3 Cash Flow Generator'
 

@@ -6,6 +6,10 @@ from compute.serializers import RequiredCashFlowSerializer
 
 
 class RequiredCashFlowConfig(E3AppConfig):
+    """
+    This module calculates required cash flows from BCN cash flows.
+    """
+
     name = "compute.required"
     verbose_name = 'E3 Required Cash Flow Object'
 
@@ -14,8 +18,6 @@ class RequiredCashFlowConfig(E3AppConfig):
     serializer = ListField(child=RequiredCashFlowSerializer(), required=False)
 
     def analyze(self, base_input, steps=None):
-        print("running required cash flows")
-
         required = {}
         for bcn in base_input.bcnObjects:
             for alt in bcn.altID:
