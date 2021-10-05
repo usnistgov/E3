@@ -1,7 +1,6 @@
 from celery import shared_task
 
-from API.objects.Input import Input
-from API.objects.Output import Output
+from API.objects import Input, Output
 from API.registry import ModuleGraph
 from API.serializers.OutputSerializer import OutputSerializer
 
