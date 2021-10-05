@@ -1,7 +1,12 @@
-from rest_framework.fields import ListField
+from rest_framework.fields import Field
 from rest_framework.serializers import Serializer
 
-from API.serializers import RequiredCashFlowSerializer, OptionalCashFlowSerializer, AlternativeSummarySerializer
+
+output_fields = {}
+
+
+def register_output_serializer(name: str, field: Field):
+    output_fields[name] = field
 
 
 class OutputSerializer(Serializer):
@@ -9,6 +14,10 @@ class OutputSerializer(Serializer):
     Object serializer for the main output object.
     """
 
-    alternativeSummaryObjects = ListField(child=AlternativeSummarySerializer(), required=True)
-    reqCashFlowObjects = ListField(child=RequiredCashFlowSerializer(), required=True)
-    optCashFlowObjects = ListField(child=OptionalCashFlowSerializer(), required=False)
+    def __init__(self, *args, **kwargs):
+        kwargs.pop("fields", None)
+
+        super(OutputSerializer, self).__init__(*args, **kwargs)
+
+        for name, value in output_fields.items():
+            self.fields[name] = value

@@ -2,8 +2,8 @@ from typing import Union, Tuple, Iterable
 
 import numpy
 
-from API.objects import RequiredCashFlow, OptionalCashFlow
 from API.variables import CostType
+from compute.objects import RequiredCashFlow, OptionalCashFlow
 
 # Static Variables
 ZERO = CostType("0")

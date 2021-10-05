@@ -1,4 +1,4 @@
-from rest_framework.fields import DecimalField, ListField, CharField, IntegerField, DictField
+from rest_framework.fields import CharField, IntegerField, DictField
 from rest_framework.serializers import Serializer
 
 from API.serializers.fields import InfinityDecimalField

@@ -10,6 +10,15 @@ import logging
 logger = logging.getLogger(__name__)
 
 
+REPORTABLE_OBJECTS = [
+    "FlowSummary",
+    "MeasureSummary",
+    "OptionalSummary",
+    "SensitivitySummary",
+    "UncertaintySummary",
+    "IRRSummary"
+]
+
 class AnalysisSerializer(Serializer):
     """
     Object serializer for analysis object.
@@ -18,10 +27,7 @@ class AnalysisSerializer(Serializer):
     analysisType = ChoiceField(["LCCA", "BCA", "Cost-Loss", "Profit Maximization", "Other"], default="Default", required=False)
     projectType = ChoiceField(["Buildings", "Infrastructure", "Resilience", "Manufacturing Process", "Other"],
                               required=False)
-    objToReport = ListMultipleChoiceField(
-        ["FlowSummary", "MeasureSummary", "SensitivitySummary", "UncertaintySummary", "IRRSummary"],
-        required=False
-    )
+    objToReport = ListMultipleChoiceField(REPORTABLE_OBJECTS, required=False)
     studyPeriod = IntegerField(min_value=0, required=False)
     baseDate = DateField(required=False)
     serviceDate = DateField(required=False)
