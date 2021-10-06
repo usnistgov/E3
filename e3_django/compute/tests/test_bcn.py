@@ -2,9 +2,9 @@ from decimal import Decimal
 from unittest import TestCase
 
 from API.objects import Bcn
-from API.objects import RequiredCashFlow
 from API.objects.Bcn import create_list
 from API.variables import CostType
+from compute.objects import RequiredCashFlow
 
 PLACES = Decimal(10) ** -4
 

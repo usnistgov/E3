@@ -1,8 +1,8 @@
 from unittest import TestCase
 
-from API.objects import RequiredCashFlow, Bcn
-from API.objects.CashFlow import elementwise_add, OptionalCashFlow
+from API.objects import Bcn
 from API.variables import CostType
+from compute.objects.CashFlow import elementwise_add, RequiredCashFlow, OptionalCashFlow
 
 
 class GeneralCashFlowTest(TestCase):
@@ -759,8 +759,6 @@ class RequiredCashFlowSecondCaseTest(TestCase):
             x.print()
 
         print(f"Alternative Summary Sum: {sum(required[0].totCostDisc)}")
-
-
 
 
 class OptionalCashFlowTest(TestCase):

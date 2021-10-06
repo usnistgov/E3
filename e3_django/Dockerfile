@@ -7,6 +7,7 @@ COPY requirements.txt ./
 RUN pip install -r requirements.txt
 
 COPY . .
+RUN rm -rf `find . -type d -name tests`
 
 RUN python manage.py collectstatic
 
