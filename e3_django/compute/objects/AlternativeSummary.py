@@ -37,11 +37,13 @@ def net_savings(costs_baseline: CostType, costs: CostType) -> CostType:
     return costs_baseline - costs
 
 
-def bcr(benefits: CostType, costs_inv: CostType, costs_inv_base: CostType,
-        costs_non_inv: CostType, costs_non_inv_base: CostType) -> CostType:
+def bcr(benefits: CostType, costs_inv: CostType, costs_inv_base: CostType, costs_non_inv: CostType,
+        costs_non_inv_base: CostType) -> CostType:
     """
     Calculate Benefit-cost Ratio (BCR).
 
+    :param costs_non_inv_base: The total costs non-invest for the baseline alternative.
+    :param costs_non_inv: The total costs non-invest for this alternative.
     :param benefits: The net benefits of this alternative.
     :param costs_inv: The total costs invest of this alternative.
     :param costs_inv_base: The total costs invest of the baseline alternative.
