@@ -1,11 +1,11 @@
 from rest_framework.fields import ListField
 
-from API.registry import E3AppConfig
+from API.registry import E3ModuleConfig
 from compute.objects import RequiredCashFlow
 from compute.serializers import RequiredCashFlowSerializer
 
 
-class RequiredCashFlowConfig(E3AppConfig):
+class RequiredCashFlowConfig(E3ModuleConfig):
     """
     This module calculates required cash flows from BCN cash flows.
     """
@@ -17,12 +17,12 @@ class RequiredCashFlowConfig(E3AppConfig):
     output = "FlowSummary"
     serializer = ListField(child=RequiredCashFlowSerializer(), required=False)
 
-    def analyze(self, base_input, steps=None):
+    def run(self, base_input, dependencies=None):
         required = {}
         for bcn in base_input.bcnObjects:
             for alt in bcn.altID:
                 required[alt] = required \
                     .get(alt, RequiredCashFlow(alt, base_input.analysisObject.studyPeriod)) \
-                    .add(bcn, steps["internal:cash-flows"][bcn])
+                    .add(bcn, dependencies["internal:cash-flows"][bcn])
 
         return list(required.values())

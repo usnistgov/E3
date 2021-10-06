@@ -3,12 +3,12 @@ from typing import Iterable
 from rest_framework.fields import ListField
 
 from API.objects import Analysis, Alternative
-from API.registry import E3AppConfig
+from API.registry import E3ModuleConfig
 from compute.objects import RequiredCashFlow, OptionalCashFlow, AlternativeSummary
 from compute.serializers import AlternativeSummarySerializer
 
 
-class AlternativeSummaryConfig(E3AppConfig):
+class AlternativeSummaryConfig(E3ModuleConfig):
     """
     This module calculates alternative summaries based on the required and optional cash flows.
     """
@@ -20,9 +20,9 @@ class AlternativeSummaryConfig(E3AppConfig):
     output = "MeasureSummary"
     serializer = ListField(child=AlternativeSummarySerializer(), required=False)
 
-    def analyze(self, base_input, steps=None):
+    def run(self, base_input, dependencies=None):
         return list(
-            calculate_alternative_summaries(base_input.analysisObject, steps["FlowSummary"], steps["OptionalSummary"],
+            calculate_alternative_summaries(base_input.analysisObject, dependencies["FlowSummary"], dependencies["OptionalSummary"],
                                             base_input.alternativeObjects))
 
 

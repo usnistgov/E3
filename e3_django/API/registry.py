@@ -9,7 +9,7 @@ from API.serializers.OutputSerializer import register_output_serializer
 T = TypeVar('T')
 
 
-class E3AppConfig(AppConfig, Generic[T]):
+class E3ModuleConfig(AppConfig, Generic[T]):
     """
     Sets configuration options for an E3 module. This includes the name, its optional dependency, ID of what
     this module outputs, and the serializer field to use for outputting.
@@ -33,13 +33,13 @@ class E3AppConfig(AppConfig, Generic[T]):
         if self.serializer is not None:
             register_output_serializer(self.output, self.serializer)
 
-    def analyze(self, base_input: Any, steps: Optional[dict] = None) -> T:
+    def run(self, base_input: Any, dependencies: Optional[dict] = None) -> T:
         """
         Main analysis method. This method will be overridden by an E3 module and include any calculations to create the
         desired output.
 
         :param base_input: The user provided JSON input.
-        :param steps: Any previous calculates in the dependency graph.
+        :param dependencies: Any previous calculates in the dependency graph.
         :return: The result of the defined calculation.
         """
         pass
@@ -50,7 +50,7 @@ class Node:
     Represents a module node in the dependency graph. Contains a reference to each node that is a dependency and pulls
     each dependency from that node when called to run.
     """
-    def __init__(self, module: E3AppConfig):
+    def __init__(self, module: E3ModuleConfig):
         self.dependencies = []
         self.module = module
 
@@ -78,7 +78,7 @@ class Node:
         if self.module.output in cache:
             return cache[self.module.output]
 
-        result = self.module.analyze(
+        result = self.module.run(
             base_input,
             {dep.module.output: dep.run(base_input, cache) for dep in self.dependencies}
         )
@@ -118,7 +118,7 @@ class ModuleGraph(metaclass=Singleton):
 
     open_nodes: list[Node] = []
 
-    def add_module(self, module: E3AppConfig):
+    def add_module(self, module: E3ModuleConfig):
         """
         Adds the given E3 module to the dependency graph. All dependencies are automatically resolved.
 

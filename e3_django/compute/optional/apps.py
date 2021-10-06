@@ -1,11 +1,11 @@
 from rest_framework.fields import ListField
 
-from API.registry import E3AppConfig
+from API.registry import E3ModuleConfig
 from compute.objects import OptionalCashFlow
 from compute.serializers import OptionalCashFlowSerializer
 
 
-class OptionalCashFlowConfig(E3AppConfig):
+class OptionalCashFlowConfig(E3ModuleConfig):
     """
     This module calculates optional cash flows based off of BCN tags.
     """
@@ -17,8 +17,8 @@ class OptionalCashFlowConfig(E3AppConfig):
     output = "OptionalSummary"
     serializer = ListField(child=OptionalCashFlowSerializer(), required=False)
 
-    def analyze(self, base_input, steps=None):
-        return calculate_tag_flows(steps["internal:cash-flows"], base_input)
+    def run(self, base_input, dependencies=None):
+        return calculate_tag_flows(dependencies["internal:cash-flows"], base_input)
 
 
 def create_empty_tag_flows(user_input):

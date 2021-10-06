@@ -2,11 +2,11 @@ import math
 from typing import Generator, Sequence
 
 from API.objects import Bcn
-from API.registry import E3AppConfig
+from API.registry import E3ModuleConfig
 from API.variables import CostType, FlowType, VAR_RATE_OPTIONS
 
 
-class CashFlowConfig(E3AppConfig):
+class CashFlowConfig(E3ModuleConfig):
     """
     This module calculates the cash flows from BCN objects.
     """
@@ -16,7 +16,7 @@ class CashFlowConfig(E3AppConfig):
 
     output = "internal:cash-flows"
 
-    def analyze(self, base_input, steps=None):
+    def run(self, base_input, dependencies=None):
         analysis = base_input.analysisObject
         discount_rate = analysis.dRateReal if analysis.outputRealBool else analysis.dRateNom
 
