@@ -1,3 +1,6 @@
+import copy
+import logging
+
 from rest_framework.fields import Field
 from rest_framework.serializers import Serializer
 
@@ -20,4 +23,4 @@ class OutputSerializer(Serializer):
         super(OutputSerializer, self).__init__(*args, **kwargs)
 
         for name, value in output_fields.items():
-            self.fields[name] = value
+            self.fields[name] = copy.deepcopy(value)
