@@ -174,6 +174,16 @@ def ns_elasticity(savings: CostType, total_costs: CostType, delta_q: CostType, t
     return ns_per_pct_q(savings / total_costs, delta_q, total_q_base)
 
 
+def calculate_cash_flow_sum(flows: Iterable[RequiredCashFlow]) -> dict[str, CostType]:
+    """
+    Calculates the sum of cash flows for tags.
+
+    :param flows: The list of flows to calculate aggregate sum for.
+    :return: A dict of the flow tag to its aggregate sum.
+    """
+    return {flow.tag: sum(flow.totTagQ) for flow in flows}
+
+
 def calculate_quant_sum(optionals: Iterable[OptionalCashFlow]) -> dict[str, CostType]:
     """
     Calculates the quantity sums of the given optionals.
@@ -282,6 +292,9 @@ class AlternativeSummary:
 
         # Sum of cash flow discounted, non-invested costs
         self.totalCostsNonInv = sum(flow.totCostDiscNonInv)
+
+        # Sum of cash flows by tag
+        self.totTagFlows = calculate_cash_flow_sum(flow)
 
         # Net benefits between this alternative and the baseline. None if no baseline is provided.
         self.netBenefits = net_benefits(self.totalBenefits, self.totalCosts, baseline.totalBenefits,
