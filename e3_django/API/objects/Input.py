@@ -1,6 +1,6 @@
 from typing import Sequence
 
-from API.objects import Alternative, Analysis, Bcn
+from API.objects import Alternative, Analysis, Bcn, Sensitivity
 
 
 class Input:
@@ -9,7 +9,7 @@ class Input:
     """
 
     def __init__(self, analysisObject: Analysis, alternativeObjects: list[Alternative], bcnObjects,
-                 sensitivityObject=None, scenarioObject=None):
+                 sensitivityObject=Sensitivity, scenarioObject=None):
         # Object which defines general analysis parameters
         self.analysisObject = analysisObject
 
