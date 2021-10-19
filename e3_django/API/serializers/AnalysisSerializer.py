@@ -59,14 +59,17 @@ class AnalysisSerializer(Serializer):
             # Else, raise ValidationError
 
         # Ensure at least two of (inflation rate, real discount rate, nominal discount rate) are provided for calculation
-        if data["inflationRate"] and not data["dRateNom"] and not data["dRateReal"]:
-            raise ValidationError("Calculation failed: real and nominal discount rates are missing.")
+        if not data["inflationRate"] and not data["dRateNom"] and not data["dRateReal"]:
+            raise ValidationError("Err: interest rate, real discount rate, and nominal discount rate are all missing.")
+
+        elif data["inflationRate"] and not data["dRateNom"] and not data["dRateReal"]:
+            raise ValidationError("Err: real discount rate and nominal discount rate are both missing.")
 
         elif data["dRateNom"] and not data["dRateReal"] and not data["inflationRate"]:
-            raise ValidationError("Calculation failed: inflation rate, and real discount rate are missing.")
+            raise ValidationError("Err: inflation rate and real discount rate are both missing.")
 
         elif data["dRateReal"] and not data["inflationRate"] and not data["dRateNom"]:
-            raise ValidationError("Calculation failed: inflation rate, and nominal discount rate are missing.")
+            raise ValidationError("Err: inflation rate and nominal discount rate are both missing.")
 
 
         if data["outputRealBool"] and not data["dRateReal"]:
