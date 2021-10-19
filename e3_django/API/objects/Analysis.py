@@ -111,12 +111,15 @@ class Analysis:
 
         # Calculate missing discount/inflation rate if necessary.
         if not (self.inflationRate and self.dRateReal and dRateNom):
+            # Only inflation rate is missing. Calculate using other two variables
             if self.inflationRate is None and self.dRateReal and self.dRateNom:
                 self.inflationRate = calculate_inflation_rate(self.dRateNom, self.dRateReal)
 
+            # Only real discount rate is missing. Calculate using other two variables
             elif self.dRateReal is None and self.inflationRate and self.dRateNom:
                 self.dRateReal = calculate_discount_rate_real(self.dRateNom, self.inflationRate)
 
+            # Only nominal discount rate is missing. Calculate using other two variables
             elif self.dRateNom is None and self.inflationRate and self.dRateReal:
                 self.dRateNom = calculate_discount_rate_nominal(self.inflationRate, self.dRateReal)
 
