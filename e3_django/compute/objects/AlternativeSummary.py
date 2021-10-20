@@ -174,7 +174,7 @@ def ns_elasticity(savings: CostType, total_costs: CostType, delta_q: CostType, t
     return ns_per_pct_q(savings / total_costs, delta_q, total_q_base)
 
 
-def calculate_cash_flow_sum(flows: Iterable[RequiredCashFlow]) -> dict[str, CostType]:
+def calculate_tag_cash_flow_sum(flows: Iterable[RequiredCashFlow]) -> dict[str, CostType]:
     """
     Calculates the sum of cash flows for tags.
 
