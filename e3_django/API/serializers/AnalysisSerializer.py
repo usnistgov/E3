@@ -58,15 +58,28 @@ class AnalysisSerializer(Serializer):
         # Depending on analysisType (LCCA, BCA, Cost-Loss, Profit Maximization), check all required inputs are included
             # Else, raise ValidationError
 
+        # Ensure at least two of (inflation rate, real discount rate, nominal discount rate) are provided for calculation
+        if not data["inflationRate"] and not data["dRateNom"] and not data["dRateReal"]:
+            raise ValidationError("Err: interest rate, real discount rate, and nominal discount rate are all missing.")
+
+        elif data["inflationRate"] and not data["dRateNom"] and not data["dRateReal"]:
+            raise ValidationError("Err: real discount rate and nominal discount rate are both missing.")
+
+        elif data["dRateNom"] and not data["dRateReal"] and not data["inflationRate"]:
+            raise ValidationError("Err: inflation rate and real discount rate are both missing.")
+
+        elif data["dRateReal"] and not data["inflationRate"] and not data["dRateNom"]:
+            raise ValidationError("Err: inflation rate and nominal discount rate are both missing.")
+
+
         if data["outputRealBool"] and not data["dRateReal"]:
             if not data["dRateNom"] or not data["inflationRate"]:
                 raise ValidationError("Cannot calculate real discount rate.")
-
             data["dRateReal"] = calculate_discount_rate_real(data["dRateNom"], data["inflationRate"])
+
         elif not data["outputRealBool"] and not data["dRateNom"]:
             if not data["dRateReal"] or not data["inflationRate"]:
                 raise ValidationError("Cannot calculate nominal discount rate.")
-
             data["dRateNom"] = calculate_discount_rate_nominal(data["dRateReal"], data["inflationRate"])
 
         return data
