@@ -5,10 +5,6 @@ from rest_framework.serializers import Serializer
 from API.objects.Analysis import calculate_inflation_rate, calculate_discount_rate_nominal, calculate_discount_rate_real
 from API.variables import MAX_DIGITS, DECIMAL_PLACES, NUM_ERRORS_LIMIT
 from API.serializers.fields import ListMultipleChoiceField, BooleanOptionField
-import logging
-
-logger = logging.getLogger(__name__)
-
 
 REPORTABLE_OBJECTS = [
     "FlowSummary",
