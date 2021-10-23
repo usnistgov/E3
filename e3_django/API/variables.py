@@ -7,4 +7,4 @@ CostType = Decimal
 FlowType = tuple[list[CostType], list[CostType], list[CostType]]
 
 VAR_RATE_OPTIONS = ["Percent Delta Timestep X-1", "Year by Year"]
-NUM_ERRORS_LIMIT = 3
+NUM_ERRORS_LIMIT = 5

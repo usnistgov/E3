@@ -3,7 +3,7 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.fields import IntegerField, ListField, ChoiceField, CharField, BooleanField, DecimalField, DateField
 from rest_framework.serializers import Serializer
 
-from API.variables import MAX_DIGITS, DECIMAL_PLACES, VAR_RATE_OPTIONS
+from API.variables import MAX_DIGITS, DECIMAL_PLACES, VAR_RATE_OPTIONS, NUM_ERRORS_LIMIT
 from API.serializers.fields import BooleanOptionField
 import logging
 
@@ -39,34 +39,63 @@ class BCNSerializer(Serializer):
     quantUnit = CharField(required=False, default='dollars', allow_null=True)
 
     def validate(self, data):
-        if 'valuePerQ' not in data:
-            data['valuePerQ'] = 0
+        errors = []
 
-        # Check all required inputs are given, based on chosen bcnType.
-        if data['bcnType'] == 'Benefit':
-            if data['initialOcc'] is None or data['valuePerQ'] is None:
-                raise ValidationError(f"You must supply: initialOcc, valuePerQ if bcnType: Benefit.")
-            if not data['quantUnit']:
+        if "valuePerQ" not in data:
+            data["valuePerQ"] = 0
+
+        # Ensure all required inputs are given, based on chosen bcnType.
+        if data["bcnType"] == "Benefit":
+            try: 
+                assert data["initialOcc"] and data["valuePerQ"]
+            except:
+                errors.append(
+                    ValidationError(
+                        "If BCN Type is `Benefit`, both initialOcc and valuePerQ must be provided.")
+                )
+            if not data["quantUnit"]:
                 logger.info("quantUnit was not provided. Value will be assumed in dollars.")
-        elif data['bcnType'] == 'Cost':
-            if data['bcnInvestBool'] is None or data['valuePerQ'] is None:
-                raise ValidationError(f"You must supply: bcnInvestBool, valuePerQ if bcnType: Cost. "
-                                      f"Given: bcnInvestBool: {data['bcnInvestBool']} valuePerQ: {data['valuePerQ']}")
-            if not data['quantUnit']:
+
+        elif data["bcnType"] == "Cost":
+            try: 
+                assert data["bcnInvestBool"] and data["valuePerQ"]
+            except:
+                errors.append(
+                    ValidationError(
+                        "If BCN Type is `Cost`, both bcnInvestBool and valuePerQ must be provided."
+                    )
+                )
+            if not data["quantUnit"]:
                 logger.info("quantUnit was not provided. Value will be assumed in dollars.")
-        elif data['bcnType'] == 'NonMonetary':
-            if data['bcnTag'] is None or data['quantUnit'] is None:
-                raise ValidationError("You must supply: bcnTag, quantUnit if bcnType: NonMonetary.")
+
+        elif data["bcnType"] == "NonMonetary":
+            try:
+                assert data["bcnTag"] and data["quantUnit"]:
+            except:
+                errors.append(
+                    ValidationError(
+                        "If BCN Type is `NonMonetary`, both  bcnTag and quantUnit must be provided."
+                    )
+                )
         else:
             logger.info("BCN type is unknown. Setting to Default.")
 
-        if data['quantVarRate'] is not None and data['quantVarValue'] is None:
-            raise ValidationError("You must supply: quantVarValue if quantVarRate exists.")
 
-        if 'recurEndDate' not in data or data['recurEndDate'] is None:
+        if data["quantVarRate"]:
+            try:
+                assert data["quantVarValue"]
+            except: 
+                errors.append(
+                    ValidationError("If quantVarRate exists, quantVarValue must be provided."
+                    )
+                )
+
+        if "recurEndDate" not in data or not data["recurEndDate"]:
             logger.info("recurEndDate was not provided. BCN will occur for the entire studyPeriod.")
+        if data["quantUnit"] == "":
+            logger.warning("Warning: %s", "The quantity unit supplied is blank.")
 
-        if data['quantUnit'] == "":
-            logger.warning('Warning: %s', 'The quantity unit supplied is blank.')
+        if errors:
+            raise(Exception(errors[:NUM_ERRORS_LIMIT]) # Throws up to NUM_ERRORS_LIMIT number of errors.
 
         return data
