@@ -60,9 +60,9 @@ class AnalysisSerializer(Serializer):
 
         # Check if real discount rate boolean is True
         if data["outputRealBool"]:
-            if data["dRateReal"]: 
+            if data["dRateReal"]:  # If dRateReal is provided, no need to calculate anything
                 pass
-            else: 
+            else:  # If dRateReal is NOT provided, try calculating it using dRateNom and inflationRate.
                 if (data["dRateNom"] and data["inflationRate"]):
                     data["dRateReal"] = calculate_discount_rate_real(data["dRateNom"], data["inflationRate"])
                 else:
@@ -72,15 +72,23 @@ class AnalysisSerializer(Serializer):
                         (2) `nominal discount rate` AND `inflation rate`.
                         """
                     )
-        else:  # discount rate bool is False
+        else:  # If discount rate bool is False
+            # If two of: dRateReal, dRateNom, inflationRate is provided, calculate the missing value:
             if data["dRateReal"] and data["inflationRate"]:
                 data["dRateNom"] = calculate_discount_rate_nominal(data["inflationRate"], data["dRateReal"])
+
             elif data["dRateReal"] and data["dRateNom"]:
                 data["inflationRate"] = calculate_inflation_rate(data["dRateNom"], data["dRateReal"])
+                
             elif data["dRateNom"] and data["inflationRate"]:
                 data["dRateReal"] = calculate_discount_rate_real(data["dRateNom"], data["inflationRate"])
-            else:
-                raise ValidationError("At least two of: inflationRate, dRateNom, dRateReal must be provided.")
+            
+            else: # If at least two of the above are not provided, raise Error.
+                raise ValidationError(
+                    """At least two of: inflationRate, dRateNom, dRateReal must be provided to calculate
+                    nominal discount rate.
+                    """
+                )
 
         return data
 
