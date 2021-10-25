@@ -3,12 +3,8 @@ from rest_framework.fields import ChoiceField, IntegerField, DateField, DecimalF
 from rest_framework.serializers import Serializer
 
 from API.objects.Analysis import calculate_inflation_rate, calculate_discount_rate_nominal, calculate_discount_rate_real
-from API.variables import MAX_DIGITS, DECIMAL_PLACES
+from API.variables import MAX_DIGITS, DECIMAL_PLACES, NUM_ERRORS_LIMIT
 from API.serializers.fields import ListMultipleChoiceField, BooleanOptionField
-import logging
-
-logger = logging.getLogger(__name__)
-
 
 REPORTABLE_OBJECTS = [
     "FlowSummary",
@@ -25,8 +21,7 @@ class AnalysisSerializer(Serializer):
     """
 
     analysisType = ChoiceField(["LCCA", "BCA", "Cost-Loss", "Profit Maximization", "Other"], default="Default", required=False)
-    projectType = ChoiceField(["Buildings", "Infrastructure", "Resilience", "Manufacturing Process", "Other"],
-                              required=False)
+    projectType = ChoiceField(["Buildings", "Infrastructure", "Resilience", "Manufacturing Process", "Other"], required=False)
     objToReport = ListMultipleChoiceField(REPORTABLE_OBJECTS, required=False)
     studyPeriod = IntegerField(min_value=0, required=False)
     baseDate = DateField(required=False)
@@ -47,32 +42,46 @@ class AnalysisSerializer(Serializer):
     baseAlt = IntegerField(min_value=0, required=True)
 
     def validate(self, data):
+        errors = []
+
         # Ensure service date is after base date
-        if data["serviceDate"] < data["baseDate"]:
-            raise ValidationError("Service Date must be after base date")
+        try:
+            assert data["serviceDate"] >= data["baseDate"]:
+        except:
+            errors.append(
+                ValidationError(
+                    "Service Date must be after base date"
+                )
+            )
 
         # Ensure timestepComp is less than studyPeriod
-        if data["timestepComp"] >= data["studyPeriod"]:
-            raise ValidationError("timestepComp must be less than studyPeriod")
+        try:
+            assert data["timestepComp"] < data["studyPeriod"]:
+        except:
+            errors.append(
+                ValidationError(
+                    "timestepComp must be less than studyPeriod"
+                )
+            )
 
         # Depending on analysisType (LCCA, BCA, Cost-Loss, Profit Maximization), check all required inputs are included
             # Else, raise ValidationError
 
         # Check if real discount rate boolean is True
         if data["outputRealBool"]:
-            if data["dRateReal"]:  # If dRateReal is provided, no need to calculate anything
-                pass
-            else:  # If dRateReal is NOT provided, try calculating it using dRateNom and inflationRate.
+            if not data["dRateReal"]:  # If dRateReal is NOT provided, try calculating it using dRateNom and inflationRate.
                 if (data["dRateNom"] and data["inflationRate"]):
                     data["dRateReal"] = calculate_discount_rate_real(data["dRateNom"], data["inflationRate"])
                 else:
-                    raise ValidationError(
-                        """Cannot calculate real discount rate from given inputs. Provide either:
-                        (1) `real discount rate`, or
-                        (2) `nominal discount rate` AND `inflation rate`.
-                        """
+                    errors.append(
+                        ValidationError(
+                            """Cannot calculate real discount rate from given inputs. Provide either:
+                            (1) `real discount rate`, or
+                            (2) `nominal discount rate` AND `inflation rate`.
+                            """
+                        )
                     )
-        else:  # If discount rate bool is False
+        else:  # discount rate bool is False
             # If two of: dRateReal, dRateNom, inflationRate is provided, calculate the missing value:
             if data["dRateReal"] and data["inflationRate"]:
                 data["dRateNom"] = calculate_discount_rate_nominal(data["inflationRate"], data["dRateReal"])
@@ -84,11 +93,16 @@ class AnalysisSerializer(Serializer):
                 data["dRateReal"] = calculate_discount_rate_real(data["dRateNom"], data["inflationRate"])
             
             else: # If at least two of the above are not provided, raise Error.
-                raise ValidationError(
-                    """At least two of: inflationRate, dRateNom, dRateReal must be provided to calculate
-                    nominal discount rate.
-                    """
+                errors.append(
+                    ValidationError(
+                        """At least two of: inflationRate, dRateNom, dRateReal must be provided to calculate
+                        nominal discount rate.
+                        """
+                    )
                 )
+                
+        if errors:
+            raise(Exception(errors[:NUM_ERRORS_LIMIT])) # Throws up to NUM_ERRORS_LIMIT number of errors.
 
         return data
 

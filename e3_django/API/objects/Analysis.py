@@ -10,6 +10,8 @@ def calculate_discount_rate_nominal(inflation_rate, discount_rate_real):
     Returns the nominal discount rate from inflation and real discount rates if user fails to provide a nominal
     discount rate.
     """
+    if not inflation_rate or not discount_rate_real:
+        raise(Exception("Both real discount rate and inflation rate must be provided."))
     return (1 + inflation_rate) * (1 + discount_rate_real) - 1
 
 
@@ -18,6 +20,8 @@ def calculate_discount_rate_real(discount_rate_norm, inflation_rate):
     Returns the real discount rate from inflation and nominal discount rates if user fails to provide real
     discount rate.
     """
+    if not discount_rate_nom or not inflation_rate:
+        raise(Exception("Both nominal discount rate and inflation rate must be provided."))
     return (1 + discount_rate_norm) / (1 + inflation_rate) - 1
 
 
