@@ -4,6 +4,7 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.fields import ListField
 from rest_framework.serializers import Serializer
 
+from API.variables import NUM_ERRORS_LIMIT
 from API.objects import Input, Analysis, Alternative, Bcn
 from API.serializers import AnalysisSerializer, AlternativeSerializer, BCNSerializer, SensitivitySerializer, \
     ScenarioSerializer
@@ -21,26 +22,48 @@ class InputSerializer(Serializer):
     scenarioObject = ScenarioSerializer(required=False)
 
     def validate(self, data):
+        errors = []
+
         study_period = data["analysisObject"]["studyPeriod"]
         for bcn in data["bcnObjects"]:
-            if 'quantVarValue' in bcn:
+            if "quantVarValue" in bcn:
                 quant_var_value = bcn["quantVarValue"]
 
-                if quant_var_value is not None and isinstance(quant_var_value, list) and \
-                        len(quant_var_value) != study_period + 1:
-                    raise ValidationError(f"The length of quantVarValue for BCN {bcn['bcnID']} is not equal to the study "
-                                          f"period {study_period + 1}. Given {quant_var_value}")
+                try:
+                    assert quant_var_value or isinstance(quant_var_value, list) or \
+                    len(quant_var_value) == study_period + 1
+                except:
+                    errors.append(
+                        ValidationError(
+                            f"The length of quantVarValue for BCN {bcn["bcnID"]} is not equal to the study "
+                            f"period {study_period + 1}. Given {quant_var_value}"
+                        )
+                    )
 
             if 'recurVarValue' in bcn:
                 recur_var_value = bcn["recurVarValue"]
-                if recur_var_value is not None and isinstance(recur_var_value, list) and \
-                        len(recur_var_value) != study_period + 1:
-                    raise ValidationError(f"The length of recurVarValue for BCN {bcn['bcnID']} is not equal to the study "
-                                          f"period {study_period + 1}. Given {recur_var_value}")
+
+                try:
+                    assert recur_var_value or not isinstance(recur_var_value, list) or \
+                    len(recur_var_value) == study_period + 1
+                except:
+                    errors.append(
+                        ValidationError(
+                            f"The length of recurVarValue for BCN {bcn["bcnID"]} is not equal to the study "
+                            f"period {study_period + 1}. Given {recur_var_value}"
+                        )
+                    )
 
         # Ensure that only one alternative has baselineBool = True.
-        if len([x for x in data["alternativeObjects"] if x["baselineBool"]]) != 1:
-            raise ValidationError("Only one alternative can be the baseline")
+        try:
+            assert len([x for x in data["alternativeObjects"] if x["baselineBool"]]) == 1
+        except:
+            errors.append(
+                ValidationError("Only one alternative can be the baseline.")
+            )
+
+        if errors:
+            raise(Exception(errors[:NUM_ERRORS_LIMIT])) # Throws up to NUM_ERRORS_LIMIT number of errors.
 
         return data
 
