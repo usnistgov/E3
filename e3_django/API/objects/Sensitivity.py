@@ -1,10 +1,12 @@
 
+from API.objects import Bcn
+
 class Sensitivity:
     """
     Represents the sensitivity object of the API input.
     """
 
-    def __inif__(
+    def __init__(
         self,
         globalVarBool,
         altID,
@@ -31,3 +33,15 @@ class Sensitivity:
         # Value to be changed by
         self.diffValue = diffValue
 
+        
+        # Find BCN and variable defined in Sensitivity Object
+
+        # Store original value
+
+        # Update appropriate value in BCN object
+
+        # Rerun analysis
+
+        # Store output
+
+        # Revert BCN Values 
