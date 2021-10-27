@@ -11,6 +11,7 @@ class Sensitivity:
         globalVarBool,
         altID,
         bcnID,
+        bcnObj,
         varName,
         diffType,
         diffValue
@@ -23,6 +24,9 @@ class Sensitivity:
 
         # BCN ID
         self.bcnID = bcnID
+        
+        # BCN Object corresponding to BCN ID
+        self.bcnObj = bcnObj
 
         # Variable to be changed
         self.varName = varName
@@ -35,13 +39,17 @@ class Sensitivity:
 
         
         # Find BCN and variable defined in Sensitivity Object
-
+    
+    def calculateOutput(self):
         # Store original value
-
+        # summary1
         # Update appropriate value in BCN object
 
         # Rerun analysis
 
         # Store output
+        # summary2
 
         # Revert BCN Values 
+
+    
