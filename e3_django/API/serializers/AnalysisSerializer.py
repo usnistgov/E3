@@ -29,14 +29,14 @@ class AnalysisSerializer(Serializer):
     timestepVal = ChoiceField(["Year", "Quarter", "Month", "Day"], required=False)
     timestepComp = IntegerField(min_value=0, required=False)
     outputRealBool = BooleanOptionField({"Nominal", "0"}, {"Real", "1"}, required=False)
-    interestRate = DecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES, required=False)
+    interestRate = DecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES, required=False, allow_null=True)
     dRateReal = DecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES, required=False, allow_null=True)
     dRateNom = DecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES, required=False, allow_null=True)
     inflationRate = DecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES, required=False, allow_null=True)
-    Marr = DecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES, required=False)
-    reinvestRate = DecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES, required=False)
-    incomeRateFed = DecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES, required=False)
-    incomeRateOther = DecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES, required=False)
+    Marr = DecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES, required=False, default=None)
+    reinvestRate = DecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES, required=False, default=None)
+    incomeRateFed = DecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES, required=False, allow_null=True)
+    incomeRateOther = DecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES, required=False, allow_null=True)
     location = ListField(child=CharField(allow_blank=True), required=False)
     noAlt = IntegerField(min_value=0, required=True)
     baseAlt = IntegerField(min_value=0, required=True)
@@ -45,9 +45,9 @@ class AnalysisSerializer(Serializer):
         errors = []
 
         # Ensure service date is after base date
-        try: 
-            assert data["serviceDate"] >= data["baseDate"]
-        except: 
+        try:
+            assert data["serviceDate"] >= data["baseDate"]:
+        except:
             errors.append(
                 ValidationError(
                     "Service Date must be after base date"
@@ -60,63 +60,49 @@ class AnalysisSerializer(Serializer):
         except:
             errors.append(
                 ValidationError(
-                    "TimestepComp must be less than studyPeriod"
+                    "timestepComp must be less than studyPeriod"
                 )
             )
 
         # Depending on analysisType (LCCA, BCA, Cost-Loss, Profit Maximization), check all required inputs are included
             # Else, raise ValidationError
 
-        # Ensure at least two of (inflation rate, real discount rate, nominal discount rate) are provided 
-        vars_required_for_calc = [data["inflationRate"], data["dRateNom"], data["dRateReal"]]
-
-        if all(vars_required_for_calc): 
-            # Valid for calculation, since all three variables exist
-            pass
-        else:
-            try:
-                assert sum(1 for v in vars_required_for_calc if v) >= 2
-            except:
-                errors.append(
-                    ValidationError(
-                        """At least two values out of 'interest rate', 'real discount rate', or 'nominal discount rate' 
-                        must be provided to make calculations. 
-
-                        For instance, provide either:
-                        (1) `interest rate` AND `real discount rate`, 
-                        (2) `interest rate` AND `nominal discount rate`, 
-                        (3) `real discount rate` AND `nominal discount rate`, 
-                        or (4) all three.
-                        """
+        # Check if real discount rate boolean is True
+        if data["outputRealBool"]:
+            if not data["dRateReal"]:  # If dRateReal is NOT provided, try calculating it using dRateNom and inflationRate.
+                if (data["dRateNom"] and data["inflationRate"]):
+                    data["dRateReal"] = calculate_discount_rate_real(data["dRateNom"], data["inflationRate"])
+                else:
+                    errors.append(
+                        ValidationError(
+                            """Cannot calculate real discount rate from given inputs. Provide either:
+                            (1) `real discount rate`, or
+                            (2) `nominal discount rate` AND `inflation rate`.
+                            """
+                        )
                     )
-                )
+        else:  # discount rate bool is False
+            # If two of: dRateReal, dRateNom, inflationRate is provided, calculate the missing value:
+            if data["dRateReal"] and data["inflationRate"]:
+                data["dRateNom"] = calculate_discount_rate_nominal(data["inflationRate"], data["dRateReal"])
 
-        # Ensure required variables are provided, depending on `outputRealBool' (real/nominal discount rate)
-        if data["outputRealBool"] and not data["dRateReal"]: # Real discount rate selected
-            try:
+            elif data["dRateReal"] and data["dRateNom"]:
+                data["inflationRate"] = calculate_inflation_rate(data["dRateNom"], data["dRateReal"])
+                
+            elif data["dRateNom"] and data["inflationRate"]:
                 data["dRateReal"] = calculate_discount_rate_real(data["dRateNom"], data["inflationRate"])
-            except:
+            
+            else: # If at least two of the above are not provided, raise Error.
                 errors.append(
                     ValidationError(
-                        """In order to calculate discount rate as a `real` value, both nominal discount rate and inflation rate 
-                        must be provided.
+                        """At least two of: inflationRate, dRateNom, dRateReal must be provided to calculate
+                        nominal discount rate.
                         """
                     )
                 )
-        elif not data["outputRealBool"] and not data["dRateNom"]: # Nominal discount rate selected
-            try:
-                data["dRateNom"] = calculate_discount_rate_nominal(data["dRateReal"], data["inflationRate"])
-            except:
-                errors.append(
-                    ValidationError(
-                        """In order to calculate discount rate as a `nominal` value, both nominal discount rate and inflation rate
-                        must be provided.
-                        """
-                    )
-                )
-
+                
         if errors:
-            raise(Exception(errors[:NUM_ERRORS_LIMIT]) # Throws up to NUM_ERRORS_LIMIT number of errors.
+            raise(Exception(errors[:NUM_ERRORS_LIMIT])) # Throws up to NUM_ERRORS_LIMIT number of errors.
 
         return data
 
