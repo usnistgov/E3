@@ -27,7 +27,7 @@ class AnalysisSerializer(Serializer):
     baseDate = DateField(required=False)
     serviceDate = DateField(required=False)
     timestepVal = ChoiceField(["Year", "Quarter", "Month", "Day"], required=False)
-    timestepComp = IntegerField(min_value=0, required=False)
+    timestepComp = ChoiceField(["EndOfYear", "MidYear", "Continuous"], required=False)
     outputRealBool = BooleanOptionField({"Nominal", "0"}, {"Real", "1"}, required=False)
     interestRate = DecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES, required=False, allow_null=True)
     dRateReal = DecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES, required=False, allow_null=True)
@@ -54,15 +54,6 @@ class AnalysisSerializer(Serializer):
                 )
             )
 
-        # Ensure timestepComp is less than studyPeriod
-        try:
-            assert data["timestepComp"] < data["studyPeriod"]:
-        except:
-            errors.append(
-                ValidationError(
-                    "timestepComp must be less than studyPeriod"
-                )
-            )
 
         # Depending on analysisType (LCCA, BCA, Cost-Loss, Profit Maximization), check all required inputs are included
             # Else, raise ValidationError
