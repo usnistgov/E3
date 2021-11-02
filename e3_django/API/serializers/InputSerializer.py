@@ -35,7 +35,7 @@ class InputSerializer(Serializer):
                 except:
                     errors.append(
                         ValidationError(
-                            f"The length of quantVarValue for BCN {bcn["bcnID"]} is not equal to the study "
+                            f"The length of quantVarValue for BCN {bcn['bcnID']} is not equal to the study "
                             f"period {study_period + 1}. Given {quant_var_value}"
                         )
                     )
@@ -49,7 +49,7 @@ class InputSerializer(Serializer):
                 except:
                     errors.append(
                         ValidationError(
-                            f"The length of recurVarValue for BCN {bcn["bcnID"]} is not equal to the study "
+                            f"The length of recurVarValue for BCN {bcn['bcnID']} is not equal to the study "
                             f"period {study_period + 1}. Given {recur_var_value}"
                         )
                     )
@@ -63,7 +63,7 @@ class InputSerializer(Serializer):
             )
 
         if errors:
-            raise(Exception(errors[:NUM_ERRORS_LIMIT])) # Throws up to NUM_ERRORS_LIMIT number of errors.
+            raise(ValidationError(errors[:NUM_ERRORS_LIMIT])) # Throws up to NUM_ERRORS_LIMIT number of errors.
 
         return data
 

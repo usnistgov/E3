@@ -46,7 +46,7 @@ class AnalysisSerializer(Serializer):
 
         # Ensure service date is after base date
         try:
-            assert data["serviceDate"] >= data["baseDate"]:
+            assert data["serviceDate"] >= data["baseDate"]
         except:
             errors.append(
                 ValidationError(
@@ -93,7 +93,7 @@ class AnalysisSerializer(Serializer):
                 )
                 
         if errors:
-            raise(Exception(errors[:NUM_ERRORS_LIMIT])) # Throws up to NUM_ERRORS_LIMIT number of errors.
+            raise(ValidationError(errors[:NUM_ERRORS_LIMIT])) # Throws up to NUM_ERRORS_LIMIT number of errors.
 
         return data
 
