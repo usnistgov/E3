@@ -1,3 +1,5 @@
 {
-    "python.pythonPath": "/Users/tashakim/opt/miniconda3/bin/python"
+  "python.pythonPath": "/Users/tashakim/opt/miniconda3/bin/python",
+  "python.linting.pylintEnabled": true,
+  "python.linting.enabled": true
 }

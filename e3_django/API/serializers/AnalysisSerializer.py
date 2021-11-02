@@ -46,7 +46,7 @@ class AnalysisSerializer(Serializer):
 
         # Ensure service date is after base date
         try:
-            assert data["serviceDate"] >= data["baseDate"]:
+            assert data["serviceDate"] >= data["baseDate"]
         except:
             errors.append(
                 ValidationError(
@@ -59,9 +59,9 @@ class AnalysisSerializer(Serializer):
             # Else, raise ValidationError
 
         # Check if real discount rate boolean is True
-        if data["outputRealBool"]:
-            if not data["dRateReal"]:  # If dRateReal is NOT provided, try calculating it using dRateNom and inflationRate.
-                if (data["dRateNom"] and data["inflationRate"]):
+        if data["outputRealBool"] is True:
+            if data["dRateReal"] is None:  # If dRateReal is NOT provided, try calculating it using dRateNom and inflationRate.
+                if (data["dRateNom"] is not None and data["inflationRate"] is not None):
                     data["dRateReal"] = calculate_discount_rate_real(data["dRateNom"], data["inflationRate"])
                 else:
                     errors.append(
@@ -74,13 +74,13 @@ class AnalysisSerializer(Serializer):
                     )
         else:  # discount rate bool is False
             # If two of: dRateReal, dRateNom, inflationRate is provided, calculate the missing value:
-            if data["dRateReal"] and data["inflationRate"]:
+            if data["dRateReal"] is not None and data["inflationRate"] is not None:
                 data["dRateNom"] = calculate_discount_rate_nominal(data["inflationRate"], data["dRateReal"])
 
-            elif data["dRateReal"] and data["dRateNom"]:
+            elif data["dRateReal"] is not None and data["dRateNom"] is not None:
                 data["inflationRate"] = calculate_inflation_rate(data["dRateNom"], data["dRateReal"])
                 
-            elif data["dRateNom"] and data["inflationRate"]:
+            elif data["dRateNom"] is not None and data["inflationRate"] is not None:
                 data["dRateReal"] = calculate_discount_rate_real(data["dRateNom"], data["inflationRate"])
             
             else: # If at least two of the above are not provided, raise Error.
@@ -93,7 +93,7 @@ class AnalysisSerializer(Serializer):
                 )
                 
         if errors:
-            raise(Exception(errors[:NUM_ERRORS_LIMIT])) # Throws up to NUM_ERRORS_LIMIT number of errors.
+            raise(ValidationError(errors[:NUM_ERRORS_LIMIT])) # Throws up to NUM_ERRORS_LIMIT number of errors.
 
         return data
 

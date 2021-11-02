@@ -47,7 +47,7 @@ class BCNSerializer(Serializer):
         # Ensure all required inputs are given, based on chosen bcnType.
         if data["bcnType"] == "Benefit":
             try: 
-                assert data["initialOcc"] and data["valuePerQ"]
+                assert data["initialOcc"] is not None and data["valuePerQ"] is not None
             except:
                 errors.append(
                     ValidationError(
@@ -58,7 +58,7 @@ class BCNSerializer(Serializer):
 
         elif data["bcnType"] == "Cost":
             try: 
-                assert data["bcnInvestBool"] and data["valuePerQ"]
+                assert data["bcnInvestBool"] is not None and data["valuePerQ"] is not None
             except:
                 errors.append(
                     ValidationError(
@@ -70,7 +70,7 @@ class BCNSerializer(Serializer):
 
         elif data["bcnType"] == "NonMonetary":
             try:
-                assert data["bcnTag"] and data["quantUnit"]:
+                assert data["bcnTag"] is not None and data["quantUnit"] is not None
             except:
                 errors.append(
                     ValidationError(
@@ -96,6 +96,6 @@ class BCNSerializer(Serializer):
             logger.warning("Warning: %s", "The quantity unit supplied is blank.")
 
         if errors:
-            raise(Exception(errors[:NUM_ERRORS_LIMIT]) # Throws up to NUM_ERRORS_LIMIT number of errors.
+            raise(ValidationError(errors[:NUM_ERRORS_LIMIT])) # Throws up to NUM_ERRORS_LIMIT number of errors.
 
         return data
