@@ -83,7 +83,7 @@ class BCNSerializer(Serializer):
 
         if data["quantVarRate"]:
             try:
-                assert data["quantVarValue"]
+                assert data["quantVarValue"] or data["quantVarValue"] == 0
             except: 
                 errors.append(
                     ValidationError("If quantVarRate exists, quantVarValue must be provided."
