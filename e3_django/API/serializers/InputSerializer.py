@@ -26,12 +26,12 @@ class InputSerializer(Serializer):
 
         study_period = data["analysisObject"]["studyPeriod"]
         for bcn in data["bcnObjects"]:
-            if "quantVarValue" in bcn:
+            if "quantVarValue" in bcn and bcn["quantVarValue"] is not None:
                 quant_var_value = bcn["quantVarValue"]
 
                 try:
-                    assert quant_var_value or isinstance(quant_var_value, list) or \
-                    len(quant_var_value) == study_period + 1
+                    assert (isinstance(quant_var_value, list) and len(quant_var_value) == study_period + 1) \
+                        or (quant_var_value is not None)
                 except:
                     errors.append(
                         ValidationError(
@@ -40,12 +40,19 @@ class InputSerializer(Serializer):
                         )
                     )
 
-            if 'recurVarValue' in bcn:
-                recur_var_value = bcn["recurVarValue"]
+            if bcn["recurBool"] is True:
+                if "recurVarValue" not in bcn or bcn["recurVarValue"] is None:
+                    errors.append(
+                        ValidationError(
+                            "RecurBool is True, but RecurVarValue was not provided."
+                        )
+                    )
+                else:
+                    recur_var_value = bcn["recurVarValue"]
 
                 try:
-                    assert recur_var_value or not isinstance(recur_var_value, list) or \
-                    len(recur_var_value) == study_period + 1
+                    assert (isinstance(recur_var_value, list) and len(recur_var_value) == study_period + 1) \
+                        or recur_var_value is not None
                 except:
                     errors.append(
                         ValidationError(

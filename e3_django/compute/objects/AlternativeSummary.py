@@ -294,7 +294,7 @@ class AlternativeSummary:
         self.totalCostsNonInv = sum(flow.totCostDiscNonInv)
 
         # Sum of cash flows by tag
-        self.totTagFlows = calculate_cash_flow_sum(flow)
+        self.totTagFlows = calculate_tag_cash_flow_sum(flow)
 
         # Net benefits between this alternative and the baseline. None if no baseline is provided.
         self.netBenefits = net_benefits(self.totalBenefits, self.totalCosts, baseline.totalBenefits,

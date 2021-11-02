@@ -33,9 +33,10 @@ def present_value(v: CostType, d: CostType, t: CostType) -> CostType:
     :return: The value discounted to its present value.
     """
     # If timestepComp is "MidYear":
+    """
     if bcn.timestepComp == "MidYear":
         return v * (1 / (1+d)) ** (t-0.5)
-
+    """
     # If continuous discounting: 
     
     return v * (1 / (1 + d)) ** t
