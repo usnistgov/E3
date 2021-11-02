@@ -1,4 +1,4 @@
-from typing import Union, Tuple, Iterable
+from typing import Union, Tuple, Iterable, List, Dict
 
 import numpy
 
@@ -9,8 +9,8 @@ from compute.objects import RequiredCashFlow, OptionalCashFlow
 ZERO = CostType("0")
 
 # Types
-TagMeasure = list[Tuple[str, Union[CostType, str]]]
-BaselineTag = dict[str, CostType]
+TagMeasure = List[Tuple[str, Union[CostType, str]]]
+BaselineTag = Dict[str, CostType]
 
 
 def net_benefits(benefits: CostType, costs: CostType, benefits_base: CostType, costs_base: CostType) -> CostType:
