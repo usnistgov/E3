@@ -1,4 +1,4 @@
-from typing import Optional, TypeVar, Generic, Any, Iterable
+from typing import Optional, TypeVar, Generic, Any, Iterable, List
 
 from django.apps import AppConfig
 from rest_framework.fields import Field
@@ -116,7 +116,7 @@ class ModuleGraph(metaclass=Singleton):
     """
     nodes = {}
 
-    open_nodes: list[Node] = []
+    open_nodes: List[Node] = []
 
     def add_module(self, module: E3ModuleConfig):
         """

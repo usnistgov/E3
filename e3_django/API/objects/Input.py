@@ -1,4 +1,4 @@
-from typing import Sequence
+from typing import Sequence, List
 
 from API.objects import Alternative, Analysis, Bcn
 
@@ -8,7 +8,7 @@ class Input:
     Represents the full API input object.
     """
 
-    def __init__(self, analysisObject: Analysis, alternativeObjects: list[Alternative], bcnObjects,
+    def __init__(self, analysisObject: Analysis, alternativeObjects: List[Alternative], bcnObjects,
                  sensitivityObject=None, scenarioObject=None):
         # Object which defines general analysis parameters
         self.analysisObject = analysisObject

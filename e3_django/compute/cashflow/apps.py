@@ -1,5 +1,5 @@
 import math
-from typing import Generator, Sequence
+from typing import Generator, Sequence, List
 
 from API.objects import Bcn
 from API.registry import E3ModuleConfig
@@ -42,7 +42,7 @@ def present_value(v: CostType, d: CostType, t: CostType) -> CostType:
     return v * (1 / (1 + d)) ** t
 
 
-def discount_values(rate: CostType, value_list: list[CostType]):
+def discount_values(rate: CostType, value_list: List[CostType]):
     """
     Discounts the given list of values to their present values with the given rate.
 
@@ -53,7 +53,7 @@ def discount_values(rate: CostType, value_list: list[CostType]):
     return list(map(lambda x: present_value(x[1], rate, CostType(x[0])), enumerate(value_list)))
 
 
-def calculate_values(bcn: Bcn, study_period: int, quantities: list[CostType]) -> Generator[CostType, None, None]:
+def calculate_values(bcn: Bcn, study_period: int, quantities: List[CostType]) -> Generator[CostType, None, None]:
     """
     Calculates the non-discounted values for over the study period from the given quantities.
 
