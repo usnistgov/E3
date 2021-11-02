@@ -50,16 +50,16 @@ class InputSerializer(Serializer):
                 else:
                     recur_var_value = bcn["recurVarValue"]
 
-                try:
-                    assert (isinstance(recur_var_value, list) and len(recur_var_value) == study_period + 1) \
-                        or recur_var_value is not None
-                except:
-                    errors.append(
-                        ValidationError(
-                            f"The length of recurVarValue for BCN {bcn['bcnID']} is not equal to the study "
-                            f"period {study_period + 1}. Given {recur_var_value}"
+                    try:
+                        assert (isinstance(recur_var_value, list) and len(recur_var_value) == study_period + 1) \
+                            or recur_var_value is not None
+                    except:
+                        errors.append(
+                            ValidationError(
+                                f"The length of recurVarValue for BCN {bcn['bcnID']} is not equal to the study "
+                                f"period {study_period + 1}. Given {recur_var_value}"
+                            )
                         )
-                    )
 
         # Ensure that only one alternative has baselineBool = True.
         try:
