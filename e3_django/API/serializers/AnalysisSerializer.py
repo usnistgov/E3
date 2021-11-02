@@ -59,7 +59,7 @@ class AnalysisSerializer(Serializer):
             # Else, raise ValidationError
 
         # Check if real discount rate boolean is True
-        if data["outputRealBool"] is True:
+        if data["outputRealBool"] == True:
             if data["dRateReal"] is None:  # If dRateReal is NOT provided, try calculating it using dRateNom and inflationRate.
                 if (data["dRateNom"] is not None and data["inflationRate"] is not None):
                     data["dRateReal"] = calculate_discount_rate_real(data["dRateNom"], data["inflationRate"])
