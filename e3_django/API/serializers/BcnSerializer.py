@@ -70,7 +70,7 @@ class BCNSerializer(Serializer):
 
         elif data["bcnType"] == "NonMonetary":
             try:
-                assert data["bcnTag"] and data["quantUnit"]:
+                assert data["bcnTag"] and data["quantUnit"]
             except:
                 errors.append(
                     ValidationError(
@@ -96,6 +96,6 @@ class BCNSerializer(Serializer):
             logger.warning("Warning: %s", "The quantity unit supplied is blank.")
 
         if errors:
-            raise(Exception(errors[:NUM_ERRORS_LIMIT]) # Throws up to NUM_ERRORS_LIMIT number of errors.
+            raise(Exception(errors[:NUM_ERRORS_LIMIT])) # Throws up to NUM_ERRORS_LIMIT number of errors.
 
         return data
