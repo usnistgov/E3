@@ -1,4 +1,4 @@
-from typing import Union, Tuple, Iterable
+from typing import Union, Tuple, Iterable, List, Dict
 
 import numpy
 
@@ -9,8 +9,8 @@ from compute.objects import RequiredCashFlow, OptionalCashFlow
 ZERO = CostType("0")
 
 # Types
-TagMeasure = list[Tuple[str, Union[CostType, str]]]
-BaselineTag = dict[str, CostType]
+TagMeasure = List[Tuple[str, Union[CostType, str]]]
+BaselineTag = Dict[str, CostType]
 
 
 def net_benefits(benefits: CostType, costs: CostType, benefits_base: CostType, costs_base: CostType) -> CostType:
@@ -174,17 +174,17 @@ def ns_elasticity(savings: CostType, total_costs: CostType, delta_q: CostType, t
     return ns_per_pct_q(savings / total_costs, delta_q, total_q_base)
 
 
-def calculate_tag_cash_flow_sum(flows: Iterable[RequiredCashFlow]) -> dict[str, CostType]:
+def calculate_tag_cash_flow_sum(optionals: Iterable[OptionalCashFlow]) -> Dict[str, CostType]:
     """
     Calculates the sum of cash flows for tags.
 
     :param flows: The list of flows to calculate aggregate sum for.
     :return: A dict of the flow tag to its aggregate sum.
     """
-    return {flow.tag: sum(flow.totTagQ) for flow in flows}
+    return {optional.tag: sum(optional.totTagFlowDisc) for optional in optionals}
 
 
-def calculate_quant_sum(optionals: Iterable[OptionalCashFlow]) -> dict[str, CostType]:
+def calculate_quant_sum(optionals: Iterable[OptionalCashFlow]) -> Dict[str, CostType]:
     """
     Calculates the quantity sums of the given optionals.
 
@@ -194,7 +194,7 @@ def calculate_quant_sum(optionals: Iterable[OptionalCashFlow]) -> dict[str, Cost
     return {optional.tag: sum(optional.totTagQ) for optional in optionals}
 
 
-def calculate_quant_units(optionals: Iterable[OptionalCashFlow]) -> dict[str, str]:
+def calculate_quant_units(optionals: Iterable[OptionalCashFlow]) -> Dict[str, str]:
     """
     Reports the quantity units for each of the given optionals.
 
@@ -204,7 +204,7 @@ def calculate_quant_units(optionals: Iterable[OptionalCashFlow]) -> dict[str, st
     return {optional.tag: optional.quantUnits for optional in optionals}
 
 
-def calculate_delta_quant(optionals: Iterable[OptionalCashFlow], baseline: BaselineTag) -> dict[str, CostType]:
+def calculate_delta_quant(optionals: Iterable[OptionalCashFlow], baseline: BaselineTag) -> Dict[str, CostType]:
     """
     Calculates the delta quantities for the given optionals using the given baseline optionals.
 
@@ -217,7 +217,7 @@ def calculate_delta_quant(optionals: Iterable[OptionalCashFlow], baseline: Basel
 
 
 def calculate_ns_perc_quant(savings: CostType, optionals: Iterable[OptionalCashFlow],
-                            baseline: BaselineTag) -> dict[str, CostType]:
+                            baseline: BaselineTag) -> Dict[str, CostType]:
     """
     Calculates ns percent quantities for the given optionals using the given baseline optionals and this altnerative's
     net savings.
@@ -234,8 +234,8 @@ def calculate_ns_perc_quant(savings: CostType, optionals: Iterable[OptionalCashF
     ) if baseline else sum(optional.totTagQ) for optional in optionals}
 
 
-def calculate_ns_delta_quant(savings: CostType, delta_q: dict[str, CostType], optionals: Iterable[OptionalCashFlow]) \
-        -> dict[str, CostType]:
+def calculate_ns_delta_quant(savings: CostType, delta_q: Dict[str, CostType], optionals: Iterable[OptionalCashFlow]) \
+        -> Dict[str, CostType]:
     """
     Calculates ns delta quantities for the given optionals.
 
@@ -248,7 +248,7 @@ def calculate_ns_delta_quant(savings: CostType, delta_q: dict[str, CostType], op
 
 
 def calculate_ns_elasticity_quant(savings: CostType, total_costs: CostType, optionals: Iterable[OptionalCashFlow],
-                                  baseline: BaselineTag) -> dict[str, CostType]:
+                                  baseline: BaselineTag) -> Dict[str, CostType]:
     """
     Calculates ns elasticity quantities for the given optionals suing the given baseline optionals.
 
@@ -273,7 +273,7 @@ class AlternativeSummary:
     """
 
     def __init__(self, alt_id, reinvest_rate, study_period, marr, flow: RequiredCashFlow,
-                 optionals: list[OptionalCashFlow], baseline: "AlternativeSummary" = None, irr: bool = False):
+                 optionals: List[OptionalCashFlow], baseline: "AlternativeSummary" = None, irr: bool = False):
         # Maintain reference to flow object for further calculations.
         # Note: Not included in output, only for internal calculations.
         self.flow = flow
@@ -294,7 +294,7 @@ class AlternativeSummary:
         self.totalCostsNonInv = sum(flow.totCostDiscNonInv)
 
         # Sum of cash flows by tag
-        self.totTagFlows = calculate_cash_flow_sum(flow)
+        self.totTagFlows = calculate_tag_cash_flow_sum(optionals)
 
         # Net benefits between this alternative and the baseline. None if no baseline is provided.
         self.netBenefits = net_benefits(self.totalBenefits, self.totalCosts, baseline.totalBenefits,
