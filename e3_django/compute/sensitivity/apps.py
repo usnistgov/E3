@@ -1,4 +1,6 @@
+from rest_framework.fields import ListField
 from API.registry import E3ModuleConfig
+from e3_django.API.serializers.SensitivitySerializer import SensitivitySerializer
 
 
 class SensitivityConfig(E3ModuleConfig):
@@ -14,4 +16,4 @@ class SensitivityConfig(E3ModuleConfig):
 
     def run(self, base_input, dependencies=None):
 
-        return [x for x base_input.sensitivityObjects.calculateOutput()]
+        return [x for x in base_input.sensitivityObjects.calculateOutput()]
