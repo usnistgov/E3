@@ -1,5 +1,10 @@
 
 from API.objects import Bcn
+import logging
+
+from e3_django.API.serializers.InputSerializer import InputSerializer
+
+logger = logging.getLogger(__name__)
 
 class Sensitivity:
     """
@@ -37,19 +42,30 @@ class Sensitivity:
         # Value to be changed by
         self.diffValue = diffValue
 
-        
-        # Find BCN and variable defined in Sensitivity Object
     
     def calculateOutput(self):
-        # Store original value
-        # summary1
-        # Update appropriate value in BCN object
+        # Store original values
+        original_val = self.bcnObj
 
-        # Rerun analysis
+        # E.g. cost_function(a,b,c) = a**2 + math.sqrt(b) - c//2
 
-        # Store output
-        # summary2
+        # Update appropriate value for given attribute in BCN object
+        if self.diffType == "Percent":
+            self.bcnObj[self.varName] *= (self.diffValue + 100)/100
 
-        # Revert BCN Values 
+        elif self.diffType == "Gross":
+            # self.bcnObj[self.varName]
+            # Calculate gross change 
+            pass
+
+        else:
+            logger.warning("Warning: %s", "Difference type is unrecognized. No change was made")
+
+        # Rerun analysis with updated values, store output
+        # E.g. new_output = cost_function(a', b', c')
+        # (sensitivity summary)
+
+        # Revert BCN values 
+        self.bcnObj = original_val
 
     

@@ -5,7 +5,7 @@ from rest_framework.fields import ListField
 from rest_framework.serializers import Serializer
 
 from API.variables import NUM_ERRORS_LIMIT
-from API.objects import Input, Analysis, Alternative, Bcn
+from API.objects import Input, Analysis, Alternative, Bcn, Sensitivity
 from API.serializers import AnalysisSerializer, AlternativeSerializer, BCNSerializer, SensitivitySerializer, \
     ScenarioSerializer
 
