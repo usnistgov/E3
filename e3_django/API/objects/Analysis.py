@@ -113,19 +113,14 @@ class Analysis:
         # Location of analysis given as list of strings, e.g. ["United States", "Maryland", "20879"]
         self.location = location
 
-        # Calculate missing discount/inflation rate if necessary.
-        if not (self.inflationRate and self.dRateReal and dRateNom):
-            # Only inflation rate is missing. Calculate using other two variables
-            if self.inflationRate is None and self.dRateReal and self.dRateNom:
-                self.inflationRate = calculate_inflation_rate(self.dRateNom, self.dRateReal)
 
-            # Only real discount rate is missing. Calculate using other two variables
-            elif self.dRateReal is None and self.inflationRate and self.dRateNom:
-                self.dRateReal = calculate_discount_rate_real(self.dRateNom, self.inflationRate)
-
-            # Only nominal discount rate is missing. Calculate using other two variables
-            elif self.dRateNom is None and self.inflationRate and self.dRateReal:
-                self.dRateNom = calculate_discount_rate_nominal(self.inflationRate, self.dRateReal)
-
-            else:
+        # If outputRealBool is false, all three values should have been provided/calculated.
+        if not self.outputRealBool:
+            if not (self.inflationRate and self.dRateReal and dRateNom): 
+                # Single missing value should have been calculated in AnalysisSerializer.
                 raise AssertionError("Cannot calculate one of inflation rate, discount rate real or discount rate nominal.")
+        # If outputRealBool is true, real discount rate must have been provided/calculated.
+        else: 
+            if not self.dRateReal:
+                # If real discount rate was not provided by user, should have been calculated in AnalysisSerializer.
+                raise AssertionError("Cannot calculate discount real rate.")
