@@ -5,7 +5,7 @@ from rest_framework.fields import ListField
 from rest_framework.serializers import Serializer
 
 from API.variables import NUM_ERRORS_LIMIT
-from API.objects import Input, Analysis, Alternative, Bcn
+from API.objects import Input, Analysis, Alternative, Bcn, Sensitivity
 from API.serializers import AnalysisSerializer, AlternativeSerializer, BCNSerializer, SensitivitySerializer, \
     ScenarioSerializer
 
@@ -18,7 +18,7 @@ class InputSerializer(Serializer):
     analysisObject = AnalysisSerializer(required=True)
     alternativeObjects = ListField(child=AlternativeSerializer(), required=True)
     bcnObjects = ListField(child=BCNSerializer(), required=True)
-    sensitivityObject = SensitivitySerializer(required=False)
+    sensitivityObjects = SensitivitySerializer(required=False)
     scenarioObject = ScenarioSerializer(required=False)
 
     def validate(self, data):
@@ -69,12 +69,15 @@ class InputSerializer(Serializer):
 
     def create(self, validated_data):
         analysis = Analysis(**validated_data.pop("analysisObject"))
+        bcn_cache = {}
+        for data in validated_data.pop("bcnObjects"):
+            bcn_cache[data["bcnID"]] = Bcn(analysis.studyPeriod, **data)
 
         return Input(
             analysis,
             [Alternative(**data) for data in validated_data.pop("alternativeObjects")],
-            [Bcn(analysis.studyPeriod, **data) for data in validated_data.pop("bcnObjects")],
-            None,
+            list(bcn_cache.values()),
+            [Sensitivity(bcnObj=bcn_cache[sens_data["bcnID"]], **sens_data) for sens_data in validated_data.pop("sensitivityObjects")],
             None,
         )
 
@@ -82,7 +85,7 @@ class InputSerializer(Serializer):
         instance.analysis = validate_data.get("analysisObject", instance.analysis)
         instance.alternatives = validate_data.get("alternativeObjects", instance.alternatives)
         instance.bcns = validate_data.get("bcnObjects", instance.bcns)
-        instance.sensitivity = validate_data.get("sensitivityObject", instance.sensitivity)
+        instance.sensitivity = validate_data.get("sensitivityObjects", instance.sensitivity)
         instance.scenario = validate_data.get("scenarioObject", instance.scenario)
 
         return instance

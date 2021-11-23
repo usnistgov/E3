@@ -1,19 +1,24 @@
 from rest_framework.serializers import Serializer
 from rest_framework.exceptions import ValidationError
-from rest_framework.fields import IntegerField, ChoiceField, CharField, BooleanField, DecimalField
+from rest_framework.fields import IntegerField, ChoiceField, ListField, BooleanField, DecimalField
 
 from API.variables import MAX_DIGITS, DECIMAL_PLACES
 
 
 class SensitivitySerializer(Serializer):
     globalVarBool = BooleanField(required=False)
-    altID = IntegerField(required=False)
-    bcnID = CharField(required=False, default='') 
+    altID = ListField(child=IntegerField(), required=True) 
+    bcnID = IntegerField(min_value=0, required=True) 
     varName = ChoiceField([
-        "initialOcc", "bcnLife", "recurValue", "recurEndDate", "valuePerQ", "quant", 'quantValue'],
-        required=False, default='')
-    diffType = ChoiceField(["Percent", "Gross"], required=True)
-    diffValue = DecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES, required=False)
+        "discountRate", "initialOcc", "bcnLife", "recurValue", "recurEndDate", "valuePerQ", "quant", "quantValue"],
+        required=True
+    )
+    diffType = ChoiceField(["Percent", "Gross"], 
+        required=True
+    )
+    diffValue = DecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES, 
+        required=True
+    )
 
     def validate(self, data):
         if data['globalVarBool']:
