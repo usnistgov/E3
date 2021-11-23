@@ -18,11 +18,16 @@ class RequiredCashFlowConfig(E3ModuleConfig):
     serializer = ListField(child=RequiredCashFlowSerializer(), required=False)
 
     def run(self, base_input, dependencies=None):
-        required = {}
-        for bcn in base_input.bcnObjects:
-            for alt in bcn.altID:
-                required[alt] = required \
-                    .get(alt, RequiredCashFlow(alt, base_input.analysisObject.studyPeriod)) \
-                    .add(bcn, dependencies["internal:cash-flows"][bcn])
+        return calculate_required_flows(base_input.bcnObjects, base_input.analysisObject.studyPeriod, \
+            dependencies["internal:cash-flows"])
 
-        return list(required.values())
+
+def calculate_required_flows(bcnObjects, studyPeriod, cashFlows):
+    required = {}
+    for bcn in bcnObjects:
+        for alt in bcn.altID:
+            required[alt] = required \
+                .get(alt, RequiredCashFlow(alt, studyPeriod)) \
+                .add(bcn, cashFlows[bcn])
+
+    return list(required.values())
