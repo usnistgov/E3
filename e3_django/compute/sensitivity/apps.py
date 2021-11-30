@@ -1,12 +1,12 @@
 from rest_framework.fields import ListField
 from API.registry import E3ModuleConfig
-from e3_django.API.objects.Sensitivity import Sensitivity
-from e3_django.API.serializers.SensitivitySerializer import SensitivitySerializer
-from e3_django.compute.cashflow.apps import cash_flows
-from e3_django.compute.objects import SensitivitySummary
-from e3_django.compute.optional.apps import calculate_tag_flows
-from e3_django.compute.required.apps import calculate_required_flows
-from e3_django.compute.measures.apps import calculate_alternative_summaries
+
+from API.serializers.SensitivitySerializer import SensitivitySerializer
+from compute.cashflow.apps import cash_flows
+from compute.objects import SensitivitySummary
+from compute.optional.apps import calculate_tag_flows
+from compute.required.apps import calculate_required_flows
+from compute.measures.apps import calculate_alternative_summaries
 
 class SensitivityConfig(E3ModuleConfig):
     """
