@@ -77,7 +77,7 @@ class InputSerializer(Serializer):
             analysis,
             [Alternative(**data) for data in validated_data.pop("alternativeObjects")],
             list(bcn_cache.values()),
-            [Sensitivity(bcnObj=bcn_cache[sens_data["bcnID"]], **sens_data) for sens_data in validated_data.pop("sensitivityObjects")],
+            [Sensitivity(bcnObj=bcn_cache[sens_data["bcnID"]], **sens_data) for sens_data in validated_data.get("sensitivityObjects", [])],
             None,
         )
 
