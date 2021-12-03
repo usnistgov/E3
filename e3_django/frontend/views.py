@@ -1,9 +1,9 @@
 import logging
 from datetime import datetime, timezone
 
-from django.contrib import messages
 from django.contrib.auth import logout, authenticate, login
 from django.contrib.auth.decorators import login_required
+from django.core.exceptions import ObjectDoesNotExist
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from django.urls import reverse
@@ -43,14 +43,20 @@ def register(request):
     confirm = request.POST["confirm-password"]
 
     # Check if password confirmation matches
+    logging.debug(f"Checking if password is the same as confirmation")
     if password != confirm:
         return JsonResponse({"success": False, "messages": ["Passwords did not match"]})
 
     # Check if user with that email already exists
-    if EmailUser.objects.get(email=email):
-        return JsonResponse({"success": False, "messages": ["User with that email already exists."]})
+    try:
+        logging.debug(f"Checking if user already exists")
+        if EmailUser.objects.get(email=email):
+            return JsonResponse({"success": False, "messages": ["User with that email already exists."]})
+    except ObjectDoesNotExist:
+        pass
 
     # Create User
+    logging.debug(f"Creating user with email {email}")
     user = EmailUser.objects.create_user(email=email, password=password)
 
     if user is None:
