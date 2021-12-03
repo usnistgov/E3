@@ -1,6 +1,9 @@
 import logging
 
+import rx
+import rx.operators
 from celery.result import AsyncResult
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.status import *
 from rest_framework.viewsets import ViewSet
@@ -29,67 +32,83 @@ class UrlOrHeaderApiKey(HasAPIKey):
         return header_key if header_key else request.GET.get("key")
 
 
-class AnalysisViewSet(ViewSet):
+@api_view(['POST'])
+@permission_classes([UrlOrHeaderApiKey])
+def analyze(request):
+    request_stream = rx.of(request)
+    request_stream.pipe(
+        rx.operators.map(lambda r: r.data)
+    )
+
+    #logging.debug(f"POST called on analysis resource with request data: \n{request.data}\n")
+
+    #serializer = InputSerializer(data=request.data)
+
+    #if not serializer.is_valid():
+    #    logging.debug(f"Failed to validate data! Data was:\n{request.data}\n")
+    #    return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
+
+    #task = tasks.analyze.delay(serializer.save())
+
+    #logging.debug(f"\nAnalysis finished\n")
+
+    #return Response(task.get())
+
+    # return Response(status=HTTP_202_ACCEPTED, headers={
+    #     "Location": request.build_absolute_uri(f"/api/v1/queue/{task.task_id}")
+    # })
+
+
+@api_view
+@permission_classes([UrlOrHeaderApiKey])
+def queue(request, pk=None):
     """
-    Resource to begin analysis.
+    The queue resource queries if the given task is finished or not. If the task is finished, a redirect to the
+    completed resource will be returned.
+
+    :param request: The request object
+    :param pk: The ID of the task
+    :return: A redirect to the task result
     """
-    permission_classes = [UrlOrHeaderApiKey]
+    logging.debug(f"Queue resource called with parameter {pk}")
 
-    def create(self, request):
-        logging.debug(f"Analysis View called with request data:\n{request.data}\n")
-
-        serializer = InputSerializer(data=request.data)
-
-        if not serializer.is_valid():
-            logging.debug(f"Failed to validate data! Data was:\n{request.data}\n")
-            return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
-
-        task = tasks.analyze.delay(serializer.save())
-
-        logging.debug(f"\nAnalysis finished\n")
-
-        return Response(task.get())
-
-        # return Response(status=HTTP_202_ACCEPTED, headers={
-        #     "Location": request.build_absolute_uri(f"/api/v1/queue/{task.task_id}")
-        # })
-
-
-class QueueViewSet(ViewSet):
-    """
-    Resource to query condition of analysis job
-    """
-    permission_classes = [UrlOrHeaderApiKey]
-
-    def retrieve(self, request, pk=None):
-        if pk is None:
-            return Response("ID must be specified", status=HTTP_400_BAD_REQUEST)
-
+    try:
         status = AsyncResult(pk).status
 
-        logging.debug(f"Status of task {pk} is {status}")
-
         if status == "SUCCESS":
+            logging.debug(f"Task with ID {pk} is completed, returning redirect")
             return Response(status=HTTP_303_SEE_OTHER, headers={
                 "Location": request.build_absolute_uri(f"/api/v1/result/{pk}")
             })
-        else:
-            return Response(status)
+
+        logging.debug(f"Task with ID {pk} is not complete. Status: {status}")
+        return Response(status)
+    except ValueError:
+        logging.debug(f"Task ID {pk} not found")
+        return Response("ID must be specified", status=HTTP_400_BAD_REQUEST)
 
 
-class ResultViewSet(ViewSet):
+@api_view
+@permission_classes([UrlOrHeaderApiKey])
+def result(_, pk=None):
     """
-    Resource to get the result of an analysis job
+    The result resource gets the task with the given ID and returns its result.
+
+    :param _: Request is ignored
+    :param pk: The ID of the task
+    :return: The result of the task
     """
-    permission_classes = [UrlOrHeaderApiKey]
+    logging.debug(f"Result resource called with parameter {pk}")
 
-    def retrieve(self, request, pk=None):
-        if pk is None:
-            return Response("ID must be specified", status=HTTP_400_BAD_REQUEST)
+    try:
+        async_result = AsyncResult(pk)
 
-        result = AsyncResult(pk)
+        if async_result.ready():
+            logging.debug(f"Result resource returning result for task {pk}")
+            return Response(async_result.get())
 
-        if result.ready():
-            return Response(result.get())
-        else:
-            return Response(status=HTTP_404_NOT_FOUND)
+        logging.debug(f"Task with ID {pk} is not ready")
+        return Response(status=HTTP_404_NOT_FOUND)
+    except ValueError:
+        logging.debug(f"Result resource failed to find task with ID {pk}")
+        return Response("ID must be specified", status=HTTP_400_BAD_REQUEST)
