@@ -99,14 +99,12 @@ WSGI_APPLICATION = 'e3_django.wsgi.application'
 
 DATABASES = {
     'default': {
-        # 'ENGINE': 'django.db.backends.sqlite3',
-        # 'NAME': BASE_DIR / 'db.sqlite3',
         "ENGINE": "django.db.backends.postgresql_psycopg2",
         'NAME': 'E3',
-        'USER': 'admin',
-        'PASSWORD': 'CRuj6oyJJirj6ThnfxV7',
-        'HOST': 'postgres',
-        'PORT': '',
+        'USER': config("DATABASE_USER"),
+        'PASSWORD': config("DATABASE_PASSWORD"),
+        'HOST': config("DATABASE_HOST"),
+        'PORT': config("DATABASE_PORT"),
     }
 }
 
