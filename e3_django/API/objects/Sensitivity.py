@@ -6,7 +6,6 @@ class Sensitivity:
     """
     Represents the sensitivity object of the API input.
     """
-
     def __init__(
         self,
         globalVarBool,
@@ -19,25 +18,18 @@ class Sensitivity:
     ):
         # Boolean indicating global variable
         self.globalVarBool = globalVarBool
-
         # List of alternative IDs
         self.altID = altID
-
         # BCN ID
         self.bcnID = bcnID
-        
         # BCN Object corresponding to BCN ID
         self.bcnObj = bcnObj
-
         # Variable to be changed
         self.varName = varName
-
         # Type of change to be made
         self.diffType = diffType
-
         # Value to be changed by
         self.diffValue = diffValue
-
     
     def calculateOutput(self):
         # Store original bcn object

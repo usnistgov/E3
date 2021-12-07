@@ -34,18 +34,18 @@ class AlternativeTest(TestCase):
 		"""
 		with self.assertRaises(ValidationError):
 			self.alternative15 = Alternative(
-			altID = 15,
-			altName = "Alternative 15",
-			altBCNList = [2, 3, 5],
-			baselineBool = False,
+				altID = 15,
+				altName = "Alternative 15",
+				altBCNList = [2, 3, 5],
+				baselineBool = False,
 			)
 
 		with self.assertRaies(ValidationError):
 			self.alternative15 = Alternative(
-			altID = 16,
-			altName = "Alternative 16",
-			altBCNList = [-10],
-			baselineBool = False,
+				altID = 16,
+				altName = "Alternative 16",
+				altBCNList = [-10],
+				baselineBool = False,
 			)
 
 	def test_validate_baseline_bool(self):
