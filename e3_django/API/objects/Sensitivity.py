@@ -1,4 +1,5 @@
 import logging
+import copy
 
 logger = logging.getLogger(__name__)
 
@@ -33,7 +34,7 @@ class Sensitivity:
     
     def calculateOutput(self):
         # Store original bcn object
-        original_bcn = self.bcnObj.copy()
+        original_bcn = copy(self.bcnObj)
 
         # Update appropriate value for given attribute in BCN object
         if self.diffType == "Percent":
