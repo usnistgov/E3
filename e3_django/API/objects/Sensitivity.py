@@ -33,7 +33,7 @@ class Sensitivity:
     
     def calculateOutput(self):
         # Store original bcn object
-        original_bcn = self.bcnObj
+        original_bcn = self.bcnObj.copy()
 
         # Update appropriate value for given attribute in BCN object
         if self.diffType == "Percent":
