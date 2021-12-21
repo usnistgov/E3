@@ -40,7 +40,7 @@ class Sensitivity:
         # Update appropriate value for given attribute in BCN object
         if self.diffType == "Percent":
             # Update bcn object's specified variable with a Percent change
-            self.bcnObj[self.varName] *= (self.diffValue + 100) / 100
+            # self.bcnObj[self.varName] *= (self.diffValue + 100) / 100
             setattr(self.bcnObj, self.varName, getattr(self.bcnObj, self.varName)*(self.diffValue + 100) / 100)
 
         elif self.diffType == "Gross":
