@@ -354,3 +354,30 @@ class AlternativeSummary:
         # Dictionary of optional tags to ns elasticity quantities. None if no baseline is provided.
         self.nsElasticityQuant = calculate_ns_elasticity_quant(self.netSavings, self.totalCosts, optionals,
                                                                baseline.quantSum) if baseline else None
+
+    def __str__(self):
+        print("flow:", self.flow)
+        print("altID:", self.altID)
+        print("totalBenefits:", self.totalBenefits)
+        print("totalCosts:", self.totalCosts)
+        print("totalCostsInv:", self.totalCostsInv)
+        print("totalCostsNonInv:", self.totalCostsNonInv)
+        print("totTagFlows:", self.totTagFlows)
+        print("netBenefits:", self.netBenefits)
+        print("netSavings:", self.netSavings)
+        print("SIR:", self.SIR)
+        print("IRR:", self.IRR)
+        print("AIRR:", self.AIRR)
+        print("SPP:", self.SPP)
+        print("DPP:", self.DPP)
+        print("BCR:", self.BCR)
+        print("quantSum:", self.quantSum)
+        print("quantUnits", self.quantUnits)
+        print("MARR:", self.MARR)
+        print("deltaQuant:", self.deltaQuant)
+        print("nsPercQuant:", self.nsPercQuant)
+        print("nsDeltaQuant:", self.nsDeltaQuant)
+        print("nsElasticityQuant:", self.nsElasticityQuant)
+        return "--------------------End of Object--------------------"
+
+

@@ -1,5 +1,5 @@
 import logging
-import copy
+from copy import deepcopy
 
 logger = logging.getLogger(__name__)
 
@@ -31,25 +31,30 @@ class Sensitivity:
         self.diffType = diffType
         # Value to be changed by
         self.diffValue = diffValue
-    
+
     def calculateOutput(self):
         # Store original bcn object
-        original_bcn = copy(self.bcnObj)
+        # original_bcn = deepcopy(self.bcnObj)
+        original_value = getattr(self.bcnObj, self.varName)
 
         # Update appropriate value for given attribute in BCN object
         if self.diffType == "Percent":
             # Update bcn object's specified variable with a Percent change
-            self.bcnObj[self.varName] *= (self.diffValue + 100) / 100
+            # self.bcnObj[self.varName] *= (self.diffValue + 100) / 100
+            setattr(self.bcnObj, self.varName, getattr(self.bcnObj, self.varName)*(self.diffValue + 100) / 100)
 
         elif self.diffType == "Gross":
             # Update bcn object's specified variable with a Gross change
-            self.bcnObj[self.varName] += self.diffValue
+            # self.bcnObj[self.varName] += self.diffValue
+            # self.bcnObj.varName += self.diffValue
+            setattr(self.bcnObj, self.varName, getattr(self.bcnObj, self.varName) + self.diffValue)
 
         else:
             logger.warning("Warning: %s", "Difference type is unrecognized. No change was made")
 
-        new_bcn = self.bcnObj
+        new_bcn = deepcopy(self.bcnObj)
         # Revert BCN values 
-        self.bcnObj = original_bcn
+        # self.bcnObj = original_bcn
+        setattr(self.bcnObj, self.varName, original_value)
 
         return new_bcn
