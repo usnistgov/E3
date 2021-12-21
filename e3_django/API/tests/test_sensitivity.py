@@ -3,7 +3,9 @@ from datetime import datetime
 from decimal import Decimal
 import logging
 
-from API.objects import Alternative, Analysis, Bcn, Sensitivity
+from API.objects import Alternative, Analysis, Bcn
+from API.objects.Sensitivity import Sensitivity
+from django.core.exceptions import ValidationError
 
 """
 Sensitivity tests
@@ -11,7 +13,29 @@ Sensitivity tests
 logger = logging.getLogger(__name__)
 
 class SensitivityTest(TestCase):
-    def setup(self):
+    def setUp(self):
+        self.analysis = Analysis(
+            analysisType="LCCA",
+            projectType="Buildings",
+            objToReport=["FlowSummary"],
+            studyPeriod=10,
+            baseDate=datetime.strptime('2012-04-23T18:25:43.511Z', '%Y-%m-%dT%H:%M:%S.511Z'),
+            serviceDate=datetime.strptime('2013-04-23T18:25:43.511Z', '%Y-%m-%dT%H:%M:%S.511Z'),
+            timestepVal="Year",
+            timestepComp=1,
+            outputRealBool=False,
+            interestRate=Decimal("0.03"),
+            dRateReal=Decimal("0.03"),
+            dRateNom=Decimal("0.05"),
+            inflationRate=Decimal("0.02"),
+            Marr=None,
+            reinvestRate=Decimal("0.05"),
+            incomeRateFed=None,
+            incomeRateOther=None,
+            location=["United States", "", "", "Maryland", "", "", "20879", ""],
+            noAlt=1,
+            baseAlt=0,
+        )
         self.alternative = Alternative(
 			altID = 0,
 			altName = "Alternative 0",
@@ -41,34 +65,40 @@ class SensitivityTest(TestCase):
             quantVarRate=None,
             quantVarValue=None,
             quantUnit=None,
+            studyPeriod=10,
+        )
+        self.bcn1 = Bcn(
+            bcnID=1,
+            altID=[0],
+            bcnType="Cost",
+            bcnTag=None,
+            bcnSubType="Direct",
+            bcnName="BCN 1",
+            initialOcc=1,
+            bcnLife=30,
+            bcnRealBool=False,
+            bcnInvestBool=True,
+            rvBool=True,
+            rvOnly=False,
+            recurBool=False,
+            recurInterval=None,
+            recurVarRate=None,
+            recurVarValue=None,
+            recurEndDate=None,
+            valuePerQ=Decimal("2"),
+            quant=Decimal("100"),
+            quantVarRate=None,
+            quantVarValue=None,
+            quantUnit=None,
+            studyPeriod=10,
         )
         # standard Analysis object that can be created
-        self.analysis = Analysis(
-            analysisType="LCCA",
-            projectType="Buildings",
-            objToReport=["FlowSummary"],
-            studyPeriod=10,
-            baseDate=datetime.strptime('2012-04-23T18:25:43.511Z', '%Y-%m-%dT%H:%M:%S.511Z'),
-            serviceDate=datetime.strptime('2013-04-23T18:25:43.511Z', '%Y-%m-%dT%H:%M:%S.511Z'),
-            timestepVal="Year",
-            timestepComp=1,
-            outputRealBool=False,
-            interestRate=Decimal("0.03"),
-            dRateReal=Decimal("0.03"),
-            dRateNom=Decimal("0.05"),
-            inflationRate=Decimal("0.02"),
-            Marr=None,
-            reinvestRate=Decimal("0.05"),
-            incomeRateFed=None,
-            incomeRateOther=None,
-            location=["United States", "", "", "Maryland", "", "", "20879", ""],
-        )
         logger.info("Success!: %s", "Setup tests passed.")
         
         return
 
-
     def test_create_sensitivity(self):
+
         self.sensitivity = Sensitivity(
             globalVarBool=True,
             altID=0,
@@ -187,30 +217,6 @@ class SensitivityTest(TestCase):
                 diffValue=100,
             )
         # New BCN object with ID 1
-        self.bcn1 = Bcn(
-            bcnID=1,
-            altID=[0],
-            bcnType="Cost",
-            bcnTag=None,
-            bcnSubType="Direct",
-            bcnName="BCN 1",
-            initialOcc=1,
-            bcnLife=30,
-            bcnRealBool=False,
-            bcnInvestBool=True,
-            rvBool=True,
-            rvOnly=False,
-            recurBool=False,
-            recurInterval=None,
-            recurVarRate=None,
-            recurVarValue=None,
-            recurEndDate=None,
-            valuePerQ=Decimal("2"),
-            quant=Decimal("100"),
-            quantVarRate=None,
-            quantVarValue=None,
-            quantUnit=None,
-        )
 
         with self.assertRaises(ValidationError):
             self.sensitivity9 = Sensitivity(
@@ -250,7 +256,7 @@ class SensitivityTest(TestCase):
             self.sensitivity11 = Sensitivity(
                 globalVarBool=False,
                 altID=0,
-                bcnID=0,  
+                bcnID=None,
                 # Null BCN object
                 bcnObj=None,  
                 varName='valuePerQ',
