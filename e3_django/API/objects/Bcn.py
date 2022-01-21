@@ -114,5 +114,8 @@ class Bcn:
         if not isinstance(self.valuePerQ, CostType):
             self.valuePerQ = CostType(self.valuePerQ if self.valuePerQ else 0)
 
+        if self.bcnLife is None:
+            self.bcnLife = studyPeriod
+
     def __repr__(self) -> str:
         return f"BCN ID: {self.bcnID}"
