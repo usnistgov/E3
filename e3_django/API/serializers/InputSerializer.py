@@ -40,7 +40,7 @@ class InputSerializer(Serializer):
                         )
                     )
 
-            if bcn["recurBool"] is True:
+            if bcn["recurBool"] is True and bcn["recurVarValue"] is not None:
                 recur_var_value = bcn["recurVarValue"]
 
                 try:
