@@ -8,6 +8,8 @@ services:
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: CRuj6oyJJirj6ThnfxV7
       POSTGRES_DB: E3
+    ports:
+      - "5432:5432"
     networks:
       - default
   rabbitmq:
