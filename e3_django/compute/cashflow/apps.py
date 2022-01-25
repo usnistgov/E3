@@ -1,4 +1,5 @@
 import math
+from decimal import Decimal
 from typing import Generator, Sequence, List
 
 from API.objects import Bcn
@@ -19,38 +20,41 @@ class CashFlowConfig(E3ModuleConfig):
     def run(self, base_input, dependencies=None):
         analysis = base_input.analysisObject
         discount_rate = analysis.dRateReal if analysis.outputRealBool else analysis.dRateNom
+        timestep_comp = analysis.timestepComp
 
-        return {bcn: cash_flows(bcn, analysis.studyPeriod, discount_rate) for bcn in base_input.bcnObjects}
+        return {
+            bcn: cash_flows(bcn, analysis.studyPeriod, discount_rate, timestep_comp) for bcn in base_input.bcnObjects
+        }
 
 
-def present_value(v: CostType, d: CostType, t: CostType) -> CostType:
+def present_value(v: CostType, d: CostType, t: CostType, timestep_comp: str) -> CostType:
     """
     Converts the given value to a present value with the given discount and time values.
 
+    :param timestep_comp:
     :param v: The value to discount.
     :param d: The discount rate to apply.
     :param t: The amount of time to discount.
     :return: The value discounted to its present value.
     """
     # If timestepComp is "MidYear":
-    """
-    if bcn.timestepComp == "MidYear":
-        return v * (1 / (1+d)) ** (t-0.5)
-    """
-    # If continuous discounting: 
-    
+    if timestep_comp == "MidYear":
+        return v * (1 / (1 + d)) ** (t - CostType("0.5"))
+
+    # If continuous discounting:
     return v * (1 / (1 + d)) ** t
 
 
-def discount_values(rate: CostType, value_list: List[CostType]):
+def discount_values(rate: CostType, value_list: List[CostType], timestep_comp: str):
     """
     Discounts the given list of values to their present values with the given rate.
 
+    :param timestep_comp:
     :param rate: The discount rate.
     :param value_list: The list of values to discount.
     :return: A list of discounted values.
     """
-    return list(map(lambda x: present_value(x[1], rate, CostType(x[0])), enumerate(value_list)))
+    return list(map(lambda x: present_value(x[1], rate, CostType(x[0]), timestep_comp), enumerate(value_list)))
 
 
 def calculate_values(bcn: Bcn, study_period: int, quantities: List[CostType]) -> Generator[CostType, None, None]:
@@ -221,10 +225,11 @@ def residual_value(bcn: Bcn, study_period: int, values: Sequence[CostType]) -> l
     return result
 
 
-def cash_flows(bcn: Bcn, study_period: int, rate: CostType) -> FlowType:
+def cash_flows(bcn: Bcn, study_period: int, rate: CostType, timestep_comp: str) -> FlowType:
     """
     Discounts this BCN to its present value and returns final and intermediate values.
 
+    :param timestep_comp:
     :param bcn: The BCN to create cash flows for.
     :param study_period: The range that this BCN is over.
     :param rate:  The discount rate.
@@ -239,6 +244,6 @@ def cash_flows(bcn: Bcn, study_period: int, rate: CostType) -> FlowType:
     if bcn.rvBool:
         values = residual_value(bcn, study_period, values)
 
-    discounted_list = discount_values(rate, values)
+    discounted_list = discount_values(rate, values, timestep_comp)
 
     return quantities, values, discounted_list
