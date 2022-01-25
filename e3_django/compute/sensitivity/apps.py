@@ -57,6 +57,9 @@ class SensitivityConfig(E3ModuleConfig):
                 measure_summary=new_measure_summary[sensitivity_object.altID]
             )
             res.append(sensitivitySummary)
+            
+            cash_flow.pop(new_bcn)
+            cash_flow[sensitivity_object.bcnObj] = cash_flows(sensitivity_object.bcnObj, analysis.studyPeriod, discount_rate)
         
         # Return list of SensitivitySummaries, with altered values
         return res
