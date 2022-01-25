@@ -38,7 +38,7 @@ def present_value(v: CostType, d: CostType, t: CostType, timestep_comp: str) -> 
     :return: The value discounted to its present value.
     """
     # If timestepComp is "MidYear":
-    if timestep_comp == "MidYear":
+    if timestep_comp == "MidYear" and t != 0:
         return v * (1 / (1 + d)) ** (t - CostType("0.5"))
 
     # If continuous discounting:
