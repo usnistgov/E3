@@ -49,7 +49,7 @@ def bcr(benefits: CostType, costs_inv: CostType, costs_inv_base: CostType, costs
     :param costs_inv_base: The total costs invest of the baseline alternative.
     :return: The calculated BCR.
     """
-    return check_fraction(benefits, (costs_inv - costs_inv_base) + (costs_non_inv - costs_non_inv_base))
+    return check_fraction(benefits + (costs_inv - costs_inv_base), (costs_inv - costs_inv_base))
 
 
 def sir(costs_non_inv_base: CostType, costs_non_inv: CostType, costs_inv: CostType, costs_inv_base: CostType) \
