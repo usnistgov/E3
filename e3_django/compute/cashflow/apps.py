@@ -47,7 +47,7 @@ def present_value(v: CostType, d: CostType, t: CostType, timestep_comp: str) -> 
         return v * (1 / (1 + d)) ** t
     # If timestepComp is Continuous:
     elif timestep_comp == "Continuous":
-        return v * 1 / Decimal(1 / math.exp(d * t))
+        return v * Decimal(1 / math.exp(d * t))
 
 
 def discount_values(rate: CostType, value_list: List[CostType], timestep_comp: str):
