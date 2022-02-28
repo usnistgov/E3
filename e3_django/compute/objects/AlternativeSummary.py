@@ -1,9 +1,13 @@
 from typing import Union, Tuple, Iterable, List, Dict
 
 import numpy
+import operator
+import math
 
-from API.variables import CostType
+from API.variables import CostType, FlowType
 from compute.objects import RequiredCashFlow, OptionalCashFlow
+from API.objects import Analysis
+from decimal import Decimal
 
 # Static Variables
 ZERO = CostType("0")
@@ -82,6 +86,130 @@ def check_fraction(numerator: CostType, denominator: CostType) -> CostType:
         return CostType("NAN")
     else:
         return numerator / denominator
+
+
+def discArray(size, compounding, rate):
+    """
+    Creates arrays of the discounting multiplier for the chosen compounding type
+
+    :param size:
+    :param compounding:
+    :param rate:
+    :return array:
+    """
+    # Initialize array
+    array = numpy.zeros(size)
+    # Loop over array
+    for i in range(size):
+        # Year zero isn't discounted
+        if i == 0:
+            array[i] = 1
+        else:
+            # discount based on compounding type
+            if compounding == "MidYear":
+                array[i] = (1 / (1 + rate)) ** (i - CostType("0.5"))
+            elif compounding == "Continuous":
+                array[i] = 1 / Decimal(1 / math.exp(rate * i))
+            # EndOfYear included if no prebuilt library exists for JAVA edition. If not move EndOfYear to top of block
+            elif compounding == "EndOfYear":
+                array[i] = 1 / (1 + rate) ** i
+    return array
+
+
+def riddersMethod(values, compounding):
+    """
+    Implements Ridders' method to find internal rate of return
+
+    :param values:
+    :param compounding:
+    :return xnew:
+    """
+    # Preprocessing
+    size = len(values)
+    xl = 0
+    xu = 1
+    values = numpy.array(values)
+    fl = values * numpy.array(discArray(size, compounding, xl))
+    fu = values * numpy.array(discArray(size, compounding, xu))
+    max_steps = 100
+    tolerance = 0.05
+
+    # Check if bracket is proper
+    if numpy.sign(fl) == numpy.sign(fu):
+        return None
+
+    # Loop to run Ridders' method
+    step = 1
+    while step <= max_steps:
+        # Calculate midpoint and determine s value
+        xm = 0.5 * (xl + xu)
+        fm = values * numpy.array(discArray(size, compounding, xm))
+        s = math.sqrt(fm * fm - fl * fu)
+        # Check if midpoint is root, if not create temp value
+        if s == 0:
+            return xm
+        # Create new rate value using false position method and update function
+        xnew = xm + (xm - xl) * numpy.sign(fl) * fm / math.sqrt(fm * fm - fl * fu)
+        fnew = values * numpy.array(discArray(size, compounding, xnew))
+        # Check if new rate is a root (within tolerance)
+        if abs((fnew-fm)/fm) < tolerance:
+            return xnew
+        # Update values for next iteration
+        if numpy.sign(fm) != numpy.sign(fnew):
+            if fm < fnew:
+                xl = xm
+                fl = fm
+                xu = xnew
+                fu = fnew
+            else:
+                xl = xnew
+                fl = fnew
+                xu = xm
+                fu = xm
+        elif numpy.sign(fl) != numpy.sign(fnew):
+            if (xm - xl) < (xnew - xl):
+                xu = xm
+                fu = fm
+            else:
+                xu = xnew
+                fu = fnew
+        elif numpy.sign(fu) != numpy.sign(fnew):
+            if (xu - xm) < (xu - xnew):
+                xl = xm
+                fl = fm
+            else:
+                xl = xnew
+                fl = fnew
+        else:
+            "Error: No valid Brackets found. This state should be unreachable so how'd ya end up here?"
+        step += 1
+    if step > max_steps:
+        return None
+
+
+def irrMeas(costs_nondisc: FlowType, bens_nondisc: FlowType, costs_base_nondisc: FlowType,
+            bens_base_nondisc: FlowType, comp_type: str) -> CostType:
+    """
+    Makes calls to calculate the internal rate of return
+
+    :param costs_nondisc:
+    :param bens_nondisc:
+    :param comp_type:
+    :param bens_base_nondisc:
+    :param costs_base_nondisc:
+    :return:
+    """
+    total_non_disc_flow = list(map(operator.add, numpy.negative(costs_nondisc), bens_nondisc))
+    baseline_total_nondisc_flow = list(map(operator.add, numpy.negative(costs_base_nondisc), bens_base_nondisc))
+    relative_flow = list(map(operator.add, numpy.negative(baseline_total_nondisc_flow), total_non_disc_flow))
+    # I know that using comp_type removes the need for the following conditionals, however if I find a way to calculate
+    # IRR for continuous using a prebuilt library for it then a separate conditional will be required
+    if comp_type == "Continuous":
+        return numpy.irr(relative_flow)
+    elif comp_type == "MidYear":
+        return riddersMethod(relative_flow, comp_type)
+    elif comp_type == "EndOfYear":
+        return riddersMethod(relative_flow, comp_type)
 
 
 def airr(sir_value: CostType, reinvest_rate: CostType, study_period: int) -> CostType:
@@ -293,6 +421,10 @@ class AlternativeSummary:
         # Sum of cash flow discounted, non-invested costs
         self.totalCostsNonInv = sum(flow.totCostDiscNonInv)
 
+        # Pull total subtype flows
+        self.totSubtypeFlows = {"Cost-Direct": flow.totCostDirDisc, "Cost-Indirect": flow.totCostIndDisc,
+                                "Benefit-Direct": flow.totBenefitsDirDisc, "Benefit-Indirect": flow.totBenefitsIndDisc}
+
         # Sum of cash flows by tag
         self.totTagFlows = calculate_tag_cash_flow_sum(optionals)
 
@@ -308,7 +440,8 @@ class AlternativeSummary:
                        baseline.totalCostsInv) if baseline else None
 
         # IRR Of this alternative. Calculated using numpy. None if IRR is not requested by user.
-        self.IRR = numpy.irr(numpy.subtract(flow.totCostDisc, flow.totBenefitsDisc)) if irr else None
+        self.IRR = irrMeas(flow.totCostNonDisc, flow.totBenefitsNonDisc, baseline.flow.totCostNonDisc,
+                           baseline.flow.totBenefitsNonDisc, Analysis.timestepComp) if "IRRSummary" in Analysis.objToReport else None
 
         # AIRR of this alternative.
         self.AIRR = airr(self.SIR, reinvest_rate, study_period)

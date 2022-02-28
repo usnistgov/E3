@@ -40,9 +40,14 @@ def present_value(v: CostType, d: CostType, t: CostType, timestep_comp: str) -> 
     # If timestepComp is "MidYear":
     if timestep_comp == "MidYear" and t != 0:
         return v * (1 / (1 + d)) ** (t - CostType("0.5"))
-
-    # If continuous discounting:
-    return v * (1 / (1 + d)) ** t
+    elif timestep_comp == "MidYear" and t == 0:
+        return v
+    # If timestepComp is EndOfYear:
+    elif timestep_comp == "EndOfYear":
+        return v * (1 / (1 + d)) ** t
+    # If timestepComp is Continuous:
+    elif timestep_comp == "Continuous":
+        return v * 1 / Decimal(1 / math.exp(d * t))
 
 
 def discount_values(rate: CostType, value_list: List[CostType], timestep_comp: str):
