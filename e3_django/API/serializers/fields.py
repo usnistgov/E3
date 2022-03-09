@@ -9,8 +9,11 @@ class InfinityDecimalField(DecimalField):
     """
 
     def to_representation(self, value):
-        if isinstance(value, Decimal) and value.is_infinite():
-            return "Infinity"
+        if isinstance(value, Decimal):
+            if value.is_infinite():
+                return "Infinity"
+            if value.is_nan():
+                return "NaN"
 
         return super().to_representation(value)
 

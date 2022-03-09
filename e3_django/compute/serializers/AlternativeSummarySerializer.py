@@ -1,4 +1,4 @@
-from rest_framework.fields import CharField, IntegerField, DictField
+from rest_framework.fields import CharField, IntegerField, DictField, ListField
 from rest_framework.serializers import Serializer
 
 from API.serializers.fields import InfinityDecimalField
@@ -15,7 +15,7 @@ class AlternativeSummarySerializer(Serializer):
     totalCosts = InfinityDecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES)
     totalCostsInv = InfinityDecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES)
     totalCostsNonInv = InfinityDecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES)
-    totSubtypeFlows = DictField(child=InfinityDecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES))
+    totSubtypeFlows = DictField(child=ListField(child=InfinityDecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES)))
     totTagFlows = DictField(child=InfinityDecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES))
     netBenefits = InfinityDecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES, allow_null=True)
     netSavings = InfinityDecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES, allow_null=True)

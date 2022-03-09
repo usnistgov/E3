@@ -1,10 +1,10 @@
 from rest_framework.exceptions import ValidationError
-from rest_framework.fields import ChoiceField, IntegerField, DateField, DecimalField, ListField, CharField
+from rest_framework.fields import ChoiceField, IntegerField, DateField, ListField, CharField
 from rest_framework.serializers import Serializer
 
 from API.objects.Analysis import calculate_inflation_rate, calculate_discount_rate_nominal, calculate_discount_rate_real
 from API.variables import MAX_DIGITS, DECIMAL_PLACES, NUM_ERRORS_LIMIT
-from API.serializers.fields import ListMultipleChoiceField, BooleanOptionField
+from API.serializers.fields import ListMultipleChoiceField, BooleanOptionField, InfinityDecimalField
 
 REPORTABLE_OBJECTS = [
     "FlowSummary",
@@ -29,14 +29,14 @@ class AnalysisSerializer(Serializer):
     timestepVal = ChoiceField(["Year", "Quarter", "Month", "Day"], required=False)
     timestepComp = ChoiceField(["EndOfYear", "MidYear", "Continuous"], required=False)
     outputRealBool = BooleanOptionField({"Nominal", "0"}, {"Real", "1"}, required=False)
-    interestRate = DecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES, required=False, allow_null=True)
-    dRateReal = DecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES, required=False, allow_null=True)
-    dRateNom = DecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES, required=False, allow_null=True)
-    inflationRate = DecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES, required=False, allow_null=True)
-    Marr = DecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES, required=False, default=None)
-    reinvestRate = DecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES, required=False, default=None)
-    incomeRateFed = DecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES, required=False, allow_null=True)
-    incomeRateOther = DecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES, required=False, allow_null=True)
+    interestRate = InfinityDecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES, required=False, allow_null=True)
+    dRateReal = InfinityDecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES, required=False, allow_null=True)
+    dRateNom = InfinityDecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES, required=False, allow_null=True)
+    inflationRate = InfinityDecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES, required=False, allow_null=True)
+    Marr = InfinityDecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES, required=False, default=None)
+    reinvestRate = InfinityDecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES, required=False, default=None)
+    incomeRateFed = InfinityDecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES, required=False, allow_null=True)
+    incomeRateOther = InfinityDecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES, required=False, allow_null=True)
     location = ListField(child=CharField(allow_blank=True), required=False)
     noAlt = IntegerField(min_value=0, required=True)
     baseAlt = IntegerField(min_value=0, required=True)

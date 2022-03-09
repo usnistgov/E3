@@ -1,7 +1,8 @@
 from rest_framework.serializers import Serializer
 from rest_framework.exceptions import ValidationError
-from rest_framework.fields import IntegerField, ChoiceField, ListField, BooleanField, DecimalField
+from rest_framework.fields import IntegerField, ChoiceField, ListField, BooleanField
 
+from API.serializers.fields import InfinityDecimalField
 from API.variables import MAX_DIGITS, DECIMAL_PLACES
 
 
@@ -16,7 +17,7 @@ class SensitivitySerializer(Serializer):
     diffType = ChoiceField(["Percent", "Gross"], 
         required=True
     )
-    diffValue = DecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES, 
+    diffValue = InfinityDecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES, 
         required=True
     )
 

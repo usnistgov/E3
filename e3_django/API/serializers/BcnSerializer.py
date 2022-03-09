@@ -1,10 +1,10 @@
 from drf_compound_fields.fields import ListOrItemField
 from rest_framework.exceptions import ValidationError
-from rest_framework.fields import IntegerField, ListField, ChoiceField, CharField, BooleanField, DecimalField, DateField
+from rest_framework.fields import IntegerField, ListField, ChoiceField, CharField, BooleanField, DateField
 from rest_framework.serializers import Serializer
 
 from API.variables import MAX_DIGITS, DECIMAL_PLACES, VAR_RATE_OPTIONS, NUM_ERRORS_LIMIT
-from API.serializers.fields import BooleanOptionField
+from API.serializers.fields import BooleanOptionField, InfinityDecimalField
 import logging
 
 logger = logging.getLogger(__name__)
@@ -30,12 +30,12 @@ class BCNSerializer(Serializer):
     recurBool = BooleanField(required=True, allow_null=True)
     recurInterval = IntegerField(min_value=1, required=False, allow_null=True)
     recurVarRate = ChoiceField(VAR_RATE_OPTIONS, required=False, allow_null=True)
-    recurVarValue = ListOrItemField(DecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES), required=False, allow_null=True)
+    recurVarValue = ListOrItemField(InfinityDecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES), required=False, allow_null=True)
     recurEndDate = IntegerField(required=False, allow_null=True)
-    valuePerQ = DecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES, required=False)
-    quant = DecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES, required=True)
+    valuePerQ = InfinityDecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES, required=False)
+    quant = InfinityDecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES, required=True)
     quantVarRate = ChoiceField(VAR_RATE_OPTIONS, required=False, allow_null=True)
-    quantVarValue = ListOrItemField(DecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES), required=False, allow_null=True)
+    quantVarValue = ListOrItemField(InfinityDecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES), required=False, allow_null=True)
     quantUnit = CharField(required=False, default='dollars', allow_null=True)
 
     def validate(self, data):

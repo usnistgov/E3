@@ -18,4 +18,8 @@ def analyze(user_input: Input):
 
     result = {name: module_graph.run(name, user_input, cache) for name in user_input.analysisObject.objToReport}
 
+    for x, y in result.items():
+        for i in y:
+            print(i)
+
     return OutputSerializer(Output(**result)).data

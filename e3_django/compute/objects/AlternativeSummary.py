@@ -401,7 +401,8 @@ class AlternativeSummary:
     """
 
     def __init__(self, alt_id, reinvest_rate, study_period, marr, flow: RequiredCashFlow,
-                 optionals: List[OptionalCashFlow], baseline: "AlternativeSummary" = None, irr: bool = False):
+                 optionals: List[OptionalCashFlow], timestep_comp, baseline: "AlternativeSummary" = None,
+                 include_irr: bool = False, ):
         # Maintain reference to flow object for further calculations.
         # Note: Not included in output, only for internal calculations.
         self.flow = flow
@@ -441,7 +442,7 @@ class AlternativeSummary:
 
         # IRR Of this alternative. Calculated using numpy. None if IRR is not requested by user.
         self.IRR = irrMeas(flow.totCostNonDisc, flow.totBenefitsNonDisc, baseline.flow.totCostNonDisc,
-                           baseline.flow.totBenefitsNonDisc, Analysis.timestepComp) if "IRRSummary" in Analysis.objToReport else None
+                           baseline.flow.totBenefitsNonDisc, timestep_comp) if include_irr else None
 
         # AIRR of this alternative.
         self.AIRR = airr(self.SIR, reinvest_rate, study_period)
@@ -487,3 +488,6 @@ class AlternativeSummary:
         # Dictionary of optional tags to ns elasticity quantities. None if no baseline is provided.
         self.nsElasticityQuant = calculate_ns_elasticity_quant(self.netSavings, self.totalCosts, optionals,
                                                                baseline.quantSum) if baseline else None
+
+    def __repr__(self):
+        return str(self.__dict__)
