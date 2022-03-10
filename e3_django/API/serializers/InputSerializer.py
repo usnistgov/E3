@@ -18,7 +18,7 @@ class InputSerializer(Serializer):
     analysisObject = AnalysisSerializer(required=True)
     alternativeObjects = ListField(child=AlternativeSerializer(), required=True)
     bcnObjects = ListField(child=BCNSerializer(), required=True)
-    sensitivityObjects = SensitivitySerializer(required=False)
+    sensitivityObjects = ListField(child=SensitivitySerializer(required=False), required=False)
     scenarioObject = ScenarioSerializer(required=False)
 
     def validate(self, data):

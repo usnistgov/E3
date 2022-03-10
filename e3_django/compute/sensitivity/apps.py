@@ -8,6 +8,7 @@ from compute.optional.apps import calculate_tag_flows
 from compute.required.apps import calculate_required_flows
 from compute.measures.apps import calculate_alternative_summaries
 
+
 class SensitivityConfig(E3ModuleConfig):
     """
     This module calculates the sensitivity objects from BCN objects.
@@ -16,7 +17,7 @@ class SensitivityConfig(E3ModuleConfig):
     name = "compute.sensitivity"
     verbose_name = 'E3 Sensitivity Generator'
     depends_on = ["internal:cash-flows"]
-    output = "sensitivity-summary"
+    output = "SensitivitySummary"
     serializer = ListField(child=SensitivitySerializer(), required=False)
 
     def run(self, base_input, dependencies=None):
@@ -28,6 +29,7 @@ class SensitivityConfig(E3ModuleConfig):
         # Generate each Sensitivity object with the base_input, in a Loop:
         res = []
         for _id, sensitivity_object in enumerate(base_input.sensitivityObjects):
+            timestep_comp = base_input.analysisObject.timestepComp
             new_bcn = sensitivity_object.calculateOutput()
 
             # CashFlow
@@ -35,20 +37,20 @@ class SensitivityConfig(E3ModuleConfig):
             cash_flow.pop(sensitivity_object.bcnObj)
             analysis = base_input.analysisObject
             discount_rate = analysis.dRateReal if analysis.outputRealBool else analysis.dRateNom
-            
-            cash_flow[new_bcn] = cash_flows(new_bcn, analysis.studyPeriod, discount_rate)
+
+            cash_flow[new_bcn] = cash_flows(new_bcn, analysis.studyPeriod, discount_rate, timestep_comp)
             # At this point, cash_flow dictionary has an updated value for the `new_bcn`
 
             # Calculate updated OptionalSummary
             new_optional_summary = calculate_tag_flows(cash_flow, base_input)
 
             # Calculate updated FlowSummary
-            new_required_summary = calculate_required_flows(cash_flow.keys(), \
-                analysis.studyPeriod, cash_flow)
+            new_required_summary = calculate_required_flows(cash_flow.keys(), analysis.studyPeriod, cash_flow)
 
             # Calculate updated MeasureSummary 
-            new_measure_summary = list(calculate_alternative_summaries(analysis, \
-                new_required_summary, new_optional_summary, base_input.alternativeObjects))
+            new_measure_summary = list(calculate_alternative_summaries(analysis,
+                                                                       new_required_summary, new_optional_summary,
+                                                                       base_input.alternativeObjects))
 
             # generate sensitivitySummary
             sensitivitySummary = SensitivitySummary(
@@ -57,9 +59,10 @@ class SensitivityConfig(E3ModuleConfig):
                 measure_summary=new_measure_summary[sensitivity_object.altID]
             )
             res.append(sensitivitySummary)
-            
+
             cash_flow.pop(new_bcn)
-            cash_flow[sensitivity_object.bcnObj] = cash_flows(sensitivity_object.bcnObj, analysis.studyPeriod, discount_rate)
-        
+            cash_flow[sensitivity_object.bcnObj] = cash_flows(sensitivity_object.bcnObj, analysis.studyPeriod,
+                                                              discount_rate, timestep_comp)
+
         # Return list of SensitivitySummaries, with altered values
         return res

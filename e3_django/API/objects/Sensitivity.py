@@ -1,7 +1,8 @@
 import logging
-import copy
+from copy import deepcopy
 
 logger = logging.getLogger(__name__)
+
 
 class Sensitivity:
     """
