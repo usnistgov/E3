@@ -1,4 +1,4 @@
-from rest_framework.fields import DecimalField, ListField, IntegerField, DictField
+from rest_framework.fields import DecimalField, ListField, IntegerField, DictField, CharField
 from rest_framework.serializers import Serializer
 
 from API.serializers.fields import InfinityDecimalField
@@ -8,34 +8,30 @@ class SensitivitySummarySerializer(Serializer):
     """
     Object serializer for sensitivity summary.
     """
-    altID = IntegerField(required=True)
-    sensID = IntegerField(required=True)
-    totalBenefits = InfinityDecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES)
-    totalCosts = InfinityDecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES)
-    totalCostsInv = InfinityDecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES)
-    totalCostsNonInv = InfinityDecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES)
+    bcnObj = IntegerField(required=True)
+    varName = CharField(required=True)
+    diffType = CharField(required=True)
+    diffVal = InfinityDecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES, required=True)
+    diffSign = IntegerField(required=True)
+    ## altOutput = DictField(child=InfinityDecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES))
+    totalBenefits = DictField(child=InfinityDecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES))
+    totalCosts = DictField(child=InfinityDecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES))
+    totalCostsInv = DictField(child=InfinityDecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES))
+    totalCostsNonInv = DictField(child=InfinityDecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES))
+    totSubtypeFlows = DictField(child=InfinityDecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES))
     totTagFlows = DictField(child=InfinityDecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES))
-    netBenefits = InfinityDecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES, allow_null=True)
-    netSavings = InfinityDecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES, allow_null=True)
-    SIR = InfinityDecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES, allow_null=True)
-    IRR = InfinityDecimalField(max_digits=MAX_DIGITS, decimal_places=3, required=False, allow_null=True)
-    AIRR = InfinityDecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES, allow_null=True)
-    DPP = InfinityDecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES, allow_null=True)
-    SPP = InfinityDecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES, allow_null=True)
-    BCR = InfinityDecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES, allow_null=True)
-    quantSum = ListField(child=DecimalField())
-    quantUnits = ListField()
+    netBenefits = DictField(child=InfinityDecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES))
+    netSavings = DictField(child=InfinityDecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES))
+    SIR = DictField(child=InfinityDecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES))
+    IRR = DictField(child=InfinityDecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES))
+    AIRR = DictField(child=InfinityDecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES))
+    DPP = DictField(child=InfinityDecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES))
+    SPP = DictField(child=InfinityDecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES))
+    BCR = DictField(child=InfinityDecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES))
+    quantSum = DictField(child=InfinityDecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES))
+    quantUnits = DictField(child=CharField())
     MARR = InfinityDecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES)
-    deltaQuant = ListField(child=DecimalField())
-    nsDeltaQuant = ListField(child=DecimalField())
-    nsPercQuant = ListField(child=DecimalField())
-    nsElasticityQuant = ListField(child=DecimalField())
-
-    # output for sensitivity
-    output = ListField(child=AlternativeSummarySerializer, required=True)
-
-
-    def updateMeasure(self, data, measureName, flow):
-        # Reset current measure to the input measure
-        data[measureName] = flow
-        return data
+    deltaQuant = DictField(child=InfinityDecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES))
+    nsDeltaQuant = DictField(child=InfinityDecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES))
+    nsPercQuant = DictField(child=InfinityDecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES))
+    nsElasticityQuant = DictField(child=InfinityDecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES))

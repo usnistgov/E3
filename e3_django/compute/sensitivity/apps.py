@@ -7,6 +7,7 @@ from compute.objects import SensitivitySummary
 from compute.optional.apps import calculate_tag_flows
 from compute.required.apps import calculate_required_flows
 from compute.measures.apps import calculate_alternative_summaries
+import numpy
 
 class SensitivityConfig(E3ModuleConfig):
     """
@@ -43,23 +44,24 @@ class SensitivityConfig(E3ModuleConfig):
             new_optional_summary = calculate_tag_flows(cash_flow, base_input)
 
             # Calculate updated FlowSummary
-            new_required_summary = calculate_required_flows(cash_flow.keys(), \
+            new_required_summary = calculate_required_flows(cash_flow.keys(),
                 analysis.studyPeriod, cash_flow)
 
             # Calculate updated MeasureSummary 
-            new_measure_summary = list(calculate_alternative_summaries(analysis, \
-                new_required_summary, new_optional_summary, base_input.alternativeObjects))
+            new_measure_summary = list(calculate_alternative_summaries(analysis,
+                                                                       new_required_summary, new_optional_summary,
+                                                                       base_input.alternativeObjects))
 
             # generate sensitivitySummary
-            sensitivitySummary = SensitivitySummary(
-                sensitivity_id=_id,
-                # Come back to this later:
-                measure_summary=new_measure_summary[sensitivity_object.altID]
-            )
-            res.append(sensitivitySummary)
+            sensSumm = SensitivitySummary(sensitivity_object.bcnObj, sensitivity_object.varName,
+                                          sensitivity_object.diffType, sensitivity_object.diffVal,
+                                          numpy.sign(sensitivity_object.diffVal), new_measure_summary)
+
+            res.append(sensSumm)
             
             cash_flow.pop(new_bcn)
-            cash_flow[sensitivity_object.bcnObj] = cash_flows(sensitivity_object.bcnObj, analysis.studyPeriod, discount_rate)
+            cash_flow[sensitivity_object.bcnObj] = cash_flows(sensitivity_object.bcnObj, analysis.studyPeriod,
+                                                              discount_rate)
         
         # Return list of SensitivitySummaries, with altered values
         return res

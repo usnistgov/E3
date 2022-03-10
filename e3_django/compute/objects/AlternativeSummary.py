@@ -422,8 +422,10 @@ class AlternativeSummary:
         self.totalCostsNonInv = sum(flow.totCostDiscNonInv)
 
         # Pull total subtype flows
-        self.totSubtypeFlows = {"Cost-Direct": flow.totCostDirDisc, "Cost-Indirect": flow.totCostIndDisc,
-                                "Benefit-Direct": flow.totBenefitsDirDisc, "Benefit-Indirect": flow.totBenefitsIndDisc}
+        self.totSubtypeFlows = {"Cost-Direct": numpy.sum(flow.totCostDirDisc),
+                                "Cost-Indirect": numpy.sum(flow.totCostIndDisc),
+                                "Benefit-Direct": numpy.sum(flow.totBenefitsDirDisc),
+                                "Benefit-Indirect": numpy.sum(flow.totBenefitsIndDisc)}
 
         # Sum of cash flows by tag
         self.totTagFlows = calculate_tag_cash_flow_sum(optionals)
