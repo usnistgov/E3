@@ -56,6 +56,8 @@ def calculate_tag_flows(flows, user_input):
     """
     optionals = create_empty_tag_flows(user_input)
 
+    print(optionals)
+
     for bcn in user_input.bcnObjects:
         for tag in bcn.bcnTag:
             if not tag:

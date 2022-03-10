@@ -3,6 +3,8 @@ from rest_framework.serializers import Serializer
 
 from API.serializers.fields import InfinityDecimalField
 from API.variables import MAX_DIGITS, DECIMAL_PLACES
+from compute.serializers import AlternativeSummarySerializer
+
 
 class SensitivitySummarySerializer(Serializer):
     """

@@ -22,7 +22,8 @@ class AlternativeSummaryConfig(E3ModuleConfig):
 
     def run(self, base_input, dependencies=None):
         return list(
-            calculate_alternative_summaries(base_input.analysisObject, dependencies["FlowSummary"], dependencies["OptionalSummary"],
+            calculate_alternative_summaries(base_input.analysisObject, dependencies["FlowSummary"],
+                                            dependencies["OptionalSummary"],
                                             base_input.alternativeObjects))
 
 
@@ -38,13 +39,17 @@ def calculate_alternative_summaries(analysis: Analysis, required_flows: Iterable
     :param alternatives: A list of alternatives.
     :return: A generator yielding alternative summaries.
     """
+    include_irr = "IRRSummary" in analysis.objToReport
+    timestep_comp = analysis.timestepComp
+
     baseline_alt = list(filter(lambda x: x.baselineBool, alternatives))[0]
     baseline_required_flow = list(filter(lambda x: x.altID == baseline_alt.altID, required_flows))[0]
 
     optionals = list(filter(lambda flow: flow.altID == baseline_alt.altID, optional_flows))
 
     baseline_summary = AlternativeSummary(baseline_alt.altID, analysis.reinvestRate, analysis.studyPeriod,
-                                          analysis.Marr, baseline_required_flow, optionals, None, False)
+                                          analysis.Marr, baseline_required_flow, optionals, timestep_comp, None,
+                                          include_irr)
 
     yield baseline_summary
 
@@ -52,6 +57,6 @@ def calculate_alternative_summaries(analysis: Analysis, required_flows: Iterable
         optionals = list(filter(lambda flow: flow.altID == required.altID, optional_flows))
 
         summary = AlternativeSummary(required.altID, analysis.reinvestRate, analysis.studyPeriod, analysis.Marr,
-                                     required, optionals, baseline_summary, False)
+                                     required, optionals, timestep_comp, baseline_summary, include_irr)
 
         yield summary

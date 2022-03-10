@@ -181,6 +181,9 @@ class RequiredCashFlow(CashFlow):
 
         return self
 
+    def __repr__(self):
+        return str(self.__dict__)
+
 
 class OptionalCashFlow(CashFlow):
     """
@@ -220,3 +223,6 @@ class OptionalCashFlow(CashFlow):
         self.totTagQ = elementwise_add(self.totTagQ, flow[0])
 
         return self
+
+    def __repr__(self):
+        return str(self.__dict__)
