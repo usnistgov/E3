@@ -2,7 +2,8 @@ class SensitivitySummary():
     """
     Represents a sensitivity summary object.
     """
-    def __init__(self, bcnObj, varName, diffType, diffVal, diffSign, measure_summaries):
+    def __init__(self, globalVarBool, bcnObj, varName, diffType, diffVal, diffSign, measure_summaries):
+        self.globalVarBool = globalVarBool
         self.bcnObj = bcnObj
         self.varName = varName
         self.diffType = diffType

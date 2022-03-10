@@ -10,8 +10,9 @@ class SensitivitySummarySerializer(Serializer):
     """
     Object serializer for sensitivity summary.
     """
-    bcnObj = IntegerField(required=True)
-    varName = CharField(required=True)
+    globalVarBool = BooleanField(required=False)
+    bcnObj = IntegerField(required=True, allow_null=True)
+    varName = CharField(required=True, allow_null=True)
     diffType = CharField(required=True)
     diffVal = InfinityDecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES, required=True)
     diffSign = IntegerField(required=True)

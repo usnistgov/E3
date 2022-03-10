@@ -31,7 +31,7 @@ class SensitivityConfig(E3ModuleConfig):
         res = []
         for _id, sensitivity_object in enumerate(base_input.sensitivityObjects):
             timestep_comp = base_input.analysisObject.timestepComp
-            new_bcn = sensitivity_object.calculateOutput()
+            new_bcn = sensitivity_object.calculateOutput(base_input)
 
             # CashFlow
             cash_flow = dependencies["internal:cash-flows"]
@@ -54,7 +54,11 @@ class SensitivityConfig(E3ModuleConfig):
                                                                        base_input.alternativeObjects))
 
             # generate sensitivitySummary
-            sensSumm = SensitivitySummary(sensitivity_object.bcnObj, sensitivity_object.varName,
+            if not sensitivity_object.globalVarBool:
+                globalVar = False
+            else:
+                globalVar = sensitivity_object.globalVarBool
+            sensSumm = SensitivitySummary(globalVar, sensitivity_object.bcnObj, sensitivity_object.varName,
                                           sensitivity_object.diffType, sensitivity_object.diffVal,
                                           numpy.sign(sensitivity_object.diffVal), new_measure_summary)
 
