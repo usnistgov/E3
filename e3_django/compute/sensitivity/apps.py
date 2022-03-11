@@ -33,9 +33,15 @@ class SensitivityConfig(E3ModuleConfig):
             timestep_comp = base_input.analysisObject.timestepComp
             new_bcn = sensitivity_object.calculateOutput(base_input)
 
+            ## I;m worried about this block, specifically the reuse of "_id"
+            for _id, bcn in enumerate(base_input.bcnObjects):
+                if bcn.bcnID == sensitivity_object.bcnID:
+                    bcnObj = bcn
+                    break
+
             # CashFlow
             cash_flow = dependencies["internal:cash-flows"]
-            cash_flow.pop(sensitivity_object.bcnObj)
+            cash_flow.pop(bcnObj)
             analysis = base_input.analysisObject
             discount_rate = analysis.dRateReal if analysis.outputRealBool else analysis.dRateNom
 
@@ -65,7 +71,7 @@ class SensitivityConfig(E3ModuleConfig):
             res.append(sensSumm)
             
             cash_flow.pop(new_bcn)
-            cash_flow[sensitivity_object.bcnObj] = cash_flows(sensitivity_object.bcnObj, analysis.studyPeriod,
+            cash_flow[sensitivity_object.bcnObj] = cash_flows(bcnObj, analysis.studyPeriod,
                                                               discount_rate)
         # Return list of SensitivitySummaries, with altered values
         return res
