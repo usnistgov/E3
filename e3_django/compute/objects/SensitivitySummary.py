@@ -30,4 +30,34 @@ class SensitivitySummary():
         self.deltaQuant = {measure_summary.altID: measure_summary.deltaQuant for measure_summary in measure_summaries}
         self.nsDeltaQuant = {measure_summary.altID: measure_summary.nsDeltaQuant for measure_summary in measure_summaries}
         self.nsPercQuant = {measure_summary.altID: measure_summary.nsPercQuant for measure_summary in measure_summaries}
-        self.nsElasticityQuant = {measure_summary.altID: measure_summary.nsElasticity for measure_summary in measure_summaries}
+        self.nsElasticityQuant = {measure_summary.altID: measure_summary.nsElasticityQuant for measure_summary in measure_summaries}
+
+    ## For testing, has no use in final code
+    def __str__(self):
+        print("globalVarBool:", self.globalVarBool)
+        print("bcnObj:", self.bcnObj)
+        print("varName:", self.varName)
+        print("diffType:", self.diffType)
+        print("diffVal:", self.diffVal)
+        print("diffSign:", self.diffSign)
+        print("totalBenefits:", self.totalBenefits)
+        print("totalCosts:", self.totalCosts)
+        print("totalCostsInv:", self.totalCostsInv)
+        print("totalCostsNonInv:", self.totalCostsNonInv)
+        print("totTagFlows:", self.totTagFlows)
+        print("netBenefits:", self.netBenefits)
+        print("netSavings:", self.netSavings)
+        print("SIR:", self.SIR)
+        print("IRR:", self.IRR)
+        print("AIRR:", self.AIRR)
+        print("SPP:", self.SPP)
+        print("DPP:", self.DPP)
+        print("BCR:", self.BCR)
+        print("quantSum:", self.quantSum)
+        print("quantUnits", self.quantUnits)
+        print("MARR:", self.MARR)
+        print("deltaQuant:", self.deltaQuant)
+        print("nsPercQuant:", self.nsPercQuant)
+        print("nsDeltaQuant:", self.nsDeltaQuant)
+        print("nsElasticityQuant:", self.nsElasticityQuant)
+        return "--------------------End of Object--------------------"

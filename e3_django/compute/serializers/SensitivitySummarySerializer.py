@@ -14,7 +14,7 @@ class SensitivitySummarySerializer(Serializer):
     bcnObj = IntegerField(required=True, allow_null=True)
     varName = CharField(required=True, allow_null=True)
     diffType = CharField(required=True)
-    diffVal = InfinityDecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES, required=True)
+    diffValue = InfinityDecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES, required=True)
     diffSign = IntegerField(required=True)
     ## altOutput = DictField(child=InfinityDecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES))
     totalBenefits = DictField(child=InfinityDecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES))

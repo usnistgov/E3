@@ -65,13 +65,13 @@ class SensitivityConfig(E3ModuleConfig):
             else:
                 globalVar = sensitivity_object.globalVarBool
             sensSumm = SensitivitySummary(globalVar, sensitivity_object.bcnObj, sensitivity_object.varName,
-                                          sensitivity_object.diffType, sensitivity_object.diffVal,
-                                          numpy.sign(sensitivity_object.diffVal), new_measure_summary)
+                                          sensitivity_object.diffType, sensitivity_object.diffValue,
+                                          numpy.sign(sensitivity_object.diffValue), new_measure_summary)
 
             res.append(sensSumm)
             
             cash_flow.pop(new_bcn)
-            cash_flow[sensitivity_object.bcnObj] = cash_flows(bcnObj, analysis.studyPeriod,
-                                                              discount_rate)
+            cash_flow[bcnObj] = cash_flows(bcnObj, analysis.studyPeriod,
+                                           discount_rate, timestep_comp)
         # Return list of SensitivitySummaries, with altered values
         return res
