@@ -32,7 +32,7 @@ class SensitivitySummary():
         self.nsPercQuant = {measure_summary.altID: measure_summary.nsPercQuant for measure_summary in measure_summaries}
         self.nsElasticityQuant = {measure_summary.altID: measure_summary.nsElasticityQuant for measure_summary in measure_summaries}
 
-    ## For testing, has no use in final code
+    ## Allows for object to be directly printed out to console when testing, has no use in final code
     def __str__(self):
         print("globalVarBool:", self.globalVarBool)
         print("bcnObj:", self.bcnObj)

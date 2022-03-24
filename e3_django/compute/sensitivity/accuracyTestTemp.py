@@ -23,9 +23,13 @@ def run(base_input, cash_flow):
     # Generate each Sensitivity object with the base_input, in a Loop:
     res = []
     iteration = 1
+
     for _id, sensitivity_object in enumerate(base_input.sensitivityObjects):
         timestep_comp = base_input.analysisObject.timestepComp
         new_bcn = sensitivity_object.calculateOutput(base_input)
+
+        if sensitivity_object.globalVarBool is False or not sensitivity_object.globalVarBool:
+            print("Correct")
 
         ## I;m worried about this block, specifically the reuse of "_id"
         for _id, bcn in enumerate(base_input.bcnObjects):

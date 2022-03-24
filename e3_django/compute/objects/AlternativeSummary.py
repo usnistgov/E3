@@ -41,7 +41,7 @@ def net_savings(costs_baseline: CostType, costs: CostType) -> CostType:
     return costs_baseline - costs
 
 
-def bcr(benefits: CostType, costs_inv: CostType, costs_inv_base: CostType, costs_non_inv: CostType,
+def bcr(benefits: CostType, benefits_base: CostType, costs_inv: CostType, costs_inv_base: CostType, costs_non_inv: CostType,
         costs_non_inv_base: CostType) -> CostType:
     """
     Calculate Benefit-cost Ratio (BCR).
@@ -49,11 +49,12 @@ def bcr(benefits: CostType, costs_inv: CostType, costs_inv_base: CostType, costs
     :param costs_non_inv_base: The total costs non-invest for the baseline alternative.
     :param costs_non_inv: The total costs non-invest for this alternative.
     :param benefits: The net benefits of this alternative.
+    :param benefits_base: The net benefits of the baseline alternative.
     :param costs_inv: The total costs invest of this alternative.
     :param costs_inv_base: The total costs invest of the baseline alternative.
     :return: The calculated BCR.
     """
-    return check_fraction(benefits + (costs_inv - costs_inv_base), (costs_inv - costs_inv_base))
+    return check_fraction((benefits-benefits_base) - (costs_non_inv - costs_non_inv_base), (costs_inv - costs_inv_base))
 
 
 def sir(costs_non_inv_base: CostType, costs_non_inv: CostType, costs_inv: CostType, costs_inv_base: CostType) \
@@ -68,7 +69,7 @@ def sir(costs_non_inv_base: CostType, costs_non_inv: CostType, costs_inv: CostTy
 
     :return: The calculated SIR.
     """
-    return check_fraction(costs_non_inv_base - costs_non_inv, costs_inv - costs_inv_base)
+    return check_fraction(costs_non_inv - costs_non_inv_base, costs_inv - costs_inv_base)
 
 
 def check_fraction(numerator: CostType, denominator: CostType) -> CostType:
@@ -447,7 +448,9 @@ class AlternativeSummary:
                            baseline.flow.totBenefitsNonDisc, timestep_comp) if include_irr else None
 
         # AIRR of this alternative.
-        self.AIRR = airr(self.SIR, reinvest_rate, study_period)
+        # had to add Decimal in order to get test to run, if running appropriately on server without Decimal ignore
+        # change
+        self.AIRR = airr(self.SIR, Decimal(reinvest_rate), Decimal(study_period))
 
         # Non-discount Payback Period. "Infinity" if no baseline is provided.
         self.SPP = payback_period(
@@ -466,7 +469,7 @@ class AlternativeSummary:
         ) if baseline else CostType("Infinity")
 
         # BCR of this alternative. None if not baseline is provided.
-        self.BCR = bcr(self.netBenefits, self.totalCostsInv, baseline.totalCostsInv,
+        self.BCR = bcr(self.totalBenefits, baseline.totalBenefits, self.totalCostsInv, baseline.totalCostsInv,
                        self.totalCostsNonInv, baseline.totalCostsNonInv) if baseline else None
 
         # Dictionary of optional tags to quantity sums.
