@@ -1,9 +1,8 @@
-from rest_framework.fields import DecimalField, ListField, IntegerField, DictField, CharField
+from rest_framework.fields import IntegerField, DictField, CharField, BooleanField
 from rest_framework.serializers import Serializer
 
 from API.serializers.fields import InfinityDecimalField
 from API.variables import MAX_DIGITS, DECIMAL_PLACES
-from compute.serializers import AlternativeSummarySerializer
 
 
 class SensitivitySummarySerializer(Serializer):
