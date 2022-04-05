@@ -62,6 +62,8 @@ CSP_CONNECT_SRC = ("'self'", "data:", "pages.nist.gov", "cdn.jsdelivr.net")
 MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'
 
 # Application definition
+APPEND_SLASH = True
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
