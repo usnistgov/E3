@@ -69,7 +69,7 @@ def sir(costs_non_inv_base: CostType, costs_non_inv: CostType, costs_inv: CostTy
 
     :return: The calculated SIR.
     """
-    return check_fraction(costs_non_inv - costs_non_inv_base, costs_inv - costs_inv_base)
+    return check_fraction(costs_non_inv_base - costs_non_inv, costs_inv - costs_inv_base)
 
 
 def check_fraction(numerator: CostType, denominator: CostType) -> CostType:
