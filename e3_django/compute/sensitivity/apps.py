@@ -7,6 +7,7 @@ from compute.objects import SensitivitySummary
 from compute.optional.apps import calculate_tag_flows
 from compute.required.apps import calculate_required_flows
 from compute.measures.apps import calculate_alternative_summaries
+from compute.serializers import SensitivitySummarySerializer
 import numpy
 
 
@@ -19,7 +20,7 @@ class SensitivityConfig(E3ModuleConfig):
     verbose_name = 'E3 Sensitivity Generator'
     depends_on = ["internal:cash-flows"]
     output = "SensitivitySummary"
-    serializer = ListField(child=SensitivitySerializer(), required=False)
+    serializer = ListField(child=SensitivitySummarySerializer(), required=False)
 
     def run(self, base_input, dependencies=None):
         """
