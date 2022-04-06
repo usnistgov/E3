@@ -147,7 +147,7 @@ def riddersMethod(values, compounding):
         xm = Decimal(0.5) * (xl + xu)
         fm = numpy.sum(values * numpy.array(discArray(size, compounding, xm)))
         s = math.sqrt(fm * fm - fl * fu)
-        # Check if midpoint is root, if not create temp value
+        # Check if midpoint is root
         if s == 0:
             return xm
         # Create new rate value using false position method and update function
@@ -167,7 +167,7 @@ def riddersMethod(values, compounding):
                 xl = xnew
                 fl = fnew
                 xu = xm
-                fu = xm
+                fu = fm
         elif numpy.sign(fl) != numpy.sign(fnew):
             if (xm - xl) < (xnew - xl):
                 xu = xm
