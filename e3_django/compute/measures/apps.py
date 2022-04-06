@@ -49,7 +49,7 @@ def calculate_alternative_summaries(analysis: Analysis, required_flows: Iterable
 
     baseline_summary = AlternativeSummary(baseline_alt.altID, analysis.reinvestRate, analysis.studyPeriod,
                                           analysis.Marr, baseline_required_flow, optionals, timestep_comp, None,
-                                          None)
+                                          False)
 
     yield baseline_summary
 
