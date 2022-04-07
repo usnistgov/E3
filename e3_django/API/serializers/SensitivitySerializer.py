@@ -10,7 +10,7 @@ class SensitivitySerializer(Serializer):
     globalVarBool = BooleanField(required=False)
     altID = ListField(child=IntegerField(), required=True, allow_null=True)
     bcnID = IntegerField(min_value=0, required=True, allow_null=True)
-    bcnObj = CharField(allow_null=True)
+    #bcnObj = CharField(allow_null=True)
     varName = ChoiceField([
         "discountRate", "initialOcc", "bcnLife", "recurValue", "recurEndDate", "valuePerQ", "quant", "quantValue"],
         required=True
