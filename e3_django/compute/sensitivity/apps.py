@@ -73,7 +73,7 @@ class SensitivityConfig(E3ModuleConfig):
                 globalVar = True
 
             # Calculate updated OptionalSummary
-            new_optional_summary = calculate_tag_flows(cash_flow, base_input)
+            new_optional_summary = calculate_tag_flows(cash_flow, base_input, cash_flow.keys())
 
             # Calculate updated FlowSummary
             new_required_summary = calculate_required_flows(cash_flow.keys(), analysis.studyPeriod, cash_flow)
