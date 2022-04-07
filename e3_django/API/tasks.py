@@ -3,6 +3,7 @@ from celery import shared_task
 from API.objects import Input, Output
 from API.registry import ModuleGraph
 from API.serializers.OutputSerializer import OutputSerializer
+from copy import deepcopy
 
 
 @shared_task
@@ -15,8 +16,12 @@ def analyze(user_input: Input):
     """
     module_graph = ModuleGraph()
     cache = {}
+    
+    clean_module_list = deepcopy(user_input.analysisObject.objToReport)
+    if "IRRSummary" in clean_module_list:
+        clean_module_list.remove("IRRSummary")
 
-    result = {name: module_graph.run(name, user_input, cache) for name in user_input.analysisObject.objToReport}
+    result = {name: module_graph.run(name, user_input, cache) for name in clean_module_list}
 
     for x, y in result.items():
         for i in y:
