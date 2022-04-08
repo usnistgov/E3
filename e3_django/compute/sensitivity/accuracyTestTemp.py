@@ -25,54 +25,66 @@ def run(base_input, cash_flow):
     iteration = 1
 
     for _id, sensitivity_object in enumerate(base_input.sensitivityObjects):
+        # Collect information from analysis object and pull base calculation cash flows
         timestep_comp = base_input.analysisObject.timestepComp
-        new_bcn = sensitivity_object.calculateOutput(base_input)
+        analysis = base_input.analysisObject
 
         if sensitivity_object.globalVarBool is False or not sensitivity_object.globalVarBool:
-            print("Correct")
-
-        ## I;m worried about this block, specifically the reuse of "_id"
-        for _id, bcn in enumerate(base_input.bcnObjects):
-            if bcn.bcnID == sensitivity_object.bcnID:
-                bcnObj = bcn
-                break
-
-        # CashFlow
-        # cash_flow = dependencies["internal:cash-flows"]
-        # cash_flow_copy = deepcopy(cash_flow)
-        print("iteration------", iteration)
-        cash_flow.pop(bcnObj)
-        analysis = base_input.analysisObject
-        discount_rate = analysis.dRateReal if analysis.outputRealBool else analysis.dRateNom
-
-        cash_flow[new_bcn] = cash_flows(new_bcn, analysis.studyPeriod, discount_rate, timestep_comp)
-        # At this point, cash_flow dictionary has an updated value for the `new_bcn`
+            # Get discount rate and generate updated BCN object for altered variable
+            discount_rate = analysis.dRateReal if analysis.outputRealBool else analysis.dRateNom
+            new_bcn = sensitivity_object.calculateOutput(base_input)
+            # Pull BCN object based on bcnID defined by sensitivity object
+            for _id, bcn in enumerate(base_input.bcnObjects):
+                if bcn.bcnID == sensitivity_object.bcnID:
+                    bcnObj = bcn
+                    break
+            # Remove unaltered cash flow for BCN object from cash_flow
+            cash_flow.pop(bcnObj)
+            # Update cash flows with altered BCN object flows
+            cash_flow[new_bcn] = cash_flows(new_bcn, analysis.studyPeriod, discount_rate, timestep_comp)
+            # Set globalVar to false (used as output in sensitivitySummary object)
+            globalVar = False
+        else:
+            # If global we are currently only dealing with the discount rate, clear cash_flow
+            # Get new discount rate
+            discount_rate = sensitivity_object.calculateOutput(base_input, analysis)
+            # Recreate cash flows for all BCNs and populate the empty cash_flow object
+            for _id, bcn in enumerate(base_input.bcnObjects):
+                cash_flow.pop(bcn)
+                cash_flow[bcn] = cash_flows(bcn, analysis.studyPeriod, discount_rate, timestep_comp)
+            # Set globalVar to true (used as output in sensitivitySummary object)
+            globalVar = True
 
         # Calculate updated OptionalSummary
-        new_optional_summary = calculate_tag_flows(cash_flow, base_input)
+        new_optional_summary = calculate_tag_flows(cash_flow, base_input, cash_flow.keys())
 
         # Calculate updated FlowSummary
+        print(discount_rate)
         new_required_summary = calculate_required_flows(cash_flow.keys(), analysis.studyPeriod, cash_flow)
 
-        # Calculate updated MeasureSummary 
+        # Calculate updated MeasureSummary
         new_measure_summary = list(calculate_alternative_summaries(analysis,
                                                                    new_required_summary, new_optional_summary,
                                                                    base_input.alternativeObjects))
 
         # generate sensitivitySummary
-        if not sensitivity_object.globalVarBool:
-            globalVar = False
-        else:
-            globalVar = sensitivity_object.globalVarBool
         sensSumm = SensitivitySummary(globalVar, sensitivity_object.bcnObj, sensitivity_object.varName,
                                       sensitivity_object.diffType, sensitivity_object.diffValue,
                                       numpy.sign(sensitivity_object.diffValue), new_measure_summary)
-
+        # Add sensitivity summary to collection of all objects of the same kind
         res.append(sensSumm)
-
-        cash_flow.pop(new_bcn)
-        cash_flow[bcnObj] = cash_flows(bcnObj, analysis.studyPeriod,
-                                       discount_rate, timestep_comp)
+        # Clean up alterations
+        if sensitivity_object.globalVarBool is False or not sensitivity_object.globalVarBool:
+            # Remove updated BCN, recalculate original BCN and add back to cash_flow
+            cash_flow.pop(new_bcn)
+            cash_flow[bcnObj] = cash_flows(bcnObj, analysis.studyPeriod,
+                                           discount_rate, timestep_comp)
+        else:
+            # Clear entire cash_flow, pull original discount rate and recreate base cash_flow
+            discount_rate = analysis.dRateReal if analysis.outputRealBool else analysis.dRateNom
+            for _id, bcn in enumerate(base_input.bcnObjects):
+                cash_flow.pop(bcn)
+                cash_flow[bcn] = cash_flows(bcn, analysis.studyPeriod, discount_rate, timestep_comp)
 
         iteration += 1
 

@@ -89,7 +89,7 @@ def check_fraction(numerator: CostType, denominator: CostType) -> CostType:
         return numerator / denominator
 
 
-def discArray(size, compounding, rate):
+def discArray(size, compounding, rate) -> FlowType:
     """
     Creates arrays of the discounting multiplier for the chosen compounding type
 
@@ -99,21 +99,22 @@ def discArray(size, compounding, rate):
     :return array:
     """
     # Initialize array
-    array = numpy.zeros(size)
+    array = []
+    for i in range(size):
+        array.append(Decimal(0))
     # Loop over array
     for i in range(size):
         # Year zero isn't discounted
         if i == 0:
-            array[i] = 1
+            array[i] = Decimal(1)
         else:
             # discount based on compounding type
             if compounding == "MidYear":
-                array[i] = (1 / (1 + rate)) ** (i - CostType("0.5"))
+                array[i] = Decimal((1 / (1 + rate)) ** (i - CostType("0.5")))
             elif compounding == "Continuous":
-                array[i] = 1 / Decimal(1 / math.exp(rate * i))
-            # EndOfYear included if no prebuilt library exists for JAVA edition. If not move EndOfYear to top of block
+                array[i] = Decimal(1 / math.exp(rate * i))
             elif compounding == "EndOfYear":
-                array[i] = 1 / (1 + rate) ** i
+                array[i] = Decimal(1 / (1 + rate) ** i)
     return array
 
 
@@ -127,11 +128,11 @@ def riddersMethod(values, compounding):
     """
     # Preprocessing
     size = len(values)
-    xl = 0
-    xu = 1
+    xl = Decimal(0)
+    xu = Decimal(1)
     values = numpy.array(values)
-    fl = values * numpy.array(discArray(size, compounding, xl))
-    fu = values * numpy.array(discArray(size, compounding, xu))
+    fl = numpy.sum(values * numpy.array(discArray(size, compounding, xl)))
+    fu = numpy.sum(values * numpy.array(discArray(size, compounding, xu)))
     max_steps = 100
     tolerance = 0.05
 
@@ -143,15 +144,15 @@ def riddersMethod(values, compounding):
     step = 1
     while step <= max_steps:
         # Calculate midpoint and determine s value
-        xm = 0.5 * (xl + xu)
-        fm = values * numpy.array(discArray(size, compounding, xm))
+        xm = Decimal(0.5) * (xl + xu)
+        fm = numpy.sum(values * numpy.array(discArray(size, compounding, xm)))
         s = math.sqrt(fm * fm - fl * fu)
         # Check if midpoint is root, if not create temp value
         if s == 0:
             return xm
         # Create new rate value using false position method and update function
-        xnew = xm + (xm - xl) * numpy.sign(fl) * fm / math.sqrt(fm * fm - fl * fu)
-        fnew = values * numpy.array(discArray(size, compounding, xnew))
+        xnew = xm + (xm - xl) * Decimal(numpy.sign(fl)) * fm / Decimal(math.sqrt(fm * fm - fl * fu))
+        fnew = numpy.sum(values * numpy.array(discArray(size, compounding, xnew)))
         # Check if new rate is a root (within tolerance)
         if abs((fnew-fm)/fm) < tolerance:
             return xnew
@@ -166,7 +167,7 @@ def riddersMethod(values, compounding):
                 xl = xnew
                 fl = fnew
                 xu = xm
-                fu = xm
+                fu = fm
         elif numpy.sign(fl) != numpy.sign(fnew):
             if (xm - xl) < (xnew - xl):
                 xu = xm
@@ -203,14 +204,9 @@ def irrMeas(costs_nondisc: FlowType, bens_nondisc: FlowType, costs_base_nondisc:
     total_non_disc_flow = list(map(operator.add, numpy.negative(costs_nondisc), bens_nondisc))
     baseline_total_nondisc_flow = list(map(operator.add, numpy.negative(costs_base_nondisc), bens_base_nondisc))
     relative_flow = list(map(operator.add, numpy.negative(baseline_total_nondisc_flow), total_non_disc_flow))
-    # I know that using comp_type removes the need for the following conditionals, however if I find a way to calculate
-    # IRR for continuous using a prebuilt library for it then a separate conditional will be required
-    if comp_type == "Continuous":
-        return numpy.irr(relative_flow)
-    elif comp_type == "MidYear":
-        return riddersMethod(relative_flow, comp_type)
-    elif comp_type == "EndOfYear":
-        return riddersMethod(relative_flow, comp_type)
+    # numpy.irr is deprecated, instead of installing the full financial library from numpy, the code uses Ridder's method
+    # for all calculations
+    return riddersMethod(relative_flow, comp_type)
 
 
 def airr(sir_value: CostType, reinvest_rate: CostType, study_period: int) -> CostType:
@@ -443,9 +439,12 @@ class AlternativeSummary:
         self.SIR = sir(baseline.totalCostsNonInv, self.totalCostsNonInv, self.totalCostsInv,
                        baseline.totalCostsInv) if baseline else None
 
-        # IRR Of this alternative. Calculated using numpy. None if IRR is not requested by user.
-        self.IRR = irrMeas(flow.totCostNonDisc, flow.totBenefitsNonDisc, baseline.flow.totCostNonDisc,
-                           baseline.flow.totBenefitsNonDisc, timestep_comp) if include_irr else None
+        # IRR Of this alternative. Calculated using Ridder's Method. None if IRR is not requested by user.
+        if baseline:
+            self.IRR = irrMeas(flow.totCostNonDisc, flow.totBenefitsNonDisc, baseline.flow.totCostNonDisc,
+                               baseline.flow.totBenefitsNonDisc, timestep_comp) if include_irr else None
+        else:
+            self.IRR = None
 
         # AIRR of this alternative.
         # had to add Decimal in order to get test to run, if running appropriately on server without Decimal ignore
@@ -494,5 +493,30 @@ class AlternativeSummary:
         self.nsElasticityQuant = calculate_ns_elasticity_quant(self.netSavings, self.totalCosts, optionals,
                                                                baseline.quantSum) if baseline else None
 
-    def __repr__(self):
-        return str(self.__dict__)
+    #def __repr__(self):
+    #    return str(self.__dict__)
+
+    def __str__(self):
+        print("altID:", self.altID)
+        print("totalBenefits:", self.totalBenefits)
+        print("totalCosts:", self.totalCosts)
+        print("totalCostsInv:", self.totalCostsInv)
+        print("totSubtypeFlows:", self.totSubtypeFlows)
+        print("totalCostsNonInv:", self.totalCostsNonInv)
+        print("totTagFlows:", self.totTagFlows)
+        print("netBenefits:", self.netBenefits)
+        print("netSavings:", self.netSavings)
+        print("SIR:", self.SIR)
+        print("IRR:", self.IRR)
+        print("AIRR:", self.AIRR)
+        print("SPP:", self.SPP)
+        print("DPP:", self.DPP)
+        print("BCR:", self.BCR)
+        print("quantSum:", self.quantSum)
+        print("quantUnits", self.quantUnits)
+        print("MARR:", self.MARR)
+        print("deltaQuant:", self.deltaQuant)
+        print("nsPercQuant:", self.nsPercQuant)
+        print("nsDeltaQuant:", self.nsDeltaQuant)
+        print("nsElasticityQuant:", self.nsElasticityQuant)
+        return "--------------------End of Object--------------------"

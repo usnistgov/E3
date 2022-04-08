@@ -33,7 +33,7 @@ class Sensitivity:
         # Value to be changed by
         self.diffValue = diffValue
     
-    def calculateOutput(self, base_input):
+    def calculateOutput(self, base_input, analysis=None):
         # Store original bcn object
         # original_bcn = deepcopy(self.bcnObj)
         if self.globalVarBool is False or not self.globalVarBool:
@@ -56,7 +56,6 @@ class Sensitivity:
                 # self.bcnObj[self.varName] += self.diffValue
                 setattr(bcnObj, self.varName, getattr(bcnObj, self.varName) + self.diffValue)
 
-
             else:
                 logger.warning("Warning: %s", "Difference type is unrecognized. No change was made")
 
@@ -68,6 +67,14 @@ class Sensitivity:
 
             return new_bcn
         else:
-            # Currently handled in sensitivity/app.py at the moment due to the unique nature of the discount_rate
-            pass
+            if analysis.outputRealBool:
+                discount_rate_old = getattr(analysis, 'dRateReal')
+            else:
+                discount_rate_old = getattr(analysis, 'dRateNom')
 
+            if self.diffType == "Percent":
+                discount_rate_new = discount_rate_old * (100 + self.diffValue)/100
+            else:
+                discount_rate_new = discount_rate_old + self.diffValue
+
+            return discount_rate_new

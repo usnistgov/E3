@@ -46,25 +46,35 @@ def create_empty_tag_flows(user_input):
     return result
 
 
-def calculate_tag_flows(flows, user_input):
+def calculate_tag_flows(flows, user_input, bcnObjects = None):
     """
     Calculate cash flows for all tags in bcn set.
 
     :param flows: The cash flows calculated from the bcn objects.
     :param user_input: The input object.
+    :param bcnObjects: Hack to get sensitivity to work with tagged objects
     :return: A list of cash flows for all tags. Some flows may be empty for some alternatives.
     """
     optionals = create_empty_tag_flows(user_input)
 
-    print(optionals)
+    if bcnObjects is None:
+        for bcn in user_input.bcnObjects:
+            for tag in bcn.bcnTag:
+                if not tag:
+                    continue
 
-    for bcn in user_input.bcnObjects:
-        for tag in bcn.bcnTag:
-            if not tag:
-                continue
+                for alt in bcn.altID:
+                    key = (alt, tag)
+                    optionals[key].add(bcn, flows[bcn])
 
-            for alt in bcn.altID:
-                key = (alt, tag)
-                optionals[key].add(bcn, flows[bcn])
+    else:
+        for bcn in bcnObjects:
+            for tag in bcn.bcnTag:
+                if not tag:
+                    continue
+
+                for alt in bcn.altID:
+                    key = (alt, tag)
+                    optionals[key].add(bcn, flows[bcn])
 
     return list(optionals.values())
