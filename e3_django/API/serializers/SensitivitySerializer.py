@@ -23,12 +23,12 @@ class SensitivitySerializer(Serializer):
     )
 
     def validate(self, data):
-        if data['globalVarBool']:
-            if not self.altID:
-                raise ValidationError("altID cannot be null when globalVarBool is True")
+        if data['globalVarBool'] is False:
+            if self.altID is None:
+                raise ValidationError("altID cannot be null when globalVarBool is False")
                 
-            if not self.bcnID:
-                raise ValidationError("bcnID cannot be null when globalVarBool is True")
+            if self.bcnID is None:
+                raise ValidationError("bcnID cannot be null when globalVarBool is False")
 
         # Check bcnID references an existing BCN object
         # Ensure initialOcc doesn't occur after recurEndDate, other valid ranges for  variable being carried over
