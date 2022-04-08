@@ -10,7 +10,6 @@ class SensitivitySerializer(Serializer):
     globalVarBool = BooleanField(required=False)
     altID = ListField(child=IntegerField(), required=True, allow_null=True)
     bcnID = IntegerField(min_value=0, required=True, allow_null=True)
-    bcnObj = CharField(allow_null=True)
     varName = ChoiceField([
         "discountRate", "initialOcc", "bcnLife", "recurValue", "recurEndDate", "valuePerQ", "quant", "quantValue"],
         required=True
@@ -24,10 +23,10 @@ class SensitivitySerializer(Serializer):
 
     def validate(self, data):
         if data['globalVarBool'] is False:
-            if self.altID is None:
+            if data['altID'] is None:
                 raise ValidationError("altID cannot be null when globalVarBool is False")
                 
-            if self.bcnID is None:
+            if data['bcnID'] is None:
                 raise ValidationError("bcnID cannot be null when globalVarBool is False")
 
         # Check bcnID references an existing BCN object
