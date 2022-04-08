@@ -4,7 +4,7 @@ class SensitivitySummary():
     """
     def __init__(self, globalVarBool, bcnObj, varName, diffType, diffVal, diffSign, measure_summaries):
         self.globalVarBool = globalVarBool
-        # self.bcnObj = bcnObj
+        self.bcnObj = bcnObj
         self.varName = varName
         self.diffType = diffType
         self.diffVal = diffVal
@@ -35,7 +35,7 @@ class SensitivitySummary():
     ## Allows for object to be directly printed out to console when testing, has no use in final code
     def __str__(self):
         print("globalVarBool:", self.globalVarBool)
-        #print("bcnObj:", self.bcnObj)
+        print("bcnObj:", self.bcnObj)
         print("varName:", self.varName)
         print("diffType:", self.diffType)
         print("diffVal:", self.diffVal)
