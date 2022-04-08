@@ -31,44 +31,33 @@ class SensitivityConfig(E3ModuleConfig):
         # Generate each Sensitivity object with the base_input, in a Loop:
         res = []
         for _id, sensitivity_object in enumerate(base_input.sensitivityObjects):
-            # Collect information from analysis object
+            # Collect information from analysis object and pull base calculation cash flows
             timestep_comp = base_input.analysisObject.timestepComp
             analysis = base_input.analysisObject
-            discount_rate = analysis.dRateReal if analysis.outputRealBool else analysis.dRateNom
-            if analysis.outputRealBool:
-                discount_rate_old = getattr(analysis, 'dRateReal')
-            else:
-                discount_rate_old = getattr(analysis, 'dRateNom')
             cash_flow = dependencies["internal:cash-flows"]
 
             if sensitivity_object.globalVarBool is False or not sensitivity_object.globalVarBool:
-                # Generate updated BCN object for altered variable
+                # Get discount rate and generate updated BCN object for altered variable
+                discount_rate = analysis.dRateReal if analysis.outputRealBool else analysis.dRateNom
                 new_bcn = sensitivity_object.calculateOutput(base_input)
-                # Pull correct BCN object based on bcnID defined by sensitivity object
+                # Pull BCN object based on bcnID defined by sensitivity object
                 for _id, bcn in enumerate(base_input.bcnObjects):
                     if bcn.bcnID == sensitivity_object.bcnID:
                         bcnObj = bcn
                         break
-
-                # Pull unaltered CashFlows and remove unaltered cash flow for BCN object
+                # Remove unaltered cash flow for BCN object from cash_flow
                 cash_flow.pop(bcnObj)
-                # Update cash flows with new BCN object
+                # Update cash flows with altered BCN object flows
                 cash_flow[new_bcn] = cash_flows(new_bcn, analysis.studyPeriod, discount_rate, timestep_comp)
-                # At this point, cash_flow dictionary has an updated value for the `new_bcn`
                 # Set globalVar to false (used as output in sensitivitySummary object)
                 globalVar = False
             else:
-                # If global we are currently only dealing with the discount rate, initialize blank cash_flow
-                cash_flow = cash_flow.clear()
-                # Alter discount rate (technically should be in the sensitivityObject.calculateOutput method but is
-                # cleaner to include here
-                if sensitivity_object.diffType == "Percent":
-                    discount_rate_new = discount_rate * (1 + sensitivity_object.diffValue)
-                else:
-                    discount_rate_new = discount_rate + sensitivity_object.diffValue
+                # Get new discount rate
+                discount_rate = sensitivity_object.calculateOutput(base_input,analysis)
                 # Recreate cash flows for all BCNs and populate the empty cash_flow object
                 for _id, bcn in enumerate(base_input.bcnObjects):
-                    cash_flow[bcn] = cash_flows(bcn, analysis.studyPeriod, discount_rate_new, timestep_comp)
+                    cash_flow.pop(bcn)
+                    cash_flow[bcn] = cash_flows(bcn, analysis.studyPeriod, discount_rate, timestep_comp)
                 # Set globalVar to true (used as output in sensitivitySummary object)
                 globalVar = True
 
@@ -91,15 +80,17 @@ class SensitivityConfig(E3ModuleConfig):
             res.append(sensSumm)
             # Clean up alterations
             if sensitivity_object.globalVarBool is False or not sensitivity_object.globalVarBool:
-                # Remove updated BCN and recalculate original BCN if globalVar == False
+                # Remove updated BCN, recalculate original BCN and add back to cash_flow
                 cash_flow.pop(new_bcn)
                 cash_flow[bcnObj] = cash_flows(bcnObj, analysis.studyPeriod,
                                                discount_rate, timestep_comp)
             else:
-                # Delete entire cash_flow and return to base values
-                cash_flow = cash_flow.clear()
+                # Rebuild original cash flow
+                discount_rate = analysis.dRateReal if analysis.outputRealBool else analysis.dRateNom
                 for _id, bcn in enumerate(base_input.bcnObjects):
-                    cash_flow[bcn] = cash_flows(bcn, analysis.studyPeriod, discount_rate_old, timestep_comp)
+                    cash_flow.pop(bcn)
+                    cash_flow[bcn] = cash_flows(bcn, analysis.studyPeriod, discount_rate, timestep_comp)
 
         # Return list of SensitivitySummaries, with altered values
         return res
+    
