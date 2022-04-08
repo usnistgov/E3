@@ -6,17 +6,15 @@
 
 <link rel="icon" type="image/svg+xml" href="{% static 'favicon.svg' %}" sizes="any">
 
-<link rel="stylesheet" type="text/css"
-      href="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.0.0-beta.45/dist/themes/base.css"/>
-<script type="module"
-        src="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.0.0-beta.45/dist/shoelace.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.0.0-beta.72/dist/themes/light.css"/>
+<script nonce="{{request.csp_nonce}}" type="module" src="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.0.0-beta.72/dist/shoelace.js"></script>
 
 <link rel="stylesheet" type="text/css" href="{% static 'login.css' %}"/>
 
 <!--NIST styles-->
 <link rel="stylesheet" href="https://pages.nist.gov/nist-header-footer/css/nist-combined.css">
-<script src="https://pages.nist.gov/nist-header-footer/js/jquery-1.9.0.min.js" type="text/javascript" defer></script>
-<script src="https://pages.nist.gov/nist-header-footer/js/nist-header-footer.js" type="text/javascript" defer></script>
+<script nonce="{{request.csp_nonce}}" src="https://pages.nist.gov/nist-header-footer/js/jquery-1.9.0.min.js" type="text/javascript" defer></script>
+<script nonce="{{request.csp_nonce}}" src="https://pages.nist.gov/nist-header-footer/js/nist-header-footer.js" type="text/javascript" defer></script>
 <body>
 <div class="center">
     <div class="title">
@@ -29,102 +27,33 @@
             <sl-tab slot="nav" panel="login">Login</sl-tab>
             <sl-tab slot="nav" panel="register">Register</sl-tab>
 
-            <sl-card id="message-banner" class="message-banner hidden">
-                <script>
-                    const banner = document.getElementById("message-banner");
-
-                    function hide() {
-                        if(!banner.classList.contains("hidden"))
-                            banner.classList.add("hidden");
-                    }
-
-                    function show() {
-                        if(banner.classList.contains("hidden"))
-                            banner.classList.remove("hidden");
-                    }
-
-                    function addMessages(messages) {
-                        clear();
-
-                        for(let message of messages) {
-                            let p = document.createElement("p");
-                            p.innerHTML = message;
-                            banner.appendChild(p);
-                        }
-
-                        show();
-                    }
-
-                    function clear(){
-                        hide();
-
-                        for(let child of banner.children) {
-                            banner.removeChild(child);
-                        }
-                    }
-                </script>
-            </sl-card>
+            {% if messages %}
+            {% for message in messages %}
+            <sl-alert {% if message.tags %} variant="{{ message.tags }}" {% endif %} open closable>
+                {{ message }}
+            </sl-alert>
+            {% endfor %}
+            {% endif %}
 
             <sl-tab-panel name="login">
-                <sl-form id="login-form">
+                <form id="login-form" action="{% url 'login' %}" method="POST">
                     {% csrf_token %}
-
                     <sl-input class="bottom-margin" name="email" type="email" label="Email" autofocus></sl-input>
                     <sl-input class="bottom-margin" name="password" type="password" label="Password"></sl-input>
-                    <sl-button type="primary" submit>LOGIN</sl-button>
-
-                    <script>
-                        document.getElementById("login-form")
-                            .addEventListener("sl-submit", event => {
-                                fetch({% url 'login' %}, {
-                                    method: "POST",
-                                    body: event.detail.formData
-                                })
-                                    .then(result => result.json())
-                                    .then(json => {
-                                        if(json["redirect"]) {
-                                            window.location.href = json["redirect"];
-                                        } else {
-                                            addMessages(json["messages"]);
-                                        }
-                                    });
-                                });
-                    </script>
-                </sl-form>
+                    <sl-button id="login-button" variant="primary" type="submit">LOGIN</sl-button>
+                </form>
             </sl-tab-panel>
             <sl-tab-panel name="register">
-                <sl-form id="register-form">
+                <form id="register-form" action="{% url 'register' %}" method="POST">
                     {% csrf_token %}
 
                     <sl-input class="bottom-margin" name="email" type="email" label="Email"></sl-input>
                     <sl-input name="password" type="password" label="Password"></sl-input>
                     <sl-input class="bottom-margin" name="confirm-password" type="password"
                               label="Confirm Password"></sl-input>
-                    <sl-button type="primary" submit>REGISTER</sl-button>
-
-                    <script>
-                        document.getElementById("register-form")
-                            .addEventListener("sl-submit", event => {
-                                fetch({% url 'register' %}, {
-                                    method: "POST",
-                                    body: event.detail.formData
-                                })
-                                    .then(result => result.json())
-                                    .then(json => {
-                                        if(json["redirect"]) {
-                                            window.location.href = json["redirect"];
-                                        } else {
-                                            addMessages(json["messages"]);
-                                        }
-                                    });
-                                });
-                    </script>
-                </sl-form>
+                    <sl-button variant="primary" type="submit">REGISTER</sl-button>
+                </form>
             </sl-tab-panel>
-
-            <script>
-                document.getElementById("login-tab-group").addEventListener("sl-tab-show", clear)
-            </script>
         </sl-tab-group>
     </sl-card>
 </div>

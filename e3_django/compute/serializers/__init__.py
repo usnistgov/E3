@@ -1,3 +1,4 @@
 from .AlternativeSummarySerializer import AlternativeSummarySerializer
 from .CashFlowSerializer import RequiredCashFlowSerializer, OptionalCashFlowSerializer
+from .SensitivitySummarySerializer import SensitivitySummarySerializer
 

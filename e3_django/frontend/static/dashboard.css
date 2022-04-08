@@ -12,10 +12,12 @@ html {
   display: none;
 }
 
+sl-icon-button {
+  font-size: 1.8rem;
+}
+
 .message-banner {
-  --sl-color-white: var(--sl-color-warning-100);
-  padding: 16px;
-  margin: 0;
+  margin-bottom: 16px;
   width: 100%;
 }
 

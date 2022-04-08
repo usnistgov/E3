@@ -69,7 +69,7 @@ def sir(costs_non_inv_base: CostType, costs_non_inv: CostType, costs_inv: CostTy
 
     :return: The calculated SIR.
     """
-    return check_fraction(costs_non_inv - costs_non_inv_base, costs_inv - costs_inv_base)
+    return check_fraction(costs_non_inv_base - costs_non_inv, costs_inv - costs_inv_base)
 
 
 def check_fraction(numerator: CostType, denominator: CostType) -> CostType:
@@ -147,7 +147,7 @@ def riddersMethod(values, compounding):
         xm = Decimal(0.5) * (xl + xu)
         fm = numpy.sum(values * numpy.array(discArray(size, compounding, xm)))
         s = math.sqrt(fm * fm - fl * fu)
-        # Check if midpoint is root, if not create temp value
+        # Check if midpoint is root
         if s == 0:
             return xm
         # Create new rate value using false position method and update function

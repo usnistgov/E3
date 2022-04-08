@@ -29,16 +29,40 @@ SECRET_KEY = config("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ["e3test.el.nist.gov", "localhost", "127.0.0.1"]
+ALLOWED_HOSTS = [host.strip() for host in config("ALLOWED_HOSTS").split(",")]
 
+# Static file settings
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / "staticfiles"
+STATICFILES_FINDERS = [
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+]
+
+# Session settings
+SESSION_COOKIE_AGE = 1800  # 30 minutes
 
 # CORS settings
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = False
 
+# CSRF settings
+CSRF_USE_SESSIONS = True
+
+# CSP settings
+# CSP_REPORT_ONLY = True  # DEBUG ONLY
+CSP_INCLUDE_NONCE_IN = ['script-src']
+CSP_DEFAULT_SRC = ("'self'", "pages.nist.gov", "cdn.jsdelivr.net")
+CSP_SCRIPT_SRC = ("'self'", "'strict-dynamic'", "pages.nist.gov", "cdn.jsdelivr.net") + tuple(ALLOWED_HOSTS)
+CSP_IMAGE_SRC = ("'self'", "data:", "pages.nist.gov", "cdn.jsdelivr.net")
+CSP_STYLE_SRC = ("'self'", "pages.nist.gov", "cdn.jsdelivr.net", "'sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU='")
+CSP_CONNECT_SRC = ("'self'", "data:", "pages.nist.gov", "cdn.jsdelivr.net")
+
+# Message settings
+MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'
+
 # Application definition
+APPEND_SLASH = True
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -72,6 +96,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     "corsheaders.middleware.CorsMiddleware",
+    'csp.middleware.CSPMiddleware',
 ]
 
 ROOT_URLCONF = 'e3_django.urls'

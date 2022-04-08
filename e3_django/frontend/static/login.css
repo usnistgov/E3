@@ -12,13 +12,6 @@ html {
   display: none;
 }
 
-.message-banner {
-  --sl-color-white: var(--sl-color-warning-100);
-  padding: 16px;
-  margin: 0;
-  width: 100%;
-}
-
 .bottom-margin {
   margin-bottom: 32px;
 }
@@ -42,6 +35,11 @@ sl-button {
   width: 100%;
 }
 
+sl-alert {
+  margin-top: 16px;
+  margin-bottom: 16px;
+}
+
 .title {
   text-align: center;
 }
@@ -50,6 +48,13 @@ sl-button {
 }
 .title h2 {
   font-size: 18pt;
+}
+
+.custom-input {
+  flex-direction: column;
+}
+.custom-input input {
+  width: 100%;
 }
 
 /*# sourceMappingURL=login.css.map */

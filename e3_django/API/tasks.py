@@ -16,7 +16,7 @@ def analyze(user_input: Input):
     """
     module_graph = ModuleGraph()
     cache = {}
-
+    
     clean_module_list = deepcopy(user_input.analysisObject.objToReport)
     if "IRRSummary" in clean_module_list:
         clean_module_list.remove("IRRSummary")
