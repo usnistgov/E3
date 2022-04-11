@@ -73,11 +73,15 @@ class InputSerializer(Serializer):
         for data in validated_data.pop("bcnObjects"):
             bcn_cache[data["bcnID"]] = Bcn(analysis.studyPeriod, **data)
 
+        for sens_data in validated_data.get("sensitivityObjects", []):
+            if sens_data.globalVarBool is False:
+                Sensitivity(bcnObj=bcn_cache[sens_data["bcnID"]].bcnName, **sens_data)
+
         return Input(
             analysis,
             [Alternative(**data) for data in validated_data.pop("alternativeObjects")],
             list(bcn_cache.values()),
-            [Sensitivity(bcnObj=bcn_cache[sens_data["bcnID"]].bcnName, **sens_data) for sens_data in validated_data.get("sensitivityObjects", [])],
+            [Sensitivity(**sens_data) for sens_data in validated_data.get("sensitivityObjects", [])],
             None,
         )
 

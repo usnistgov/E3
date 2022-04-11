@@ -5,6 +5,7 @@ from decimal import Decimal
 from pprint import pprint
 
 from API.objects import Alternative, Analysis, Bcn, Sensitivity
+from API.serializers import SensitivitySerializer
 from compute.sensitivity.accuracyTestTemp import run, runCF
 from base_input import BaseInput
 # from django.core.exceptions import ValidationError
@@ -369,3 +370,15 @@ class SensitivityTest(TestCase):
         res = run(self.base_input, cash_flow)
         for sens in res:
             print(sens)
+
+        data = {
+                "globalVarBool": True,
+                "altID": None,
+                "bcnID": None,
+                "bcnObj": None,
+                "varName":"discountRate",
+                "diffType": "Gross",
+                "diffValue": 0.03
+                }
+
+        SensitivitySerializer.validate(self, data)
