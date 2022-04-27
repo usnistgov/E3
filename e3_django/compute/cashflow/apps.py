@@ -77,6 +77,10 @@ def calculate_values(bcn: Bcn, study_period: int, quantities: List[CostType]) ->
         study_period,
         lambda i: quantities[i] * bcn.valuePerQ * next(recur_var_value)
     )
+    # If we want to add the allowance of non-integer time values we would simply need to add an alternate generator or
+    # alter the current generator to account for non-integer times. It would be very simple to do as an example of
+    # modifying the code for a specific purpose while retaining original functionality and without the need for new
+    # output objects or changes to input.
 
 
 def get_recur_generator(bcn: Bcn) -> Generator[CostType, None, None]:

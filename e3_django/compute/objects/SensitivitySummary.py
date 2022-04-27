@@ -44,6 +44,7 @@ class SensitivitySummary():
         print("totalCosts:", self.totalCosts)
         print("totalCostsInv:", self.totalCostsInv)
         print("totalCostsNonInv:", self.totalCostsNonInv)
+        print("totSubtypeFlows:", self.totSubtypeFlows)
         print("totTagFlows:", self.totTagFlows)
         print("netBenefits:", self.netBenefits)
         print("netSavings:", self.netSavings)

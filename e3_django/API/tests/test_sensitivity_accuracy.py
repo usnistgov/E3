@@ -340,11 +340,21 @@ class SensitivityTest(TestCase):
         self.sensitivity2 = Sensitivity(
             globalVarBool=False,
             altID=1,
-            bcnID=7,
-            bcnObj="Recreation Value",
-            varName='quant',
+            bcnID=9,
+            bcnObj="River Health (Watershed)",
+            varName='initialOcc',
+            diffType='Gross',
+            diffValue=0.5,
+        )
+
+        self.sensitivity3 = Sensitivity(
+            globalVarBool=False,
+            altID=1,
+            bcnID=9,
+            bcnObj="River Health (Watershed)",
+            varName='recurInterval',
             diffType='Percent',
-            diffValue=0,
+            diffValue=50,
         )
 
         logger.info("Success!: %s", "Setup tests passed.")
@@ -352,7 +362,7 @@ class SensitivityTest(TestCase):
         return
 
     def test_output_accuracy(self):
-        self.sensitivityObjects = [self.sensitivity1, self.sensitivity2]
+        self.sensitivityObjects = [self.sensitivity1, self.sensitivity2, self.sensitivity3]
         self.analysisObject = self.analysis
         self.bcnObjects = [self.bcn0, self.bcn1, self.bcn2, self.bcn3, self.bcn4, self.bcn5, self.bcn6, self.bcn7,
                            self.bcn8, self.bcn9, self.bcn10]
