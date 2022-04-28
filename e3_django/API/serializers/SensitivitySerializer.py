@@ -29,10 +29,4 @@ class SensitivitySerializer(Serializer):
             if data['bcnID'] is None:
                 raise ValidationError("bcnID cannot be null when globalVarBool is False")
 
-        # Check bcnID references an existing BCN object
-        bcnIDList = []
-        for bcn in data['bcnObjects']:
-            bcnIDList.append(data['bcnObjects']['bcnID'])
-        if data['bcnID'] not in bcnIDList:
-            raise ValidationError("bcnID does not correspond to a valid bcn object")
         return data
