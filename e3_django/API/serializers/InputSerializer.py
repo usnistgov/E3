@@ -62,6 +62,16 @@ class InputSerializer(Serializer):
                 ValidationError("Only one alternative can be the baseline.")
             )
 
+ #       if data['sensitivityObjects'] is not None:
+ #           # Check bcnID references an existing BCN object
+ #           bcnIDList = []
+ #           for bcn in data['bcnObjects']:
+ #               bcnIDList.append(bcn['bcnID'])
+ #
+ #           for sensitivity_object in data['sensitivityObjects']:
+ #               if sensitivity_object['bcnID'] not in bcnIDList:
+ #                   errors.append(ValidationError("bcnID does not correspond to a valid bcn object"))
+
         if errors:
             raise(ValidationError(errors[:NUM_ERRORS_LIMIT])) # Throws up to NUM_ERRORS_LIMIT number of errors.
 
@@ -74,14 +84,14 @@ class InputSerializer(Serializer):
             bcn_cache[data["bcnID"]] = Bcn(analysis.studyPeriod, **data)
 
         for sens_data in validated_data.get("sensitivityObjects", []):
-            if sens_data.globalVarBool is False:
+            if sens_data['globalVarBool'] is False:
                 Sensitivity(bcnObj=bcn_cache[sens_data["bcnID"]].bcnName, **sens_data)
 
         return Input(
             analysis,
             [Alternative(**data) for data in validated_data.pop("alternativeObjects")],
             list(bcn_cache.values()),
-            [Sensitivity(**sens_data) for sens_data in validated_data.get("sensitivityObjects", [])],
+            [Sensitivity(bcnObj=None, **sens_data) for sens_data in validated_data.get("sensitivityObjects", [])],
             None,
         )
 
