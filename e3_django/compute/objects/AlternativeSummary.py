@@ -118,6 +118,19 @@ def discArray(size, compounding, rate) -> FlowType:
     return array
 
 
+def rateFunction(size, values, compounding, rate) -> CostType:
+    """
+    Calculates the NPV of net benefits. For use in riddersMethod
+
+    :param size:
+    :param values:
+    :param compounding:
+    :param rate:
+    :return function value:
+    """
+    return numpy.sum(values * numpy.array(discArray(size, compounding, rate)))
+
+
 def riddersMethod(values, compounding):
     """
     Implements Ridders' method to find internal rate of return
@@ -131,10 +144,10 @@ def riddersMethod(values, compounding):
     xl = Decimal(0)
     xu = Decimal(1)
     values = numpy.array(values)
-    fl = numpy.sum(values * numpy.array(discArray(size, compounding, xl)))
-    fu = numpy.sum(values * numpy.array(discArray(size, compounding, xu)))
-    max_steps = 100
-    tolerance = 0.05
+    fl = rateFunction(size, values, compounding, xl)
+    fu = rateFunction(size, values, compounding, xu)
+    max_steps = 500
+    tolerance = 0.01
 
     # Check if bracket is proper
     if numpy.sign(fl) == numpy.sign(fu):
@@ -145,14 +158,14 @@ def riddersMethod(values, compounding):
     while step <= max_steps:
         # Calculate midpoint and determine s value
         xm = Decimal(0.5) * (xl + xu)
-        fm = numpy.sum(values * numpy.array(discArray(size, compounding, xm)))
+        fm = rateFunction(size, values, compounding, xm)
         s = math.sqrt(fm * fm - fl * fu)
         # Check if midpoint is root
         if s == 0:
             return xm
         # Create new rate value using false position method and update function
         xnew = xm + (xm - xl) * Decimal(numpy.sign(fl)) * fm / Decimal(math.sqrt(fm * fm - fl * fu))
-        fnew = numpy.sum(values * numpy.array(discArray(size, compounding, xnew)))
+        fnew = rateFunction(size, values, compounding, xnew)
         # Check if new rate is a root (within tolerance)
         if abs((fnew-fm)/fm) < tolerance:
             return xnew
@@ -209,19 +222,87 @@ def irrMeas(costs_nondisc: FlowType, bens_nondisc: FlowType, costs_base_nondisc:
     return riddersMethod(relative_flow, comp_type)
 
 
-def airr(sir_value: CostType, reinvest_rate: CostType, study_period: int) -> CostType:
+def termValArray(size, compounding, rate):
+    """
+    Calculate multipliers to obtain the terminal value for a cash flow
+
+    :param size:
+    :param compounding:
+    :param rate:
+    :return array:
+    """
+    # Initialize array
+    array = []
+    for i in range(size):
+        array.append(Decimal(0))
+    # Loop over array
+    for i in range(size):
+        # discount based on compounding type
+        if compounding == "EndOfYear" or (compounding == "MidYear" and i == 0):
+            array[i] = Decimal((1 + rate) ** (size - 1 - i))
+        elif compounding == "MidYear":
+            array[i] = Decimal((1 + rate) ** (size - 1 - i + CostType("0.5")))
+        elif compounding == "Continuous":
+            array[i] = Decimal(math.exp(rate * (size - 1 - i)))
+    return array
+
+
+def airr(net_bens: CostType, tot_costs_inv: CostType, tot_costs_inv_base: CostType, reinvest_rate: CostType, d_rate: CostType,
+         study_period: int, flow, baseline, compounding) -> CostType:
     """
     Calculate the adjusted internal rate of return (AIRR).
 
-    :param sir_value:
+    :param net_bens:
+    :param tot_costs_inv:
+    :param tot_costs_inv_base:
     :param reinvest_rate:
+    :param d_rate:
     :param study_period:
+    :param tot_costs_inv:
+    :param flow:
+    :param baseline:
+    :param compounding
     :return: The calculated AIRR.
     """
-    if sir_value is None or sir_value.is_nan() or sir_value.is_infinite() or sir_value <= CostType(0):
-        return CostType("NAN")
 
-    return (1 + reinvest_rate) * sir_value ** CostType(1 / study_period) - 1
+    if abs(Decimal(reinvest_rate) - Decimal(d_rate)) <= Decimal(0.000001) and compounding != "Continuous":
+        fraction_value = check_fraction(net_bens, tot_costs_inv - tot_costs_inv_base)
+        if fraction_value is None or fraction_value.is_nan() or fraction_value.is_infinite() or fraction_value <= CostType(0):
+            return CostType("NAN")
+
+        return (1 + reinvest_rate) * (1 + fraction_value)**Decimal(1/study_period) - Decimal(1.0)
+    else:
+        inv_diff = list(map(operator.add, numpy.negative(baseline.flow.totCostsNonDiscInv), flow.totCostsNonDiscInv))
+        pres_val_inv = rateFunction(len(inv_diff), inv_diff, compounding, reinvest_rate)
+
+        if compounding != "Continuous":
+            alt_net_ben_non_disc = list(map(operator.add, numpy.negative(flow.totCostNonDisc), flow.totBenefitsNonDisc))
+            base_net_ben_non_disc = list(map(operator.add, numpy.negative(baseline.flow.totCostNonDisc),
+                                             baseline.flow.totBenefitsNonDisc))
+            net_ben_non_disc = list(map(operator.add, numpy.negative(base_net_ben_non_disc), alt_net_ben_non_disc))
+            pres_val_net_ben = rateFunction(len(net_ben_non_disc), net_ben_non_disc, compounding, reinvest_rate)
+
+            fraction = check_fraction(pres_val_net_ben, pres_val_inv)
+            if fraction is None or fraction.is_nan() or fraction.is_infinite() or fraction <= CostType(0):
+                return CostType("NAN")
+
+            return (1 + reinvest_rate) * (1 + fraction) ** (Decimal(1 / study_period)) - Decimal(1)
+        else:
+            # mult = Decimal(math.exp(reinvest_rate))
+            # return mult * (1 + fraction) ** (Decimal(1 / study_period)) - Decimal(1)
+            alt_term_val_non_disc = list(map(operator.add, numpy.negative(flow.totCostNonDiscNonInv),
+                                             flow.totBenefitsNonDisc))
+            base_term_val_non_disc = list(map(operator.add, numpy.negative(baseline.flow.totCostNonDiscNonInv),
+                                              baseline.flow.totBenefitsNonDisc))
+            term_val_non_disc = list(map(operator.add, numpy.negative(base_term_val_non_disc), alt_term_val_non_disc))
+            term_val_disc = numpy.sum(term_val_non_disc * numpy.array(termValArray(len(term_val_non_disc), compounding,
+                                                                                   reinvest_rate)))
+
+            fraction = check_fraction(term_val_disc, pres_val_inv)
+            if fraction is None or fraction.is_nan() or fraction.is_infinite() or fraction <= CostType(0):
+                return CostType("NAN")
+
+            return Decimal(math.log(fraction))*1/Decimal(study_period)
 
 
 def payback_period(benefits, baseline_benefits, baseline_costs, costs):
@@ -397,7 +478,7 @@ class AlternativeSummary:
     then all fields are calculated as if it were the baseline.
     """
 
-    def __init__(self, alt_id, reinvest_rate, study_period, marr, flow: RequiredCashFlow,
+    def __init__(self, alt_id, reinvest_rate, study_period, marr, d_rate, flow: RequiredCashFlow,
                  optionals: List[OptionalCashFlow], timestep_comp, baseline: "AlternativeSummary" = None,
                  include_irr: bool = False, ):
         # Maintain reference to flow object for further calculations.
@@ -449,7 +530,13 @@ class AlternativeSummary:
         # AIRR of this alternative.
         # had to add Decimal in order to get test to run, if running appropriately on server without Decimal ignore
         # change
-        self.AIRR = airr(self.SIR, Decimal(reinvest_rate), Decimal(study_period))
+        # self.AIRR = airr(self.netBenefits, self.totalCostsInv, baseline.totalCostsInv, Decimal(reinvest_rate),
+        #             Decimal(study_period))
+        if baseline:
+            self.AIRR = airr(self.netBenefits, self.totalCostsInv, baseline.totalCostsInv, Decimal(reinvest_rate),
+                             d_rate, study_period, flow, baseline, timestep_comp)
+        else:
+            self.AIRR = None
 
         # Non-discount Payback Period. "Infinity" if no baseline is provided.
         self.SPP = payback_period(
