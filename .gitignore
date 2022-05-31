@@ -3,3 +3,7 @@ __pycache__/
 .idea/
 /.vscode/
 /build/
+/.gradle/
+/.jqwik-database
+
+/src/main/resources/oauth2.properties
