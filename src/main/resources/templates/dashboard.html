@@ -1,0 +1,125 @@
+<!DOCTYPE HTML>
+<html xmlns:th="https://www.thymeleaf.org" lang=en>
+<head th:replace="~{fragments/base :: head (~{::title}, ~{::link}, ~{})}">
+    <title th:text="${'E3 - Key Dashboard - ' + username}"></title>
+
+    <link rel="stylesheet" type="text/css" href="/css/dashboard.css"/>
+</head>
+<body class="bg-base-darker">
+<div class="content radius-md">
+    <nav th:replace="~{fragments/base :: nav (~{::#nav-right-content})}">
+        <a id="nav-right-content" href="/logout" class="padding-0">
+            <button class="usa-button">Log Out</button>
+        </a>
+    </nav>
+    <div id="top-content" class="display-flex flex-justify-center padding-x-5 padding-top-7">
+        <h1 class="font-ui-2xl width-desktop" th:text="${username}">Username</h1>
+    </div>
+    <div th:if="${tokens.size() >= 1}" class="display-flex flex-justify-center padding-x-5 padding-top-7">
+        <div class="display-flex flex-justify-end width-desktop">
+            <a href="/token/create" class="flex-justify-end">
+                <button class="usa-button margin-right-0 line-height-ui-2">
+                    Create New Key
+                    <svg class="square-205 margin-left-1 float-right" viewBox="0 0 24 24">
+                        <path fill="currentColor" d="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z"/>
+                    </svg>
+                </button>
+            </a>
+        </div>
+    </div>
+    <div id="api-keys" class="display-flex flex-justify-center padding-x-5 padding-bottom-7">
+        <div th:if="${tokens.size() <= 0}" class="display-flex flex-column flex-justify-center padding-top-7">
+            <p class="font-ui-xl">
+                Click to create your first key
+            </p>
+            <div class="display-flex flex-justify-center">
+                <a href="/token/create">
+                    <button class="usa-button margin-right-0 line-height-ui-2">
+                        Create New Key
+                        <svg class="square-205 margin-left-1 float-right" viewBox="0 0 24 24">
+                            <path fill="currentColor" d="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z"/>
+                        </svg>
+                    </button>
+                </a>
+            </div>
+        </div>
+        <table th:if="${tokens.size() >= 1}" class="usa-table usa-table--borderless key-table width-desktop">
+            <thead>
+            <tr>
+                <th scope="col">Name</th>
+                <th scope="col">Prefix</th>
+                <th scope="col">Created</th>
+                <th scope="col">Expires</th>
+                <th scope="col">Status</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="token: ${tokens}">
+                <td th:text="${token.getName()}"/>
+                <td th:text="${token.getPrefix()}"/>
+                <td th:text="${token.getFormattedCreated()}"/>
+
+                <td th:if="${token.getExpiry() != null}" th:text="${token.getFormattedExpiry()}"/>
+                <td th:if="${token.getExpiry() == null}"></td>
+
+                <td th:switch="${token.getStatus().toString()}">
+                    <span th:case="'ACTIVE'" class="usa-tag bg-green">Active</span>
+                    <span th:case="'EXPIRED'" class="usa-tag bg-orange">Expired</span>
+                    <span th:case="'REVOKED'" class="usa-tag bg-red">Revoked</span>
+                </td>
+                <td>
+                    <div class="display-flex flex-justify-center flex-align-center">
+                        <form th:if="${token.getStatus().toString() == 'ACTIVE'}"
+                              action="/token/revoke" method="post">
+                            <input class="display-none" type="text" name="prefix" th:attr="value=${token.getPrefix()}"/>
+                            <button class="usa-button padding-0 usa-tooltip margin-right-0 action-button"
+                                    data-position="right" title="Revoke Key"
+                                    type="submit">
+                                <svg class="usa-icon square-3" viewBox="0 0 24 24">
+                                    <path fill="currentColor"
+                                          d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z"/>
+                                </svg>
+                            </button>
+                        </form>
+                        <!--<form th:if="${token.getStatus().toString() == 'EXPIRED'}" class="margin-right-2"
+                              action="/token/renew" method="post">
+                            <input class="display-none" type="text" name="prefix" th:attr="value=${token.getPrefix()}"/>
+                            <button class="usa-button padding-0 usa-tooltip margin-right-0 action-button"
+                                    data-position="right" title="Renew Key"
+                                    type="submit">
+                                <svg style="width:24px;height:24px" viewBox="0 0 24 24">
+                                    <path fill="currentColor"
+                                          d="M17.65,6.35C16.2,4.9 14.21,4 12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20C15.73,20 18.84,17.45 19.73,14H17.65C16.83,16.33 14.61,18 12,18A6,6 0 0,1 6,12A6,6 0 0,1 12,6C13.66,6 15.14,6.69 16.22,7.78L13,11H20V4L17.65,6.35Z"/>
+                                </svg>
+                            </button>
+                        </form>-->
+                        <form th:if="${token.getStatus().toString() == 'EXPIRED' || token.getStatus().toString() == 'REVOKED'}"
+                              action="/token/delete" method="post">
+                            <input class="display-none" type="text" name="prefix" th:attr="value=${token.getPrefix()}"/>
+                            <button class="usa-button padding-0 usa-tooltip margin-right-0 action-button"
+                                    data-position="right" title="Delete Key"
+                                    type="submit">
+                                <svg class="usa-icon square-3" style="width:24px;height:24px" viewBox="0 0 24 24">
+                                    <path fill="currentColor"
+                                          d="M9,3V4H4V6H5V19A2,2 0 0,0 7,21H17A2,2 0 0,0 19,19V6H20V4H15V3H9M7,6H17V19H7V6M9,8V17H11V8H9M13,8V17H15V8H13Z"/>
+                                </svg>
+                            </button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <div id="delete-account" class="display-flex flex-justify-center padding-x-5 padding-7">
+        <div class="display-flex flex-row flex-justify flex-align-center border-2px radius-md width-desktop padding-2 border-secondary-dark shadow-2">
+            <h2>Danger Zone</h2>
+            <a href="/account/delete">
+                <button class="usa-button usa-button--secondary margin-right-0">Delete Account</button>
+            </a>
+        </div>
+    </div>
+</div>
+<script src="/uswds-2.13.2/js/uswds.js"></script>
+</body>
+</html>

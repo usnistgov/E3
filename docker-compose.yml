@@ -1,64 +1,18 @@
 version: "3.9"
 services:
-  postgres:
-    image: postgres:13.3
+  api_java:
+    image: dockreg.el.nist.gov/e3/api:java
     restart: always
-    hostname: postgres
-    environment:
-      POSTGRES_USER: admin
-      POSTGRES_PASSWORD: CRuj6oyJJirj6ThnfxV7
-      POSTGRES_DB: E3
-    networks:
-      - default
-  rabbitmq:
-    image: rabbitmq
-    hostname: rabbitmq
-    environment:
-      RABBITMQ_DEFAULT_USER: admin
-      RABBITMQ_DEFAULT_PASS: password
-      SERVICE_PORTS: 5672
-      TCP_PORTS: 5672
-    networks:
-      - default
-  api:
-    build: e3_django/
-    hostname: api
-    environment:
-      BROKER_URL: "amqp://admin:password@rabbitmq:5672"
-      BACKEND_URL: "rpc://"
-    depends_on:
-      - rabbitmq
-      - postgres
-    expose:
-      - 8000
-    networks:
-      - default
-    volumes:
-      - static_volume:/usr/src/app/staticfiles
-  worker:
-    build: e3_django/
-    deploy:
-      replicas: 1
-    environment:
-      BROKER_URL: "amqp://admin:password@rabbitmq:5672"
-      BACKEND_URL: "rpc://"
-      C_FORCE_ROOT: "true"
-    depends_on:
-      - rabbitmq
-      - postgres
-    networks:
-      - default
-    command: celery -A API worker -l INFO
-  nginx:
-    build: ./nginx
     ports:
-      - "80:80"
-    depends_on:
-      - api
+      - "8080:8080"
     networks:
       - default
-    volumes:
-      - static_volume:/usr/src/app/staticfiles
-
-volumes:
-  static_volume:
+  postgres:
+    image: postgres:14.2
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: testdb
+    hostname: postgres

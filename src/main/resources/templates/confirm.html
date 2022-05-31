@@ -1,0 +1,35 @@
+<!DOCTYPE HTML>
+<html xmlns:th="https://www.thymeleaf.org" lang=en>
+<head th:replace="~{fragments/base :: head (~{::title}, ~{}, ~{})}">
+    <title>E3 - Confirm Key Creation</title>
+</head>
+<body class="bg-base-darker">
+<div class="content radius-md">
+    <nav th:replace="~{fragments/base :: nav (~{::#nav-right-content})}">
+        <a id="nav-right-content" href="/logout" class="padding-0">
+            <button class="usa-button">Log Out</button>
+        </a>
+    </nav>
+    <div class="grid-container width-tablet padding-bottom-7 padding-top-3">
+        <div class="grid-row margin-top-7">
+            <h1 class="font-ui-2xl">Confirm Key Creation</h1>
+        </div>
+        <div class="grid-row">
+            <div class="usa-form-group grid-col-fill">
+                <p class="text-base">Please record your new API key, it will only be displayed once.</p>
+                <div class="bg-base-lighter radius-md padding-1 text-center">
+                    <p class="font-mono-md" th:text="${prefix + '.' + token}"></p>
+                </div>
+            </div>
+        </div>
+        <div class="grid-row margin-top-7">
+            <span class="grid-col-fill"></span>
+            <a href="/dashboard">
+                <button class="usa-button line-height-ui-3">Confirm</button>
+            </a>
+        </div>
+    </div>
+</div>
+<script src="/uswds-2.13.2/js/uswds.js"></script>
+</body>
+</html>

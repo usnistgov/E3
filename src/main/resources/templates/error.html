@@ -1,0 +1,30 @@
+<!DOCTYPE HTML>
+<html xmlns:th="https://www.thymeleaf.org" xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity5"
+      lang=en>
+<head th:replace="~{fragments/base :: head (~{::title}, ~{}, ~{})}">
+    <title>E3 - Page Not Found</title>
+</head>
+<body class="bg-base-darker">
+<div class="content radius-md">
+    <nav th:replace="~{fragments/base :: nav (~{::#nav-right-content})}">
+        <div id="nav-right-content">
+            <a href="/dashboard" class="padding-0">
+                <button sec:authorize="isAnonymous()" class="usa-button">Sign In</button>
+                <button sec:authorize="isAuthenticated()" class="usa-button">Go To Dashboard</button>
+            </a>
+            <a sec:authorize="isAuthenticated()" href="/logout" class="padding-0">
+                <button class="usa-button">Logout</button>
+            </a>
+        </div>
+    </nav>
+    <div class="padding-x-5 margin-y-9 position-relative display-flex flex-column text-center flex-justify-center flex-align-center">
+        <h1 class="font-heading-2xl">The page you requested was not found.</h1>
+        <p class="measure-1 font-sans-lg">Please try another page.</p>
+        <div class="position-absolute pin-y left-2 display-flex flex-align-center height-full padding-5">
+            <img class="square-15" src="/img/404-error.svg" alt="404 not found error"/>
+        </div>
+    </div>
+</div>
+<script src="/uswds-2.13.2/js/uswds.js"></script>
+</body>
+</html>

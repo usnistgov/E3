@@ -1,0 +1,49 @@
+<!DOCTYPE HTML>
+<html>
+<head th:fragment="head(title, links, scripts)">
+    <meta charset="UTF-8"/>
+    <title th:replace="${title}">Title</title>
+
+    <!--NIST Styles-->
+
+    <!--USWDS Styles-->
+    <link rel="stylesheet" type="text/css" href="/uswds-2.13.2/css/uswds.min.css"/>
+    <script type="text/javascript" src="/uswds-2.13.2/js/uswds-init.min.js"></script>
+
+    <link rel="stylesheet" type="text/css" href="/css/base.css"/>
+    <link rel="stylesheet" type="text/css" href="/css/nav.css"/>
+
+    <th:block th:replace="${links}"/>
+    <th:block th:replace="${scripts}"/>
+</head>
+<body>
+<nav th:fragment="nav(rightContent)" id="navigation" class="site-nav position-sticky top-0 radius-top-md padding-x-5">
+    <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="/documentation/">Documentation</a></li>
+        <li>
+            <a href="/manual/">
+                Manual
+                <svg class="usa-icon margin-left-05 text-base-dark" viewBox="0 0 24 24">
+                    <path fill="currentColor"
+                          d="M13,9V3.5L18.5,9M6,2C4.89,2 4,2.89 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2H6Z"/>
+                </svg>
+            </a>
+        </li>
+        <li>
+            <a href="https://github.com/usnistgov/E3">
+                Github
+                <img class="usa-icon margin-left-05 text-base-dark" src="/img/github.svg" alt="Github icon"/>
+            </a>
+        </li>
+        <script th:attr="nonce=${cspNonce}">
+            document.querySelectorAll("#navigation a").forEach(anchor => {
+                if (window.location.pathname === anchor.getAttribute("href"))
+                    anchor.classList.add("current")
+            })
+        </script>
+    </ul>
+    <th:block th:replace="${rightContent}"/>
+</nav>
+</body>
+</html>

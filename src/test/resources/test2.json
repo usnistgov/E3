@@ -1,0 +1,20 @@
+{
+  "type": "OTHER",
+  "projectType": null,
+  "outputObjects": null,
+  "studyPeriod": 11,
+  "timestepValue": null,
+  "timestepComp": null,
+  "outputReal": false,
+  "interestRate": 0.0,
+  "discountRateReal": 0.03,
+  "discountRateNominal": 0.0,
+  "inflationRate": 0.0,
+  "marr": 0.0,
+  "reinvestRate": 0.0,
+  "federalIncomeRate": 0.0,
+  "otherIncomeRate": 0.0,
+  "location": null,
+  "numberOfAlternatives": 1,
+  "baseAlternative": 0
+}

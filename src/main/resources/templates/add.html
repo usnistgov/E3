@@ -1,0 +1,65 @@
+<!DOCTYPE HTML>
+<html xmlns:th="https://www.thymeleaf.org" lang=en>
+<head th:replace="~{fragments/base :: head (~{::title}, ~{}, ~{})}">
+    <title>E3 - Create API Key</title>
+</head>
+<body class="bg-base-darker">
+<div class="content radius-md">
+    <nav th:replace="~{fragments/base :: nav (~{::#nav-right-content})}">
+        <a id="nav-right-content" href="/logout" class="padding-0">
+            <button class="usa-button">Log Out</button>
+        </a>
+    </nav>
+    <div class="grid-container width-tablet padding-bottom-7 padding-top-3">
+        <div class="grid-row margin-top-7">
+            <h1 class="font-ui-2xl">Create New API Key</h1>
+        </div>
+        <form method="post" action="/token/create">
+            <div class="grid-row">
+                <div class="usa-form-group grid-col-fill">
+                    <label class="usa-label" for="key-name">Key Name</label>
+                    <input class="usa-input maxw-full" id="key-name" name="name" type="text"/>
+                </div>
+            </div>
+            <div class="grid-row">
+                <div class="usa-form-group grid-col-8 padding-right-2">
+                    <label class="usa-label" id="expiry-date-label" for="expiry-date">Expiry Date</label>
+                    <div class="usa-hint" id="expiry-date-hint">Leave empty for no expiry</div>
+                    <div class="usa-date-picker">
+                        <input class="usa-input" id="expiry-date" name="expiry-date" type="date"
+                               aria-labelledby="expiry-date-label" aria-describedby="expiry-date-hint"/>
+                    </div>
+                </div>
+                <div class="usa-form-group grid-col-4 padding-left-2">
+                    <label class="usa-label" id="expiry-time-label" for="expiry-time">Expiry Time</label>
+                    <div class="usa-hint" id="expiry-time-hint">hh:mm</div>
+                    <div class="usa-time-picker">
+                        <input class="usa-input" id="expiry-time" name="expiry-time" type="time"
+                               aria-describedby="aexpiry-time-label expiry-time-hint"/>
+                    </div>
+                </div>
+            </div>
+            <div class="grid-row margin-top-7">
+                <span class="grid-col-fill"></span>
+                <a href="/dashboard">
+                    <button class="usa-button usa-button--secondary line-height-ui-3" type="button">
+                        Cancel
+                        <svg class="square-205 margin-left-1 float-right" viewBox="0 0 24 24">
+                            <path fill="currentColor"
+                                  d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z"/>
+                        </svg>
+                    </button>
+                </a>
+                <button class="usa-button line-height-ui-3" type="submit">
+                    Create
+                    <svg class="square-205 margin-left-1 float-right" viewBox="0 0 24 24">
+                        <path fill="currentColor" d="M21,7L9,19L3.5,13.5L4.91,12.09L9,16.17L19.59,5.59L21,7Z"/>
+                    </svg>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+<script src="/uswds-2.13.2/js/uswds.js"></script>
+</body>
+</html>

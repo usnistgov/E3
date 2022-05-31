@@ -1,0 +1,48 @@
+{
+  "analysisObject": {
+    "studyPeriod": 11,
+    "outputReal": false,
+    "interestRate": 0.0,
+    "discountRateReal": 0.03,
+    "discountRateNominal": 0.0,
+    "inflationRate": 0.0,
+    "marr": 0.0,
+    "reinvestRate": 0.0,
+    "federalIncomeRate": 0.0,
+    "otherIncomeRate": 0.0,
+    "numberOfAlternatives": 1,
+    "baseAlternative": 0
+  },
+  "alternativeObjects": [
+    {
+      "id": 0,
+      "name": "Hello, World",
+      "bcns": [0]
+    }
+  ],
+  "bcnObjects": [
+    {
+      "id": 0,
+      "altIds": [0],
+      "type": "BENEFIT",
+      "subType": "DIRECT",
+      "tags": ["test"],
+      "initialOccurrence": 1,
+      "real": false,
+      "invest": false,
+      "life": 0,
+      "residualValue": false,
+      "residualValueOnly": false,
+      "recur": {
+        "interval": 1,
+        "varRate": "PERCENT_DELTA",
+        "varValue": [0.03, 0.03, 0.03, 0.03, 0.03, 0.03, 0.03, 0.03, 0.03, 0.03, 0.03],
+        "end": 11
+      },
+      "quantityValue": 0.087,
+      "quantity": 1000.0,
+      "quantityVarRate": "PERCENT_DELTA",
+      "quantityVarValue": [0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05]
+    }
+  ]
+}
