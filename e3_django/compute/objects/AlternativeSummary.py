@@ -149,9 +149,15 @@ def riddersMethod(values, compounding):
     max_steps = 500
     tolerance = 0.01
 
-    # Check if bracket is proper
+    # Check if bracket is proper, if not, check if negative IRR values exist, if not return None
+    # This means the root finding algorithm will explicitly favor positive roots
     if numpy.sign(fl) == numpy.sign(fu):
-        return None
+        xl = Decimal(-1)
+        xu = Decimal(0)
+        fl = rateFunction(size, values, compounding, xl)
+        fu = rateFunction(size, values, compounding, xu)
+        if numpy.sign(fl) == numpy.sign(fu):
+            return None
 
     # Loop to run Ridders' method
     step = 1
@@ -265,31 +271,39 @@ def airr(net_bens: CostType, tot_costs_inv: CostType, tot_costs_inv_base: CostTy
     :return: The calculated AIRR.
     """
 
+    # Check if the simplified formula can be used (reinvest rate = discount rate)
     if abs(Decimal(reinvest_rate) - Decimal(d_rate)) <= Decimal(0.000001) and compounding != "Continuous":
+        # Calculate fraction and check that it is valid for the formula (Anything less than -1 could result in errors for the calculation)
         fraction_value = check_fraction(net_bens, tot_costs_inv - tot_costs_inv_base)
-        if fraction_value is None or fraction_value.is_nan() or fraction_value.is_infinite() or fraction_value <= CostType(0):
+        if fraction_value is None or fraction_value.is_nan() or fraction_value.is_infinite() or fraction_value <= CostType(-1):
             return CostType("NAN")
 
+        # Calculate AIRR
         return (1 + reinvest_rate) * (1 + fraction_value)**Decimal(1/study_period) - Decimal(1.0)
     else:
+        # If simplified formula can't be used, calculate values for the more general formula
         inv_diff = list(map(operator.add, numpy.negative(baseline.flow.totCostsNonDiscInv), flow.totCostsNonDiscInv))
         pres_val_inv = rateFunction(len(inv_diff), inv_diff, compounding, reinvest_rate)
 
         if compounding != "Continuous":
+            # If not using continuous compounding, calculate intermediate values
             alt_net_ben_non_disc = list(map(operator.add, numpy.negative(flow.totCostNonDisc), flow.totBenefitsNonDisc))
             base_net_ben_non_disc = list(map(operator.add, numpy.negative(baseline.flow.totCostNonDisc),
                                              baseline.flow.totBenefitsNonDisc))
             net_ben_non_disc = list(map(operator.add, numpy.negative(base_net_ben_non_disc), alt_net_ben_non_disc))
             pres_val_net_ben = rateFunction(len(net_ben_non_disc), net_ben_non_disc, compounding, reinvest_rate)
 
+            # Calculate fraction and check that it is valid for the formula (Anything less than -1 could result in errors for the calculation)
             fraction = check_fraction(pres_val_net_ben, pres_val_inv)
-            if fraction is None or fraction.is_nan() or fraction.is_infinite() or fraction <= CostType(0):
+            if fraction is None or fraction.is_nan() or fraction.is_infinite() or fraction <= CostType(-1):
                 return CostType("NAN")
 
+            # Calculate AIRR
             return (1 + reinvest_rate) * (1 + fraction) ** (Decimal(1 / study_period)) - Decimal(1)
         else:
             # mult = Decimal(math.exp(reinvest_rate))
             # return mult * (1 + fraction) ** (Decimal(1 / study_period)) - Decimal(1)
+            # If using continuous compounding, calculate intermediate values
             alt_term_val_non_disc = list(map(operator.add, numpy.negative(flow.totCostNonDiscNonInv),
                                              flow.totBenefitsNonDisc))
             base_term_val_non_disc = list(map(operator.add, numpy.negative(baseline.flow.totCostNonDiscNonInv),
@@ -298,10 +312,12 @@ def airr(net_bens: CostType, tot_costs_inv: CostType, tot_costs_inv_base: CostTy
             term_val_disc = numpy.sum(term_val_non_disc * numpy.array(termValArray(len(term_val_non_disc), compounding,
                                                                                    reinvest_rate)))
 
+            # Calculate fraction and check that it is valid for the formula (Anything less than 0 will result in errors for the calculation)
             fraction = check_fraction(term_val_disc, pres_val_inv)
             if fraction is None or fraction.is_nan() or fraction.is_infinite() or fraction <= CostType(0):
                 return CostType("NAN")
 
+            # Calculate AIRR
             return Decimal(math.log(fraction))*1/Decimal(study_period)
 
 
