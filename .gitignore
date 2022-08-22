@@ -4,7 +4,6 @@ __pycache__/
 /.vscode/
 .env*
 .coverage
-
 /build/
 /.gradle/
 /.jqwik-database

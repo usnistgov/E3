@@ -16,6 +16,10 @@ from frontend.models import UserAPIKey, EmailUser
 logger = logging.getLogger(__name__)
 
 
+def index(request):
+    return render(request, "index.html")
+
+
 def email_login(request):
     logout(request)
 

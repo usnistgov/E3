@@ -1,0 +1,22 @@
+.key-table {
+  border-color: #a9aeb1;
+}
+.key-table tbody tr {
+  height: 4.5rem;
+}
+
+.action-button {
+  line-height: 0;
+  background-color: rgba(0, 0, 0, 0);
+  color: darkgrey;
+}
+.action-button:hover {
+  background-color: rgba(0, 0, 0, 0);
+  color: dimgrey;
+}
+.action-button:active {
+  background-color: rgba(0, 0, 0, 0);
+  color: dimgrey;
+}
+
+/*# sourceMappingURL=dashboard.css.map */
