@@ -1,7 +1,7 @@
 version: "3.9"
 services:
   api_java:
-    image: dockreg.el.nist.gov/e3/api:java
+    build: ./
     restart: always
     ports:
       - "8080:8080"

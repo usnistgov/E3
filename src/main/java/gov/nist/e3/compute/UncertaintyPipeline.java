@@ -107,7 +107,7 @@ public class UncertaintyPipeline {
             builders.add(new UncertaintySummaryBuilder(id, altId).bindMeasureSummary(summary));
         }
 
-        for (var i = 0; i < Config.UNCERTAINTY_MAX_ITERATIONS && (i < 1000 || i % 500 != 0 || !stopConditions.stream().allMatch(StopCondition::shouldStop)); i++) {
+        for (var i = 0; i < Config.UNCERTAINTY_MAX_ITERATIONS && (i < 5000 || i % 500 != 0 || !stopConditions.stream().allMatch(StopCondition::shouldStop)); i++) {
             runTransaction(distributions);
             stopConditions.forEach(StopCondition::update);
             //log.debug("iteration {}", i);
