@@ -121,6 +121,6 @@ class Analysis:
                 raise AssertionError("Cannot calculate one of inflation rate, discount rate real or discount rate nominal.")
         # If outputRealBool is true, real discount rate must have been provided/calculated.
         else: 
-            if not self.dRateReal:
+            if not self.dRateReal and self.dRateReal != 0:
                 # If real discount rate was not provided by user, should have been calculated in AnalysisSerializer.
                 raise AssertionError("Cannot calculate discount real rate.")

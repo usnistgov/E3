@@ -27,7 +27,7 @@ class SensitivityTest(TestCase):
             timestepComp="Continuous",
             outputRealBool=True,
             interestRate=0.03,
-            dRateReal=0.087598720305,
+            dRateReal=0.03,
             dRateNom=None,
             inflationRate=0.02,
             Marr=0.04,
@@ -532,7 +532,7 @@ class SensitivityTest(TestCase):
             bcnObj="RetrofitDirectCost",
             varName='quant',
             diffType='Percent',
-            diffValue=2,
+            diffValue=0,
         )
 
         self.sensitivity2 = Sensitivity(

@@ -28,7 +28,7 @@ class SensitivityTest(TestCase):
             timestepComp="Continuous",
             outputRealBool=True,
             interestRate=0.03,
-            dRateReal=0.0462852917,
+            dRateReal=0.04,
             dRateNom=None,
             inflationRate=0.02,
             Marr=0.05,

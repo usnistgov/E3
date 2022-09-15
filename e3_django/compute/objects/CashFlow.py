@@ -183,6 +183,11 @@ class RequiredCashFlow(CashFlow):
 
     def __repr__(self):
         return str(self.__dict__)
+    # Used for debugging
+    # def __str__(self):
+    #     print("Total Non-Discounted Costs:", self.totCostNonDisc)
+    #     print("Total Discounted Costs:", self.totCostDisc)
+    #     return "--------------------End of Object--------------------"
 
 
 class OptionalCashFlow(CashFlow):
