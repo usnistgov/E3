@@ -1,0 +1,230 @@
+<!DOCTYPE HTML>
+<html lang=en>
+<head>
+    {% load static %}
+
+    <title>E3 - Home</title>
+    <meta charset="UTF-8"/>
+
+    <link rel="icon" type="image/svg+xml" href="{% static 'favicon.svg' %}" sizes="any">
+    <link rel="stylesheet" href="https://pages.nist.gov/nist-header-footer/css/nist-combined.css">
+
+    <!--USWDS Styles-->
+    <link rel="stylesheet" type="text/css" href="{% static '/uswds-2.13.2/css/uswds.min.css' %}"/>
+    <script nonce="{{request.csp_nonce}}" type="text/javascript"
+            src="{% static '/uswds-2.13.2/js/uswds-init.min.js' %}"></script>
+
+    <link rel="stylesheet" type="text/css" href="{% static 'css/base.css' %}"/>
+    <link rel="stylesheet" type="text/css" href="{% static '/css/nav.css' %}"/>
+
+    <link rel="stylesheet" type="text/css" href="{% static '/css/index.css' %}"/>
+
+    <script nonce="{{request.csp_nonce}}"
+            src="https://cdn.jsdelivr.net/npm/tsparticles@1.43.1/tsparticles.min.js"></script>
+    <script nonce="{{request.csp_nonce}}" type="text/javascript" src="{% static '/js/index-particles.js' %}"></script>
+</head>
+<body class="bg-base-darker">
+<div class="content radius-lg">
+    <div id="nist-header" class="top-0 radius-top-md overflow-hidden">
+        <script nonce="{{request.csp_nonce}}">
+            document.addEventListener("DOMContentLoaded", () => {
+                fetch("https://pages.nist.gov/nist-header-footer/boilerplate-header.html")
+                    .then(result => result.text())
+                    .then(result => new DOMParser().parseFromString(result, "text/html"))
+                    .then(element => document.getElementById("nist-header").append(element.querySelector("header")))
+            })
+        </script>
+    </div>
+    <nav id="navigation" class="site-nav position-sticky padding-x-5 top-0 z-top">
+        <ul>
+            <li>
+                <a href="https://github.com/usnistgov/E3">
+                    Github
+                    <img class="usa-icon margin-left-05 text-base-dark" src="{% static '/img/github.svg' %}"
+                         alt="Github icon"/>
+                </a>
+            </li>
+            <li>
+                <a href="https://doi.org/10.6028/NIST.TN.2225" target="_blank">
+                    Technical Manual
+                    <img class="usa-icon margin-left-05 text-base-dark" src="{% static '/img/open-in-new.svg' %}"
+                         alt="open in new tab"/>
+                </a>
+            </li>
+        </ul>
+        <div id="nav-right-content">
+            <a href="/dashboard" class="padding-0">
+                <button class="usa-button">Go To Dashboard</button>
+            </a>
+        </div>
+    </nav>
+    <div class="title position-relative display-flex flex-column text-center flex-justify-center flex-align-center">
+        <img class="margin-2 z-500" src="{% static '/img/E3 Logo.png' %}"/>
+        <h1 class="z-500">Economic Evaluation Engine</h1>
+        <p class="font-ui-md measure-1 z-500">
+            A REST API for multi-year financial analysis <br/> created by <a href="https://nist.gov">NIST</a>
+        </p>
+        <div id="tsparticles" class="position-absolute width-full height-full"></div>
+    </div>
+    <div id="features" class="bg-primary-lighter padding-x-5 padding-y-7">
+        <h2 class="text-center font-sans-xl">
+            Features
+        </h2>
+        <ul class="usa-card-group flex-justify-center">
+            <li class="grid-col-3 usa-card margin-x-3 margin-y-5">
+                <div class="usa-card__container">
+                    <header class="usa-card__header">
+                        <h2 class="usa-card__heading font-family-ui">Performance</h2>
+                    </header>
+                    <div class="usa-card__media text-center margin-top-2">
+                        <img class="height-10 " src="{% static '/img/speedometer.svg' %}"/>
+                    </div>
+                    <div class="usa-card__body">
+                        <p class="font-family-ui">
+                            E<sup>3</sup> utilizes precise optimization techniques to deliver answers as fast as
+                            possible, even at scale.
+                        </p>
+                    </div>
+                </div>
+            </li>
+            <li class="grid-col-3 usa-card margin-x-3 margin-y-5">
+                <div class="usa-card__container">
+                    <header class="usa-card__header">
+                        <h2 class="usa-card__heading font-family-ui">Cash Flow Calculations</h2>
+                    </header>
+                    <div class="usa-card__media text-center margin-top-2">
+                        <img class="height-10 " src="{% static '/img/money.svg' %}"/>
+                    </div>
+                    <div class="usa-card__body">
+                        <p class="font-family-ui">
+                            Presents future dollar values in their present value for easily understandable results.
+                        </p>
+                    </div>
+                </div>
+            </li>
+            <li class="grid-col-3 usa-card margin-x-3 margin-y-5">
+                <div class="usa-card__container">
+                    <header class="usa-card__header">
+                        <h2 class="usa-card__heading font-family-ui">Sensitivity Analysis</h2>
+                    </header>
+                    <div class="usa-card__media text-center margin-top-2">
+                        <img class="height-10 " src="{% static '/img/graph.svg' %}"/>
+                    </div>
+                    <div class="usa-card__body">
+                        <p class="font-family-ui">
+                            Alter individual inputs by percentage or gross amounts to find which variables effect your
+                            cash flows the most.
+                        </p>
+                    </div>
+                </div>
+            </li>
+            <li class="grid-col-3 usa-card margin-x-3 margin-y-5">
+                <div class="usa-card__container">
+                    <header class="usa-card__header">
+                        <h2 class="usa-card__heading font-family-ui">Uncertainty Analysis</h2>
+                    </header>
+                    <div class="usa-card__media text-center margin-top-2">
+                        <img class="height-10 " src="{% static '/img/bell-curve.svg' %}"/>
+                    </div>
+                    <div class="usa-card__body">
+                        <p class="font-family-ui">
+                            Run thousands of simulations with multiple, randomly distributed inputs to model
+                            uncertainty in your monetary calculations.
+                        </p>
+                    </div>
+                </div>
+            </li>
+            <li class="grid-col-3 usa-card margin-x-3 margin-y-5">
+                <div class="usa-card__container">
+                    <header class="usa-card__header">
+                        <h2 class="usa-card__heading font-family-ui">Tag Groups</h2>
+                    </header>
+                    <div class="usa-card__media text-center margin-top-2">
+                        <img class="height-10 " src="{% static '/img/tag.svg' %}"/>
+                    </div>
+                    <div class="usa-card__body">
+                        <p class="font-family-ui">
+                            Group arbitrary cash flows together to better understand your specific expenses.
+                        </p>
+                    </div>
+                </div>
+            </li>
+        </ul>
+    </div>
+    <div id="applications" class="padding-x-5 padding-y-7">
+        <h2 class="text-center font-sans-xl margin-bottom-5">
+            Powered by E3
+        </h2>
+        <ul class="usa-card-group flex-justify-center">
+            <li class="grid-col-4 usa-card">
+                <div class="usa-card__container">
+                    <header class="usa-card__header">
+                        <h2 class="usa-card__heading font-family-ui">[PV]<sup>2</sup></h2>
+                    </header>
+                    <div class="usa-card__media">
+                        <div class="usa-card__img">
+                            <img src="{% static '/img/example.png' %}" alt="pv2 example image"/>
+                        </div>
+                    </div>
+                    <div class="usa-card__body">
+                        <p class="font-family-ui">
+                            [PV]<sup>2</sup> is a web application that allows homeowners to determine a complete cost of
+                            ownership for residential rooftop solar photovoltaic (PV) systems including purchase and
+                            operation through the system’s service life.
+                        </p>
+                    </div>
+                    <div class="usa-card__footer">
+                        <a href="https://pv2.nist.gov" target="_blank">
+                            <button class="usa-button">
+                                <span class="display-flex flex-row flex-align-center">
+                                    Go to [PV]<sup>2</sup>
+                                    <svg class="usa-icon margin-left-1 text-base-lightest" width="24" height="24"
+                                         viewBox="0 0 24 24">
+                                        <path fill="currenColor"
+                                              d="M14,3V5H17.59L7.76,14.83L9.17,16.24L19,6.41V10H21V3M19,19H5V5H12V3H5C3.89,3 3,3.9 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V12H19V19Z"/>
+                                    </svg>
+                                </span>
+                            </button>
+                        </a>
+                    </div>
+                </div>
+            </li>
+        </ul>
+    </div>
+    <div id="contact" class="position-relative bg-accent-warm-lighter padding-x-5 padding-y-7 margin-x-auto">
+        <h1 class="text-center">
+            Have an idea or suggestion <br/> for improving E3?
+        </h1>
+        <p class="font-ui-md text-center">
+            Contact Joshua Kneifel <a href="mailto:joshua.kneifel@nist.gov"><em>here</em></a>.
+        </p>
+        <div class="position-absolute pin-y pin-right display-flex flex-align-center height-full padding-5">
+            <img class="square-15" src="{% static '/img/idea.svg' %}" alt="idea lightbulb"/>
+        </div>
+    </div>
+    <div id="footer" class="bg-primary-dark padding-5">
+        <p class="text-primary-lighter text-center margin-x-auto margin-y-0 font-sans-3xs footer-text">
+            This software was developed at the National Institute of Standards and Technology by employees of the
+            Federal Government in the course of their official duties. Pursuant to title 17 Section 105 of the United
+            States Code this software is not subject to copyright protection and is in the public domain. It is an
+            experimental system. NIST assumes no responsibility whatsoever for its use by other parties, and makes no
+            guarantees, expressed or implied, about its quality, reliability, or any other characteristic. We would
+            appreciate acknowledgement if the software is used. This software can be redistributed and/or modified
+            freely provided that any derivative works bear some notice that they are derived from it, and any modified
+            versions bear some notice that they have been modified.
+        </p>
+    </div>
+    <div id="nist-footer" class="radius-bottom-md overflow-hidden">
+        <script nonce="{{request.csp_nonce}}">
+            document.addEventListener("DOMContentLoaded", () => {
+                fetch("https://pages.nist.gov/nist-header-footer/boilerplate-footer.html")
+                    .then(result => result.text())
+                    .then(result => new DOMParser().parseFromString(result, "text/html"))
+                    .then(element => document.getElementById("nist-footer").append(element.querySelector("footer")))
+            })
+        </script>
+    </div>
+</div>
+<script nonce="{{request.csp_nonce}}" src="{% static '/uswds-2.13.2/js/uswds.js' %}"></script>
+</body>
+</html>

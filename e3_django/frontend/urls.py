@@ -4,6 +4,7 @@ from frontend import views
 
 urlpatterns = [
     # Wire up the API using automatic URL routing
+    path('', views.index, name="index"),
     path('login/', views.email_login, name="login"),
     path('dashboard/', views.dashboard, name="dashboard"),
     path('logout/', views.logout_view, name="logout"),
