@@ -207,9 +207,14 @@ def var_value(recur_end_date: int, initial: int, interval: int, var_value_list) 
             result = 1
 
         result = result * (1 + var_value_list[i])
-
-        if i >= initial and (i - initial) % interval == 0:
+        # -------------------------
+        if i == 0 and initial == 0:
             yield result
+        elif i == 1 and initial == 0 and interval != 1:
+            pass
+        elif i >= initial and (i - max(1, initial)) % interval == 0:
+            yield result
+        # -------------------------
 
 
 def quantity_generator(bcn: Bcn):
@@ -247,7 +252,11 @@ def generator_base(bcn: Bcn, study_period, calculation) -> Generator[CostType, N
     :return: A generator which returns CostType objects.
     """
     for i in range(0, study_period + 1):
-        if i < bcn.initialOcc or (i - bcn.initialOcc) % bcn.recurInterval or i > bcn.recurEndDate:
+        if i == 0 and bcn.initialOcc == 0:
+            yield calculation(i)
+        elif i == 1 and bcn.initialOcc == 0 and bcn.recurInterval != 1:
+            yield CostType("0")
+        elif i < bcn.initialOcc or (i - max(1, bcn.initialOcc)) % bcn.recurInterval or i > bcn.recurEndDate:
             yield CostType("0")
         else:
             yield calculation(i)
@@ -263,9 +272,10 @@ def remaining_life(bcn: Bcn, study_period: int):
     :return: The remaining life of the bcn.
     """
 
+    first_year = max(1, bcn.initialOcc)
+
     def last_interval():
-        return math.floor((study_period - bcn.initialOcc) / bcn.recurInterval) * bcn.recurInterval \
-               + bcn.initialOcc
+        return math.floor((study_period - first_year) / bcn.recurInterval) * bcn.recurInterval + first_year
 
     def end_date_within_period():
         return not bcn.is_recur_end_date_none and bcn.recurEndDate <= study_period
@@ -279,9 +289,12 @@ def remaining_life(bcn: Bcn, study_period: int):
     if end_date_within_period() or lifetime_within_period():
         return 0
     elif bcn.recurBool:
-        return bcn.bcnLife - (study_period - bcn.initialOcc - last_interval()) - 1
+        return bcn.bcnLife - (study_period - last_interval()) - 1
     else:
-        return bcn.bcnLife - (study_period - bcn.initialOcc)
+        residual_life = bcn.bcnLife - study_period
+        if bcn.initialOcc != 0:
+            residual_life += first_year - 1
+        return residual_life
 
 
 def residual_value(bcn: Bcn, study_period: int, values: Sequence[CostType]) -> list[CostType]:
