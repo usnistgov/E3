@@ -286,7 +286,15 @@ def remaining_life(bcn: Bcn, study_period: int):
 
         return study_period >= bcn.bcnLife + last_interval() - 1
 
-    if end_date_within_period() or lifetime_within_period():
+    def one_time_within_period():
+        if bcn.initialOcc != 0:
+            initialOcc = bcn.initialOcc
+        else:
+            initialOcc = 1
+        if not bcn.recurBool and study_period > initialOcc + bcn.bcnLife - 1:
+            return True
+
+    if end_date_within_period() or lifetime_within_period() or bcn.initialOcc > study_period or one_time_within_period():
         return 0
     elif bcn.recurBool:
         return bcn.bcnLife - (study_period - last_interval()) - 1

@@ -22,7 +22,7 @@ class SensitivityTest(TestCase):
             analysisType="LCCA",
             projectType="Buildings",
             objToReport=["FlowSummary", "MeasureSummary", "OptionalSummary"],
-            studyPeriod=25,
+            studyPeriod=40,
             baseDate=datetime.strptime('2012-04-23T18:25:43.511Z', '%Y-%m-%dT%H:%M:%S.511Z'),
             serviceDate=datetime.strptime('2013-04-23T18:25:43.511Z', '%Y-%m-%dT%H:%M:%S.511Z'),
             timestepVal="Year",
@@ -94,7 +94,7 @@ class SensitivityTest(TestCase):
             bcnInvestBool=True,
             rvBool=True,
             rvOnly=False,
-            bcnLife=25,
+            bcnLife=40,
             recurBool=False,
             recurInterval=None,
             recurVarRate=None,
@@ -105,7 +105,7 @@ class SensitivityTest(TestCase):
             quantVarRate=None,
             quantVarValue=None,
             quantUnit=None,
-            studyPeriod=25,
+            studyPeriod=40,
         )
         self.bcn1 = Bcn(
             bcnID=1,
@@ -119,7 +119,7 @@ class SensitivityTest(TestCase):
             bcnInvestBool=True,
             rvBool=True,
             rvOnly=False,
-            bcnLife=25,
+            bcnLife=24,
             recurBool=False,
             recurInterval=None,
             recurVarRate=None,
@@ -130,7 +130,7 @@ class SensitivityTest(TestCase):
             quantVarRate=None,
             quantVarValue=None,
             quantUnit=None,
-            studyPeriod=25,
+            studyPeriod=40,
         )
         self.bcn2 = Bcn(
             bcnID=2,
@@ -155,7 +155,7 @@ class SensitivityTest(TestCase):
             quantVarRate=None,
             quantVarValue=None,
             quantUnit=None,
-            studyPeriod=25,
+            studyPeriod=40,
         )
         self.bcn3 = Bcn(
             bcnID=3,
@@ -180,7 +180,7 @@ class SensitivityTest(TestCase):
             quantVarRate=None,
             quantVarValue=None,
             quantUnit=None,
-            studyPeriod=25,
+            studyPeriod=40,
         )
         self.bcn4 = Bcn(
             bcnID=4,
@@ -205,7 +205,7 @@ class SensitivityTest(TestCase):
             quantVarRate=None,
             quantVarValue=None,
             quantUnit=None,
-            studyPeriod=25,
+            studyPeriod=40,
         )
         self.bcn5 = Bcn(
             bcnID=5,
@@ -230,7 +230,7 @@ class SensitivityTest(TestCase):
             quantVarRate=None,
             quantVarValue=None,
             quantUnit=None,
-            studyPeriod=25,
+            studyPeriod=40,
         )
         self.bcn6 = Bcn(
             bcnID=6,
@@ -255,7 +255,7 @@ class SensitivityTest(TestCase):
             quantVarRate=None,
             quantVarValue=None,
             quantUnit=None,
-            studyPeriod=25,
+            studyPeriod=40,
         )
 
         logger.info("Success!: %s", "Setup tests passed.")
