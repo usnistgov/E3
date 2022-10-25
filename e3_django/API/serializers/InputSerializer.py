@@ -5,9 +5,9 @@ from rest_framework.fields import ListField
 from rest_framework.serializers import Serializer
 
 from API.variables import NUM_ERRORS_LIMIT
-from API.objects import Input, Analysis, Alternative, Bcn, Sensitivity
+from API.objects import Input, Analysis, Alternative, Bcn, Sensitivity, Edges
 from API.serializers import AnalysisSerializer, AlternativeSerializer, BCNSerializer, SensitivitySerializer, \
-    ScenarioSerializer
+    ScenarioSerializer, EdgesSerializer
 
 
 class InputSerializer(Serializer):
@@ -20,6 +20,7 @@ class InputSerializer(Serializer):
     bcnObjects = ListField(child=BCNSerializer(), required=True)
     sensitivityObjects = ListField(child=SensitivitySerializer(required=False), required=False)
     scenarioObject = ScenarioSerializer(required=False)
+    edgesObject = EdgesSerializer(required=False)
 
     def validate(self, data):
         errors = []
@@ -87,12 +88,17 @@ class InputSerializer(Serializer):
             if sens_data['globalVarBool'] is False:
                 Sensitivity(bcnObj=bcn_cache[sens_data["bcnID"]].bcnName, **sens_data)
 
+        if validated_data.get("edgesObject") is not None:
+            edges = Edges(**validated_data.pop("edgesObject"))
+        else:
+            edges = None
+
         return Input(
             analysis,
             [Alternative(**data) for data in validated_data.pop("alternativeObjects")],
             list(bcn_cache.values()),
             [Sensitivity(bcnObj=None, **sens_data) for sens_data in validated_data.get("sensitivityObjects", [])],
-            None,
+            None, edges
         )
 
     def update(self, instance, validate_data):
@@ -101,5 +107,6 @@ class InputSerializer(Serializer):
         instance.bcns = validate_data.get("bcnObjects", instance.bcns)
         instance.sensitivity = validate_data.get("sensitivityObjects", instance.sensitivity)
         instance.scenario = validate_data.get("scenarioObject", instance.scenario)
+        instance.edges = validate_data.get("edgesObject", instance.edges)
 
         return instance

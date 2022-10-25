@@ -7,6 +7,7 @@ from API.variables import MAX_DIGITS, DECIMAL_PLACES, NUM_ERRORS_LIMIT
 from API.serializers.fields import ListMultipleChoiceField, BooleanOptionField, InfinityDecimalField
 
 REPORTABLE_OBJECTS = [
+    "EdgesSummary",
     "FlowSummary",
     "MeasureSummary",
     "OptionalSummary",

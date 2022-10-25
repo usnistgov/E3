@@ -84,7 +84,8 @@ INSTALLED_APPS = [
     'compute.required.apps.RequiredCashFlowConfig',
     'compute.optional.apps.OptionalCashFlowConfig',
     'compute.measures.apps.AlternativeSummaryConfig',
-    'compute.sensitivity.apps.SensitivityConfig'
+    'compute.sensitivity.apps.SensitivityConfig',
+    'compute.edges.apps.EdgesConfig'
 ]
 
 MIDDLEWARE = [

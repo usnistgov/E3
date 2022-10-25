@@ -125,7 +125,7 @@ def single_value(bcn: Bcn) -> Generator[CostType, None, None]:
 
 def var_value(recur_end_date: int, initial: int, interval: int, var_value_list) -> Generator[CostType, None, None]:
     """
-    A generator which calculates the the var values for this BCN if they should be compounding.
+    A generator which calculates the var values for this BCN if they should be compounding.
 
     :param recur_end_date: The end date of the BCN recurrence.
     :param initial: The start of the BCN recurrence
@@ -219,12 +219,7 @@ def remaining_life(bcn: Bcn, study_period: int):
         return study_period >= bcn.bcnLife + last_interval() - 1
 
     def one_time_within_period():
-        if bcn.initialOcc != 0:
-            initialOcc = bcn.initialOcc
-        else:
-            initialOcc = 1
-        if not bcn.recurBool and study_period > initialOcc + bcn.bcnLife - 1:
-            return True
+        return not bcn.recurBool and study_period > first_year + bcn.bcnLife - 1
 
     if end_date_within_period() or lifetime_within_period() or bcn.initialOcc > study_period or one_time_within_period():
         return 0
@@ -249,9 +244,9 @@ def residual_value(bcn: Bcn, study_period: int, values: Sequence[CostType]) -> l
     result = [CostType(0)] * len(values) if bcn.rvOnly else list(values)
     remaining = remaining_life(bcn, study_period)
 
-    # If we initial occurrence is greater than study period, return result
+    # If the initial occurrence is greater than study period, return result
     if bcn.initialOcc > study_period:
-        return result
+        return [CostType(0)] * len(values)
 
     result[study_period] += CostType(-remaining / bcn.bcnLife) * values[bcn.initialOcc]
 

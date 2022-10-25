@@ -70,6 +70,8 @@ class OptionalCashFlowSerializer(Serializer):
     tag = CharField(required=True)
     totTagFlowDisc = ListField(child=InfinityDecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES),
                                required=True)
+    totTagFlowNonDisc = ListField(child=InfinityDecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES),
+                                  required=True)
     totTagQ = ListField(child=InfinityDecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES),
                         required=True)
     quantUnits = CharField(required=True)

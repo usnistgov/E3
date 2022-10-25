@@ -53,7 +53,7 @@ class SensitivityConfig(E3ModuleConfig):
                 globalVar = False
             else:
                 # Get new discount rate
-                discount_rate = sensitivity_object.calculateOutput(base_input,analysis)
+                discount_rate = sensitivity_object.calculateOutput(base_input, analysis)
                 # Recreate cash flows for all BCNs and populate the empty cash_flow object
                 for _id, bcn in enumerate(base_input.bcnObjects):
                     cash_flow.pop(bcn)

@@ -207,10 +207,13 @@ class OptionalCashFlow(CashFlow):
         # Total discount flow that will be mutated by the add method.
         self.totTagFlowDisc = default
 
+        # Total non-discount flow that will be mutated by the add method.
+        self.totTagFlowNonDisc = default
+
         # Total quantity that will be mutated by the add method.
         self.totTagQ = default
 
-        # Quantity units of the optoinal.
+        # Quantity units of the optional.
         self.quantUnits = units
 
     def add(self, bcn, flow):
@@ -225,6 +228,7 @@ class OptionalCashFlow(CashFlow):
             raise ValueError(f"Optional of tag {self.tag} cannot accept BCN with tags {bcn.bcnTag}")
 
         self.totTagFlowDisc = elementwise_add(self.totTagFlowDisc, flow[2])
+        self.totTagFlowNonDisc = elementwise_add(self.totTagFlowNonDisc, flow[1])
         self.totTagQ = elementwise_add(self.totTagQ, flow[0])
 
         return self

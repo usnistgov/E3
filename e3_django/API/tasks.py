@@ -21,6 +21,10 @@ def analyze(user_input: Input):
     if "IRRSummary" in clean_module_list:
         clean_module_list.remove("IRRSummary")
 
+    # EdgesSummary should be last item in clean_module_list
+    if "EdgesSummary" in clean_module_list:
+        user_input.edgesObject.override_input(user_input)
+
     result = {name: module_graph.run(name, user_input, cache) for name in clean_module_list}
 
     for x, y in result.items():
