@@ -2,12 +2,12 @@ from unittest import TestCase
 from datetime import datetime
 import logging
 from decimal import Decimal
-from pprint import pprint
+import os
+import sys
 
-from API.objects import Alternative, Analysis, Bcn, Sensitivity
-from API.serializers import SensitivitySerializer
+from API.objects import Alternative, Analysis, Bcn, Sensitivity, Input
 from compute.sensitivity.accuracyTestTemp import run, runCF
-from base_input import BaseInput
+from API.tasks import analyze
 # from django.core.exceptions import ValidationError
 
 """
@@ -15,12 +15,13 @@ Sensitivity tests
 """
 logger = logging.getLogger(__name__)
 
+
 class SensitivityTest(TestCase):
     def setUp(self):
         self.analysis = Analysis(
             analysisType="LCCA",
             projectType="Infrastructure",
-            objToReport=["SensitivitySummary", "IRRSummary"],
+            objToReport=["IRRSummary", "MeasureSummary", "SensitivitySummary"],
             studyPeriod=50,
             baseDate=datetime.strptime('2012-04-23T18:25:43.511Z', '%Y-%m-%dT%H:%M:%S.511Z'),
             serviceDate=datetime.strptime('2013-04-23T18:25:43.511Z', '%Y-%m-%dT%H:%M:%S.511Z'),
@@ -231,7 +232,7 @@ class SensitivityTest(TestCase):
             altID=[1],
             bcnType="Benefit",
             bcnSubType="Externality",
-            bcnName="Recreation Value",
+            bcnName=["Ext", "Recreation Value"],
             bcnTag="NDRB",
             initialOcc=1,
             bcnRealBool=True,
@@ -256,7 +257,7 @@ class SensitivityTest(TestCase):
             altID=[1],
             bcnType="Benefit",
             bcnSubType="Externality",
-            bcnName="River Health (Salmon)",
+            bcnName=["Ext", "River Health (Salmon)"],
             bcnTag="NDRB",
             initialOcc=5,
             bcnRealBool=True,
@@ -281,7 +282,7 @@ class SensitivityTest(TestCase):
             altID=[1],
             bcnType="Benefit",
             bcnSubType="Externality",
-            bcnName="River Health (Watershed)",
+            bcnName=["Ext", "River Health (Watershed)"],
             bcnTag="NDRB",
             initialOcc=10,
             bcnRealBool=True,
@@ -362,24 +363,43 @@ class SensitivityTest(TestCase):
         return
 
     def test_output_accuracy(self):
-        self.sensitivityObjects = [self.sensitivity1] #, self.sensitivity2, self.sensitivity3]
+        self.sensitivityObjects = [self.sensitivity1, self.sensitivity2, self.sensitivity3]
         self.analysisObject = self.analysis
         self.bcnObjects = [self.bcn0, self.bcn1, self.bcn2, self.bcn3, self.bcn4, self.bcn5, self.bcn6, self.bcn7,
                            self.bcn8, self.bcn9, self.bcn10]
         self.alternativeObjects = [self.alternative1, self.alternative2]
 
-        self.base_input = BaseInput(
+        self.input = Input(
             sensitivityObjects=self.sensitivityObjects,
             analysisObject=self.analysisObject,
             bcnObjects=self.bcnObjects,
             alternativeObjects=self.alternativeObjects,
+            edgesObject=None,
+            scenarioObject=None
         )
-        timestep_comp = self.analysis.timestepComp
-        cash_flow = runCF(self.base_input, timestep_comp)
 
-        res = run(self.base_input, cash_flow)
-        for sens in res:
-            print(sens)
+        os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'e3_django.settings')
+        try:
+            from django.core.management import execute_from_command_line
+        except ImportError as exc:
+            raise ImportError(
+                "Couldn't import Django. Are you sure it's installed and "
+                "available on your PYTHONPATH environment variable? Did you "
+                "forget to activate a virtual environment?"
+            ) from exc
+        execute_from_command_line(sys.argv)
+
+        results = analyze(self.input)
+
+        # for item in results["EdgesSummary"]:
+        #     print(item)
+
+        # timestep_comp = self.analysis.timestepComp
+        # cash_flow = runCF(self.base_input, timestep_comp)
+        #
+        # res = run(self.base_input, cash_flow)
+        # for sens in res:
+        #     print(sens)
 
         # data = {
         #         "globalVarBool": True,

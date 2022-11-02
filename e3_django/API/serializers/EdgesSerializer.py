@@ -1,22 +1,22 @@
 from rest_framework.serializers import Serializer
 from rest_framework.exceptions import ValidationError
-from rest_framework.fields import IntegerField, ChoiceField, ListField, BooleanField, CharField
+from rest_framework.fields import IntegerField, ChoiceField, ListField
 
-from API.serializers.fields import ListMultipleChoiceField, BooleanOptionField, InfinityDecimalField
+from API.serializers.fields import InfinityDecimalField
 from API.variables import MAX_DIGITS, DECIMAL_PLACES, NUM_ERRORS_LIMIT
 import logging
 
 logger = logging.getLogger(__name__)
 
 
-class SensitivitySerializer(Serializer):
+class EdgesSerializer(Serializer):
     mri = InfinityDecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES, required=True)
     drbList = ListField(child=IntegerField(), required=True, allow_null=True)
     disMag = InfinityDecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES, required=False)
     riskPref = ChoiceField(["Averse", "Neutral", "Accepting"], required=False)
     confInt = InfinityDecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES, required=False)
 
-    def validateInput(self, data):
+    def validate(self, data):
         errors = []
         study_period = data["analysisObject"]["studyPeriod"]
 

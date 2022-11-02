@@ -17,7 +17,7 @@ class EdgesConfig(E3ModuleConfig):
     """
 
     name = "compute.edges"
-    verbose_name = 'E3 EDGeS Input Pre-Processor'
+    verbose_name = 'E3 EDGeS Calculations'
     depends_on = ["FlowSummary", "OptionalSummary", "MeasureSummary", "SensitivitySummary"]
     output = "EdgesSummary"
     serializer = ListField(child=EdgesSummarySerializer(), required=False)
@@ -33,9 +33,9 @@ class EdgesConfig(E3ModuleConfig):
             sens_summaries = dependencies["SensitivitySummary"]
         else:
             sens_summaries = None
-        return list(calculate_edges_summary(horizon, baseline_id, base_input.alternativeObjects,
-                                            dependencies["FlowSummary"], dependencies["OptionalSummary"],
-                                            dependencies["MeasureSummary"], sens_summaries))
+        return calculate_edges_summary(horizon, baseline_id, base_input.alternativeObjects,
+                                       dependencies["FlowSummary"], dependencies["OptionalSummary"],
+                                       dependencies["MeasureSummary"], sens_summaries)
 
 
 def elementwise_subtract(x, y):
@@ -45,14 +45,15 @@ def elementwise_subtract(x, y):
 def calculate_edges_summary(horizon, baseline_id, alternatives: Iterable[Alternative],
                             required_flows: Iterable[RequiredCashFlow], optional_flows: Iterable[OptionalCashFlow],
                             alternative_summaries: Iterable[AlternativeSummary],
-                            sensitivity_summaries: Iterable[SensitivitySummary] = None) -> Iterable[EdgesSummary]:
+                            sensitivity_summaries: Iterable[SensitivitySummary] = None):
 
     # !!!!!!!!!!!!!!!!!!!!!!!!!!!PROPER TREATMENT OF BASELINE!!!!!!!!!!!!!!!!!!!!!!!!!!!
     # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!CLEAN UP!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-    # 1. Find baseline and reorder list so that it is first in list. Prevents relooping in order for calculations to
+    # 1. Find baseline and reorder list so that it is first in list. Prevents re-looping in order for calculations to
     # run properly
     alt_list = [0]
+    res = []
     for alt in alternatives:
         if alt.altID == baseline_id:
             alt_list[0] = alt
@@ -83,6 +84,8 @@ def calculate_edges_summary(horizon, baseline_id, alternatives: Iterable[Alterna
                     base_drb_flow_non_disc = opt_flow.totTagFlowNonDisc
                 else:
                     drb_flow_non_disc = opt_flow.totTagFlowNonDisc
+            if opt_flow.altID == alt.altID and opt_flow.tag == "Fatalities Averted":
+                fat_avert = numpy.sum(opt_flow.totTagQ)
 
             # The following code is used if we want to allow DRB related externalities, currently has no impact on
             # calculations. This is mainly here as a reminder. If implemented the tag should be "DRB" and an additional
@@ -125,16 +128,15 @@ def calculate_edges_summary(horizon, baseline_id, alternatives: Iterable[Alterna
             roi_wod_we = annualized_roi(nb_wod_we_disc, npv_inv_costs - base_npv_inv_costs, horizon)
             roi_wod_woe = annualized_roi(nb_wod_woe_disc, npv_inv_costs - base_npv_inv_costs, horizon)
 
-            bcr_wd_we = alt_summ.BCR
             bcr_wd_woe = AlternativeSummary.bcr(npv_benefits - total_ext, base_npv_benefits - baseline_ext,
                                                 npv_inv_costs, base_npv_inv_costs, npv_non_inv_costs,
                                                 base_npv_non_inv_costs)
-            bcr_wod_we = AlternativeSummary.bcr(npv_benefits - npv_d_disc, base_npv_benefits - base_npv_d_disc,
-                                                npv_inv_costs, base_npv_inv_costs, npv_non_inv_costs,
-                                                base_npv_non_inv_costs)
-            bcr_wod_woe = AlternativeSummary.bcr(npv_benefits - total_ext - npv_d_disc,
-                                                 base_npv_benefits - baseline_ext - base_npv_d_disc, npv_inv_costs,
-                                                 base_npv_inv_costs, npv_non_inv_costs, base_npv_non_inv_costs)
+            # bcr_wod_we = AlternativeSummary.bcr(npv_benefits - npv_d_disc, base_npv_benefits - base_npv_d_disc,
+            #                                     npv_inv_costs, base_npv_inv_costs, npv_non_inv_costs,
+            #                                     base_npv_non_inv_costs)
+            # bcr_wod_woe = AlternativeSummary.bcr(npv_benefits - total_ext - npv_d_disc,
+            #                                      base_npv_benefits - baseline_ext - base_npv_d_disc, npv_inv_costs,
+            #                                      base_npv_inv_costs, npv_non_inv_costs, base_npv_non_inv_costs)
 
             diff1 = elementwise_subtract(tot_bens_non_disc, tot_ext_non_disc)
             base_diff1 = elementwise_subtract(baseline_bens_non_disc, baseline_ext_non_disc)
@@ -143,39 +145,37 @@ def calculate_edges_summary(horizon, baseline_id, alternatives: Iterable[Alterna
             diff3 = elementwise_subtract(diff1, drb_flow_non_disc)
             base_diff3 = elementwise_subtract(base_diff1, base_drb_flow_non_disc)
 
-            irr_wd_we = alt_summ.IRR
             irr_wd_woe = AlternativeSummary.irrMeas(tot_cost_non_disc, diff1, baseline_cost_non_disc, base_diff1,
                                                     "Continuous")
-            irr_wod_we = AlternativeSummary.irrMeas(tot_cost_non_disc, diff2, baseline_cost_non_disc, base_diff2,
-                                                    "Continuous")
-            irr_wod_woe = AlternativeSummary.irrMeas(tot_cost_non_disc, diff3, baseline_cost_non_disc, base_diff3,
-                                                     "Continuous")
+            # irr_wod_we = AlternativeSummary.irrMeas(tot_cost_non_disc, diff2, baseline_cost_non_disc, base_diff2,
+            #                                        "Continuous")
+            # irr_wod_woe = AlternativeSummary.irrMeas(tot_cost_non_disc, diff3, baseline_cost_non_disc, base_diff3,
+            #                                         "Continuous")
         else:
             roi_wd_we = None
             roi_wd_woe = None
             roi_wod_we = None
             roi_wod_woe = None
 
-            bcr_wd_we = alt_summ.BCR
             bcr_wd_woe = None
-            bcr_wod_we = None
-            bcr_wod_woe = None
+            # bcr_wod_we = None
+            # bcr_wod_woe = None
 
-            irr_wd_we = alt_summ.IRR
             irr_wd_woe = None
-            irr_wod_we = None
-            irr_wod_woe = None
+            # irr_wod_we = None
+            # irr_wod_woe = None
 
-        # 5. Construct Edges output objects (Tuesday)
-
-        # 6. Repeat for Sensitivity calculations (make functions to clean up repeated calculations)
-        # Check if sensitivity objects exist
-        # Loop through BCNs, look for externalities and DRB tagged variables
-        # Use calls to cash_flows(bcn, analysis.studyPeriod, discount_rate, timestep_comp) to generate the dictionary
-        # needed to sum necessary flows for calculations w/o DRBs and w/o Externalities
-        # Option 2: break into multiple alternatives in the input override section of code in task.py. May not work
-        # for uncertainty
-        return [None]
+        # 5. Construct Edges output objects
+        res.append(EdgesSummary(alt.altID, alt_summ, total_ext, fat_avert, roi_wd_we, roi_wod_we, nb_wd_woe_disc,
+                                bcr_wd_woe, irr_wd_woe, roi_wd_woe, roi_wod_woe))
+    return res
+    # 6. Repeat for Sensitivity calculations (make functions to clean up repeated calculations)
+    # Check if sensitivity objects exist
+    # Loop through BCNs, look for externalities and DRB tagged variables
+    # Use calls to cash_flows(bcn, analysis.studyPeriod, discount_rate, timestep_comp) to generate the dictionary
+    # needed to sum necessary flows for calculations w/o DRBs and w/o Externalities
+    # Option 2: break into multiple alternatives in the input override section of code in task.py. May not work
+    # for uncertainty
 
 
 def annualized_roi(net_benefit, inv_cost, horizon):
@@ -183,4 +183,4 @@ def annualized_roi(net_benefit, inv_cost, horizon):
     try:
         return (net_benefit/inv_cost) * 100 * 1/Decimal(horizon)
     except ZeroDivisionError:
-        return "No valid ROI: Alternative has no investment costs"
+        return "No valid ROI: Alternative has no net investment costs"

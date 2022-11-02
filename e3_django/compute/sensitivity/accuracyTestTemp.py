@@ -4,6 +4,7 @@ import math, numpy
 from typing import Generator, Sequence, List
 from API.objects import Bcn
 from decimal import Decimal
+import os
 from copy import deepcopy
 
 from API.serializers.SensitivitySerializer import SensitivitySerializer
@@ -13,6 +14,11 @@ from compute.optional.apps import calculate_tag_flows
 from compute.required.apps import calculate_required_flows
 from compute.measures.apps import calculate_alternative_summaries
 from API.variables import CostType, FlowType, VAR_RATE_OPTIONS
+
+from API.objects import Input, Output
+from API.registry import ModuleGraph
+from API.serializers.OutputSerializer import OutputSerializer
+from copy import deepcopy
 
 def run(base_input, cash_flow):
     """
@@ -343,3 +349,31 @@ def cash_flows(bcn: Bcn, study_period: int, rate: CostType, timestep_comp: str) 
     discounted_list = discount_values(rate, values, timestep_comp)
 
     return quantities, values, discounted_list
+
+
+def analyze(user_input: Input):
+    """
+    Main task that runs analysis.
+
+    :param user_input: The input object the user provides.
+    :return: The json output created by the analysis.
+    """
+
+    module_graph = ModuleGraph()
+    cache = {}
+
+    clean_module_list = deepcopy(user_input.analysisObject.objToReport)
+    if "IRRSummary" in clean_module_list:
+        clean_module_list.remove("IRRSummary")
+
+    # EdgesSummary should be last item in clean_module_list
+    if "EdgesSummary" in clean_module_list:
+        user_input.edgesObject.override_input(user_input)
+
+    result = {name: module_graph.run(name, user_input, cache) for name in clean_module_list}
+
+    for x, y in result.items():
+        for i in y:
+            print(i)
+
+    return OutputSerializer(Output(**result)).data

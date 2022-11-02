@@ -12,10 +12,10 @@ def filter_tags(tagged_bcn_dict):
 
 class EdgesSummary():
     """
-    Represents aen edges summary object.
+    Represents an edges summary object.
     """
-    def __init__(self, altID, alternativeSummary, pvExts, fatAvert, npvExts, bcrExts, irrExts, roiExts, nonDisRoiExts,
-                 npvNoExts, bcrNoExts, irrNoExts, roiNoExts, nonDisRoiNoExts):
+    def __init__(self, altID, alternativeSummary, pvExts, fatAvert, roiExts, nonDisRoiExts, npvNoExts, bcrNoExts,
+                 irrNoExts, roiNoExts, nonDisRoiNoExts):
         self.altID = altID
         self.totalDirectCosts = alternativeSummary.totSubtypeFlows["Cost-Direct"] if alternativeSummary.totTagFlows["Cost-Direct"] else Decimal(0)
         self.totalIndirectCosts = alternativeSummary.totSubtypeFlows["Cost-Indirect"] if alternativeSummary.totTagFlows["Cost-Indirect"] else Decimal(0)
@@ -35,9 +35,9 @@ class EdgesSummary():
         self.valFatAvert = alternativeSummary.totTagFlows["Fatalities Averted"] if alternativeSummary.totTagFlows["Fatalities Averted"] else Decimal(0)
         self.ndrbRecur = alternativeSummary.totTagFlows["NDRB Recurring"] if alternativeSummary.totTagFlows["NDRB Recurring"] else Decimal(0)
         self.ndrbOneTime = alternativeSummary.totTagFlows["NDRB One-Time"] if alternativeSummary.totTagFlows["NDRB One-Time"] else Decimal(0)
-        self.npvExts = npvExts
-        self.bcrExts = bcrExts
-        self.irrExts = irrExts
+        self.npvExts = alternativeSummary.netBenefits
+        self.bcrExts = alternativeSummary.BCR
+        self.irrExts = alternativeSummary.IRR
         self.roiExts = roiExts
         self.nonDisRoiExts = nonDisRoiExts
         self.npvNoExts = npvNoExts
@@ -47,7 +47,36 @@ class EdgesSummary():
         self.nonDisRoiNoExts = nonDisRoiNoExts
         self.otherTags = filter_tags(alternativeSummary.totTagFlows)
 
-    ## Allows for object to be directly printed out to console when testing, has no use in final code
+    # Allows for object to be directly printed out to console when testing, has no use in final code
     def __str__(self):
         print("altID:", self.altID)
+        print("totalDirectCosts:", self.totalDirectCosts)
+        print("totalIndirectCosts:", self.totalIndirectCosts)
+        print("omrRecur:", self.omrRecur)
+        print("omrOneTime:", self.omrOneTime)
+        print("posExtRecur:", self.posExtRecur)
+        print("posExtOneTime:", self.posExtOneTime)
+        print("negExtRecur:", self.negExtRecur)
+        print("negExtOneTime:", self.negExtOneTime)
+        print("pvBens:", self.pvBens)
+        print("pvCosts:", self.pvCosts)
+        print("pvExts:", self.pvExts)
+        print("respRec:", self.respRec)
+        print("dirLossRed:", self.dirLossRed)
+        print("indirLossRed:", self.indirLossRed)
+        print("fatAvert:", self.fatAvert)
+        print("valFatAvert:", self.valFatAvert)
+        print("ndrbRecur:", self.ndrbRecur)
+        print("ndrbOneTime:", self.ndrbOneTime)
+        print("npvExts:", self.npvExts)
+        print("bcrExts:", self.bcrExts)
+        print("irrExts:", self.irrExts)
+        print("roiExts:", self.roiExts)
+        print("nonDisRoiExts:", self.nonDisRoiExts)
+        print("npvNoExts:", self.npvNoExts)
+        print("bcrNoExts:", self.bcrNoExts)
+        print("irrNoExts:", self.irrNoExts)
+        print("roiNoExts:", self.roiNoExts)
+        print("nonDisRoiNoExts:", self.nonDisRoiNoExts)
+        print("otherTags:", self.otherTags)
         return "--------------------End of Object--------------------"
