@@ -34,12 +34,17 @@ class EdgesSerializer(Serializer):
                 )
             )
 
-        if data["analysisObject"]["comp_type"] != "Continuous":
+        if data["analysisObject"]["timestepComp"] != "Continuous":
             errors.append(
                 ValidationError(
                     "Compounding type must be continuous."
                 )
             )
+
+        if "IRRSummary" not in data["analysisObject"]["objToReport"]:
+            data["analysisObject"]["objToReport"].append("IRRSummary")
+            logger.info("IRR calculations is required for an Edge$ analysis. IRRSummary has been added to reportable"
+                        "objects")
 
         alt_list = []
         for x in data["alternativeObjects"]:
@@ -57,7 +62,7 @@ class EdgesSerializer(Serializer):
         # in Edges (i.e. Disaster related costs, escalation of DRBs, etc.)
         bcn_list = data["bcnObjects"]
         for bcn in bcn_list:
-            if "DRB" in bcn["bcnTag"]:
+            if "DRB" in bcn["bcnTag"] and "NDRB" not in bcn["bcnTag"]:
                 if bcn["subType"] == "Externality":
                     errors.append(
                         ValidationError(
@@ -113,8 +118,8 @@ class EdgesSerializer(Serializer):
                             "Disaster Related Benefits cannot terminate before the end of the study period."
                         )
                     )
-                if "Response and Recovery" not in bcn["bcnTag"] or "Direct Loss Reduction" not in bcn["bcnTag"] \
-                        or "Indirect Loss Reduction" not in bcn["bcnTag"] or "Fatalities Averted" not in bcn["bcnTag"]:
+                if "Response and Recovery" not in bcn["bcnTag"] and "Direct Loss Reduction" not in bcn["bcnTag"] \
+                        and "Indirect Loss Reduction" not in bcn["bcnTag"] and "Fatalities Averted" not in bcn["bcnTag"]:
                     errors.append(
                         ValidationError(
                             "DRBs must be tagged as \"Response and Recovery\", \"Direct Loss Reduction\", \"Indirect Loss Reduction\" or \"Fatalities Averted\" for output purposes"
@@ -122,16 +127,16 @@ class EdgesSerializer(Serializer):
                     )
                     # End remove block
             if bcn["bcnSubType"] == "Externality" and ("Positive One-Time" not in bcn["bcnTag"]
-                                                       or "Positive Recurring" not in bcn["bcnTag"]
-                                                       or "Negative One-Time" not in bcn["bcnTag"]
-                                                       or "Negative Recurring" not in bcn["bcnTag"]):
+                                                       and "Positive Recurring" not in bcn["bcnTag"]
+                                                       and "Negative One-Time" not in bcn["bcnTag"]
+                                                       and "Negative Recurring" not in bcn["bcnTag"]):
                 errors.append(
                     ValidationError(
                         "Externalities must be tagged as \"Positive One-time\", \"Positive Recurring\", \"Negative One-time\" or \"Negative Recurring\" for output purposes"
                     )
                 )
             if bcn["bcnType"] == "Cost" and "OMR" in bcn["bcnTag"] and ("OMR One-Time" not in bcn["bcnTag"]
-                                                                        or "OMR Recurring" not in bcn["bcnTag"]):
+                                                                        and "OMR Recurring" not in bcn["bcnTag"]):
                 errors.append(
                     ValidationError(
                         "OMR costs must be tagged as \"OMR One-Time\" or \"OMR Recurring\" for output purposes"
@@ -145,10 +150,22 @@ class EdgesSerializer(Serializer):
                     )
                 )
             if "NDRB" in bcn["bcnTag"] and ("NDRB One-Time" not in bcn["bcnTag"]
-                                            or "NDRB Recurring" not in bcn["bcnTag"]):
+                                            and "NDRB Recurring" not in bcn["bcnTag"]):
                 errors.append(
                     ValidationError(
                         "NDRBs must be tagged as \"NDRB One-Time\" or \"NDRB Recurring\" for output purposes"
+                    )
+                )
+            if "NDRB" in bcn["bcnTag"] and bcn["bcnType"] != "Benefit":
+                errors.append(
+                    ValidationError(
+                        "NDRBs must be a Benefit type BCN"
+                    )
+                )
+            if "NDRB" in bcn["bcnTag"] and bcn["bcnSubType"] == "Externality":
+                errors.append(
+                    ValidationError(
+                        "NDRBs may not have the Externality SubType"
                     )
                 )
             if bcn["bcnType"] != "Benefit" and "NDRB" in bcn["bcnTag"] or "NDRB One-Time" in bcn["bcnTag"] \

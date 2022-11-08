@@ -8,7 +8,9 @@ from API.registry import E3ModuleConfig
 from rest_framework.fields import ListField
 from compute.serializers import EdgesSummarySerializer
 from compute.objects import RequiredCashFlow, OptionalCashFlow, EdgesSummary, AlternativeSummary, SensitivitySummary
+from compute.objects.AlternativeSummary import bcr, irrMeas
 from API.objects import Analysis, Alternative
+
 
 
 class EdgesConfig(E3ModuleConfig):
@@ -18,7 +20,7 @@ class EdgesConfig(E3ModuleConfig):
 
     name = "compute.edges"
     verbose_name = 'E3 EDGeS Calculations'
-    depends_on = ["FlowSummary", "OptionalSummary", "MeasureSummary", "SensitivitySummary"]
+    depends_on = ["FlowSummary", "OptionalSummary", "MeasureSummary", "internal:cash-flows"]
     output = "EdgesSummary"
     serializer = ListField(child=EdgesSummarySerializer(), required=False)
 
@@ -29,17 +31,13 @@ class EdgesConfig(E3ModuleConfig):
             if alt.baselineBool is True:
                 baseline_id = alt.altID
 
-        if dependencies["SensitivitySummary"]:
-            sens_summaries = dependencies["SensitivitySummary"]
-        else:
-            sens_summaries = None
         return calculate_edges_summary(horizon, baseline_id, base_input.alternativeObjects,
                                        dependencies["FlowSummary"], dependencies["OptionalSummary"],
-                                       dependencies["MeasureSummary"], sens_summaries)
+                                       dependencies["MeasureSummary"])
 
 
 def elementwise_subtract(x, y):
-    return map(operator.sub, x, y)
+    return list(map(operator.sub, x, y))
 
 
 def calculate_edges_summary(horizon, baseline_id, alternatives: Iterable[Alternative],
@@ -85,7 +83,11 @@ def calculate_edges_summary(horizon, baseline_id, alternatives: Iterable[Alterna
                 else:
                     drb_flow_non_disc = opt_flow.totTagFlowNonDisc
             if opt_flow.altID == alt.altID and opt_flow.tag == "Fatalities Averted":
-                fat_avert = numpy.sum(opt_flow.totTagQ)
+                fat_avert = Decimal(numpy.sum(opt_flow.totTagQ))
+        try:
+            fat_avert
+        except UnboundLocalError:
+            fat_avert = Decimal(0)
 
             # The following code is used if we want to allow DRB related externalities, currently has no impact on
             # calculations. This is mainly here as a reminder. If implemented the tag should be "DRB" and an additional
@@ -100,18 +102,26 @@ def calculate_edges_summary(horizon, baseline_id, alternatives: Iterable[Alterna
         # 3. Pull useful values from the appropriate AlternativeSummary objects
         for alt_summ in alternative_summaries:
             # 3.1. Pull values used to calculate new output
-            if alt.altID == alt_summ.altID and alt.altID != baseline_id:
-                nb_wd_we_disc = alt_summ.netBenefits
-                npv_d_disc = alt_summ.totTagFlows["DRB"]
-                npv_inv_costs = alt_summ.totalCostsInv
-                npv_benefits = alt_summ.totalBenefits
-                npv_non_inv_costs = alt_summ.totalCostsNonInv
-            else:
-                base_npv_d_disc = alt_summ.totTagFlows["DRB"]
+            if alt.altID == baseline_id:
+                try:
+                    base_npv_d_disc = alt_summ.totTagFlows["DRB"]
+                except KeyError:
+                    base_npv_d_disc = 0
                 base_npv_inv_costs = alt_summ.totalCostsInv
                 base_npv_benefits = alt_summ.totalBenefits
                 base_npv_non_inv_costs = alt_summ.totalCostsNonInv
                 baseline_ext = numpy.sum(baseline_ext_disc)
+                break
+            if alt.altID == alt_summ.altID and alt.altID != baseline_id:
+                nb_wd_we_disc = alt_summ.netBenefits
+                try:
+                    npv_d_disc = alt_summ.totTagFlows["DRB"]
+                except KeyError:
+                    npv_d_disc = 0
+                npv_inv_costs = alt_summ.totalCostsInv
+                npv_benefits = alt_summ.totalBenefits
+                npv_non_inv_costs = alt_summ.totalCostsNonInv
+                break
             # 3.2. Pull values from measure summaries to be used in EDGe$ output
             total_costs = alt_summ.totalCosts
 
@@ -121,6 +131,11 @@ def calculate_edges_summary(horizon, baseline_id, alternatives: Iterable[Alterna
             nb_wd_woe_disc = nb_wd_we_disc - (total_ext - baseline_ext)
             nb_wod_woe_disc = nb_wd_woe_disc - (total_ext - baseline_ext) - (npv_d_disc - base_npv_d_disc)
             nb_wod_we_disc = nb_wd_we_disc - (npv_d_disc - base_npv_d_disc)
+        else:
+            total_ext = numpy.sum(baseline_ext_disc)
+            nb_wd_woe_disc = None
+            nb_wod_woe_disc = None
+            nb_wod_we_disc = None
 
         if alt.altID != baseline_id:
             roi_wd_we = annualized_roi(nb_wd_we_disc, npv_inv_costs - base_npv_inv_costs, horizon)
@@ -128,29 +143,23 @@ def calculate_edges_summary(horizon, baseline_id, alternatives: Iterable[Alterna
             roi_wod_we = annualized_roi(nb_wod_we_disc, npv_inv_costs - base_npv_inv_costs, horizon)
             roi_wod_woe = annualized_roi(nb_wod_woe_disc, npv_inv_costs - base_npv_inv_costs, horizon)
 
-            bcr_wd_woe = AlternativeSummary.bcr(npv_benefits - total_ext, base_npv_benefits - baseline_ext,
-                                                npv_inv_costs, base_npv_inv_costs, npv_non_inv_costs,
-                                                base_npv_non_inv_costs)
-            # bcr_wod_we = AlternativeSummary.bcr(npv_benefits - npv_d_disc, base_npv_benefits - base_npv_d_disc,
-            #                                     npv_inv_costs, base_npv_inv_costs, npv_non_inv_costs,
-            #                                     base_npv_non_inv_costs)
-            # bcr_wod_woe = AlternativeSummary.bcr(npv_benefits - total_ext - npv_d_disc,
-            #                                      base_npv_benefits - baseline_ext - base_npv_d_disc, npv_inv_costs,
-            #                                      base_npv_inv_costs, npv_non_inv_costs, base_npv_non_inv_costs)
+            bcr_wd_woe = bcr(npv_benefits - total_ext, base_npv_benefits - baseline_ext, npv_inv_costs,
+                             base_npv_inv_costs, npv_non_inv_costs, base_npv_non_inv_costs)
+            # bcr_wod_we = bcr(npv_benefits - npv_d_disc, base_npv_benefits - base_npv_d_disc, npv_inv_costs,
+            #                 base_npv_inv_costs, npv_non_inv_costs, base_npv_non_inv_costs)
+            # bcr_wod_woe = bcr(npv_benefits - total_ext - npv_d_disc, base_npv_benefits - baseline_ext - base_npv_d_disc,
+            #                  npv_inv_costs, base_npv_inv_costs, npv_non_inv_costs, base_npv_non_inv_costs)
 
             diff1 = elementwise_subtract(tot_bens_non_disc, tot_ext_non_disc)
             base_diff1 = elementwise_subtract(baseline_bens_non_disc, baseline_ext_non_disc)
-            diff2 = elementwise_subtract(tot_bens_non_disc, drb_flow_non_disc)
-            base_diff2 = elementwise_subtract(baseline_bens_non_disc, base_drb_flow_non_disc)
-            diff3 = elementwise_subtract(diff1, drb_flow_non_disc)
-            base_diff3 = elementwise_subtract(base_diff1, base_drb_flow_non_disc)
+            # diff2 = elementwise_subtract(tot_bens_non_disc, drb_flow_non_disc)
+            # base_diff2 = elementwise_subtract(baseline_bens_non_disc, base_drb_flow_non_disc)
+            # diff3 = elementwise_subtract(diff1, drb_flow_non_disc)
+            # base_diff3 = elementwise_subtract(base_diff1, base_drb_flow_non_disc)
 
-            irr_wd_woe = AlternativeSummary.irrMeas(tot_cost_non_disc, diff1, baseline_cost_non_disc, base_diff1,
-                                                    "Continuous")
-            # irr_wod_we = AlternativeSummary.irrMeas(tot_cost_non_disc, diff2, baseline_cost_non_disc, base_diff2,
-            #                                        "Continuous")
-            # irr_wod_woe = AlternativeSummary.irrMeas(tot_cost_non_disc, diff3, baseline_cost_non_disc, base_diff3,
-            #                                         "Continuous")
+            irr_wd_woe = irrMeas(tot_cost_non_disc, diff1, baseline_cost_non_disc, base_diff1, "Continuous")
+            # irr_wod_we = irrMeas(tot_cost_non_disc, diff2, baseline_cost_non_disc, base_diff2, "Continuous")
+            # irr_wod_woe = irrMeas(tot_cost_non_disc, diff3, baseline_cost_non_disc, base_diff3, "Continuous")
         else:
             roi_wd_we = None
             roi_wd_woe = None

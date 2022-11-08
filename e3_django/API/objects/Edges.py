@@ -15,13 +15,15 @@ def drb_future_value(value, disaster_rate, discount_rate, horizon, initial_occur
     fv_denominator = math.exp(-(discount_rate + lambda_param) * initial_occurrence) - \
                      math.exp(-(discount_rate + lambda_param) * horizon) - \
                      (discount_rate + lambda_param) / lambda_param
-    return value * fv_numerator / fv_denominator
+    # print(value * Decimal(fv_numerator) / Decimal(fv_denominator))
+    return value * Decimal(fv_numerator) / Decimal(fv_denominator)
 
 
 def drb_annualized(future_value, discount_rate, horizon, initial_occurrence):
-    av_numerator = (math.exp(-discount_rate * (initial_occurrence - 1)) - math.exp(-discount_rate * horizon))
-    av_denominator = 1 / (math.exp(discount_rate) - 1)
-    return future_value * av_numerator / av_denominator
+    av_denom_1 = (math.exp(-discount_rate * (initial_occurrence - 1)) - math.exp(-discount_rate * horizon))
+    av_denom_2 = 1 / (math.exp(discount_rate) - 1)
+    # print(future_value * 1 / (Decimal(av_denom_1) * Decimal(av_denom_2)))
+    return future_value * 1 / (Decimal(av_denom_1) * Decimal(av_denom_2))
 
 
 def sens_adjustment(sens_object, bcn_object, original_values, disaster_rate, discount_rate, horizon,
@@ -81,8 +83,8 @@ class Edges:
         # 1. Collect necessary values
         disaster_rate = self.mri
         bcn_list = base_input.bcnObjects
-        discount_rate = base_input.analysis.dRateReal if base_input.analysis.outputRealBool else base_input.analysis.dRateNom
-        horizon = base_input.analysis.studyPeriod
+        discount_rate = base_input.analysisObject.dRateReal if base_input.analysisObject.outputRealBool else base_input.analysisObject.dRateNom
+        horizon = base_input.analysisObject.studyPeriod
 
         # 2. Initialize list to store unaltered values
         original_values = []
@@ -116,25 +118,26 @@ class Edges:
                     # should be caught in the validation. The definition are remaining here in the event we want to do
                     # something with them in the future.
                     bcn.quantVarRate = None
-                    bcn.quantVarValue = None
+                    bcn.quantVarValue = [0 for _ in range(horizon + 1)]
                     bcn.recurVarRate = None
-                    bcn.recurVarValue = None
+                    bcn.recurVarValue = [0 for _ in range(horizon + 1)]
 
         # 4. Loop through Sensitivity Input objects, check against input list to see if BCN is a DRB. If true, calculate
         # the adjusted values for the sensitivity object (Formulas should work for uncertainty as well)
-        for sens_object in base_input.sensitivityObjects:
-            bcn_id = sens_object.bcnID
-            for bcn in bcn_list:
-                if bcn.bcnID == bcn_id:
-                    bcn_object = bcn
-                    break
-            for item in original_values:
-                if item[0] == bcn_id:
-                    bcn_values = item
-                    break
-            for drb_id in self.drbList:
-                if drb_id == bcn_id:
-                    sens_adjustment(sens_object, bcn_object, bcn_values, disaster_rate, discount_rate, horizon,
-                                    bcn_object.initialOcc)
+        if "EdgesSensitivitySummary" in base_input.analysisObject.objToReport:
+            for sens_object in base_input.sensitivityObjects:
+                bcn_id = sens_object.bcnID
+                for bcn in bcn_list:
+                    if bcn.bcnID == bcn_id:
+                        bcn_object = bcn
+                        break
+                for item in original_values:
+                    if item[0] == bcn_id:
+                        bcn_values = item
+                        break
+                for drb_id in self.drbList:
+                    if drb_id == bcn_id:
+                        sens_adjustment(sens_object, bcn_object, bcn_values, disaster_rate, discount_rate, horizon,
+                                        bcn_object.initialOcc)
 
         return None

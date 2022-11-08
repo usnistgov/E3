@@ -5,7 +5,7 @@ from decimal import Decimal
 import os
 import sys
 
-from API.objects import Alternative, Analysis, Bcn, Sensitivity, Input
+from API.objects import Alternative, Analysis, Bcn, Sensitivity, Input, Edges
 from compute.sensitivity.accuracyTestTemp import run, runCF
 from API.tasks import analyze
 # from django.core.exceptions import ValidationError
@@ -21,7 +21,7 @@ class SensitivityTest(TestCase):
         self.analysis = Analysis(
             analysisType="LCCA",
             projectType="Infrastructure",
-            objToReport=["IRRSummary", "MeasureSummary", "SensitivitySummary"],
+            objToReport=["IRRSummary", "EdgesSummary"],
             studyPeriod=50,
             baseDate=datetime.strptime('2012-04-23T18:25:43.511Z', '%Y-%m-%dT%H:%M:%S.511Z'),
             serviceDate=datetime.strptime('2013-04-23T18:25:43.511Z', '%Y-%m-%dT%H:%M:%S.511Z'),
@@ -51,6 +51,13 @@ class SensitivityTest(TestCase):
             altName="Mitigation",
             altBCNList=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
             baselineBool=False,
+        )
+        self.edges = Edges(
+            mri=25,
+            drbList=[3, 4, 5, 6],
+            disMag=None,
+            riskPref="Neutral",
+            confInt=0.95
         )
         self.bcn0 = Bcn(
             bcnID=0,
@@ -108,7 +115,7 @@ class SensitivityTest(TestCase):
             bcnType="Cost",
             bcnSubType="Direct",
             bcnName="Total OMR Costs",
-            bcnTag="OMR",
+            bcnTag=["OMR", "OMR Recurring"],
             initialOcc=4,
             bcnRealBool=True,
             bcnInvestBool=True,
@@ -133,7 +140,7 @@ class SensitivityTest(TestCase):
             bcnType="Benefit",
             bcnSubType="Indirect",
             bcnName="Indirect Loss Reduction",
-            bcnTag="DRB",
+            bcnTag=["DRB", "Indirect Loss Reduction"],
             initialOcc=1,
             bcnRealBool=True,
             bcnInvestBool=False,
@@ -143,9 +150,9 @@ class SensitivityTest(TestCase):
             recurBool=True,
             recurInterval=1,
             recurVarRate=None,
-            recurVarValue=0,
+            recurVarValue=None,
             recurEndDate=50,
-            valuePerQ=23543.2,
+            valuePerQ=588580,
             quant=Decimal(1),
             quantVarRate=None,
             quantVarValue=None,
@@ -157,8 +164,8 @@ class SensitivityTest(TestCase):
             altID=[1],
             bcnType="Benefit",
             bcnSubType="Direct",
-            bcnName="sludge removal cost",
-            bcnTag="DRB",
+            bcnName="Sludge removal cost",
+            bcnTag=["DRB", "Direct Loss Reduction"],
             initialOcc=1,
             bcnRealBool=True,
             bcnInvestBool=False,
@@ -168,9 +175,9 @@ class SensitivityTest(TestCase):
             recurBool=True,
             recurInterval=1,
             recurVarRate=None,
-            recurVarValue=0,
+            recurVarValue=None,
             recurEndDate=50,
-            valuePerQ=68000,
+            valuePerQ=1700000,
             quant=Decimal(1),
             quantVarRate=None,
             quantVarValue=None,
@@ -183,7 +190,7 @@ class SensitivityTest(TestCase):
             bcnType="Benefit",
             bcnSubType="Direct",
             bcnName="Water Treatment Chemical Cost",
-            bcnTag="DRB",
+            bcnTag=["DRB", "Direct Loss Reduction"],
             initialOcc=1,
             bcnRealBool=True,
             bcnInvestBool=False,
@@ -193,9 +200,9 @@ class SensitivityTest(TestCase):
             recurBool=True,
             recurInterval=1,
             recurVarRate=None,
-            recurVarValue=0,
+            recurVarValue=None,
             recurEndDate=50,
-            valuePerQ=3342.04,
+            valuePerQ=83576,
             quant=Decimal(1),
             quantVarRate=None,
             quantVarValue=None,
@@ -208,7 +215,7 @@ class SensitivityTest(TestCase):
             bcnType="Benefit",
             bcnSubType="Direct",
             bcnName="Reseeding",
-            bcnTag="DRB",
+            bcnTag=["DRB", "Response and Recovery"],
             initialOcc=1,
             bcnRealBool=True,
             bcnInvestBool=False,
@@ -218,9 +225,9 @@ class SensitivityTest(TestCase):
             recurBool=True,
             recurInterval=1,
             recurVarRate=None,
-            recurVarValue=0,
+            recurVarValue=None,
             recurEndDate=None,
-            valuePerQ=7200,
+            valuePerQ=180000,
             quant=Decimal(1),
             quantVarRate=None,
             quantVarValue=None,
@@ -231,9 +238,9 @@ class SensitivityTest(TestCase):
             bcnID=7,
             altID=[1],
             bcnType="Benefit",
-            bcnSubType="Externality",
-            bcnName=["Ext", "Recreation Value"],
-            bcnTag="NDRB",
+            bcnSubType="Indirect",
+            bcnName="Recreation Value",
+            bcnTag=["NDRB", "NDRB Recurring"],
             initialOcc=1,
             bcnRealBool=True,
             bcnInvestBool=False,
@@ -256,9 +263,9 @@ class SensitivityTest(TestCase):
             bcnID=8,
             altID=[1],
             bcnType="Benefit",
-            bcnSubType="Externality",
-            bcnName=["Ext", "River Health (Salmon)"],
-            bcnTag="NDRB",
+            bcnSubType="Indirect",
+            bcnName="River Health (Salmon)",
+            bcnTag=["NDRB", "NDRB One-Time"],
             initialOcc=5,
             bcnRealBool=True,
             bcnInvestBool=False,
@@ -281,9 +288,9 @@ class SensitivityTest(TestCase):
             bcnID=9,
             altID=[1],
             bcnType="Benefit",
-            bcnSubType="Externality",
-            bcnName=["Ext", "River Health (Watershed)"],
-            bcnTag="NDRB",
+            bcnSubType="Indirect",
+            bcnName="River Health (Watershed)",
+            bcnTag=["NDRB", "NDRB One-Time"],
             initialOcc=10,
             bcnRealBool=True,
             bcnInvestBool=False,
@@ -363,18 +370,19 @@ class SensitivityTest(TestCase):
         return
 
     def test_output_accuracy(self):
-        self.sensitivityObjects = [self.sensitivity1, self.sensitivity2, self.sensitivity3]
+        self.sensitivityObjects = None # [self.sensitivity1, self.sensitivity2, self.sensitivity3]
         self.analysisObject = self.analysis
         self.bcnObjects = [self.bcn0, self.bcn1, self.bcn2, self.bcn3, self.bcn4, self.bcn5, self.bcn6, self.bcn7,
                            self.bcn8, self.bcn9, self.bcn10]
         self.alternativeObjects = [self.alternative1, self.alternative2]
+        self.edgesObject = self.edges
 
         self.input = Input(
             sensitivityObjects=self.sensitivityObjects,
             analysisObject=self.analysisObject,
             bcnObjects=self.bcnObjects,
             alternativeObjects=self.alternativeObjects,
-            edgesObject=None,
+            edgesObject=self.edgesObject,
             scenarioObject=None
         )
 

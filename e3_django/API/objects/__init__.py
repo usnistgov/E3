@@ -4,3 +4,4 @@ from .Bcn import Bcn
 from .Input import Input
 from .Output import Output
 from .Sensitivity import Sensitivity
+from .Edges import Edges
