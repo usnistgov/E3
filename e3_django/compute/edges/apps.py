@@ -12,7 +12,6 @@ from compute.objects.AlternativeSummary import bcr, irrMeas
 from API.objects import Analysis, Alternative
 
 
-
 class EdgesConfig(E3ModuleConfig):
     """
     This module updates BCNs and Sensitivity objects for disaster related benefits.
@@ -24,7 +23,6 @@ class EdgesConfig(E3ModuleConfig):
     output = "EdgesSummary"
     serializer = ListField(child=EdgesSummarySerializer(), required=False)
 
-    # Move to Edges Object, call edges_input_override from Edges object with user_input as input
     def run(self, base_input, dependencies=None):
         horizon = base_input.analysisObject.studyPeriod
         for alt in base_input.alternativeObjects:
@@ -45,8 +43,8 @@ def calculate_edges_summary(horizon, baseline_id, alternatives: Iterable[Alterna
                             alternative_summaries: Iterable[AlternativeSummary],
                             sensitivity_summaries: Iterable[SensitivitySummary] = None):
 
-    # !!!!!!!!!!!!!!!!!!!!!!!!!!!PROPER TREATMENT OF BASELINE!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!CLEAN UP!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    # Variable definitions, "nb" - net benefits, "wd" or "d" - with disaster, "wod" - without disaster, "we" - with
+    # externalities, "woe" - without externalities, "drb" - disaster related benefits
 
     # 1. Find baseline and reorder list so that it is first in list. Prevents re-looping in order for calculations to
     # run properly
@@ -75,7 +73,7 @@ def calculate_edges_summary(horizon, baseline_id, alternatives: Iterable[Alterna
                 tot_ext_disc = elementwise_subtract(req_flow.totBenefitsExtDisc, req_flow.totCostExtDisc)
                 tot_ext_non_disc = elementwise_subtract(req_flow.totBenefitsExt, req_flow.totCostExt)
 
-        # 2.1. Collect values from optional flows
+        # 2.2. Collect values from optional flows
         for opt_flow in optional_flows:
             if opt_flow.altID == alt.altID and (opt_flow.tag == "DRB" or opt_flow.tag == "DRB-Ext"):
                 if alt.altID == baseline_id:
@@ -83,11 +81,20 @@ def calculate_edges_summary(horizon, baseline_id, alternatives: Iterable[Alterna
                 else:
                     drb_flow_non_disc = opt_flow.totTagFlowNonDisc
             if opt_flow.altID == alt.altID and opt_flow.tag == "Fatalities Averted":
-                fat_avert = Decimal(numpy.sum(opt_flow.totTagQ))
+                if alt.altID == baseline_id:
+                    base_fat_avert = Decimal(numpy.sum(opt_flow.totTagQ))
+                else:
+                    fat_avert = Decimal(numpy.sum(opt_flow.totTagQ))
         try:
             fat_avert
         except UnboundLocalError:
             fat_avert = Decimal(0)
+        # try:
+        #     base_fat_avert
+        # except UnboundLocalError:
+        #     base_fat_avert = Decimal(0)
+        #
+        # fat_avert_diff = fat_avert - base_fat_avert
 
             # The following code is used if we want to allow DRB related externalities, currently has no impact on
             # calculations. This is mainly here as a reminder. If implemented the tag should be "DRB" and an additional
@@ -122,7 +129,7 @@ def calculate_edges_summary(horizon, baseline_id, alternatives: Iterable[Alterna
                 npv_benefits = alt_summ.totalBenefits
                 npv_non_inv_costs = alt_summ.totalCostsNonInv
                 break
-            # 3.2. Pull values from measure summaries to be used in EDGe$ output
+
             total_costs = alt_summ.totalCosts
 
         # 4. Calculate new outputs for EDGe$ analysis
@@ -192,4 +199,4 @@ def annualized_roi(net_benefit, inv_cost, horizon):
     try:
         return (net_benefit/inv_cost) * 100 * 1/Decimal(horizon)
     except ZeroDivisionError:
-        return "No valid ROI: Alternative has no net investment costs"
+        return None

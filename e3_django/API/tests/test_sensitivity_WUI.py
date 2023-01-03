@@ -4,10 +4,12 @@ import logging
 from decimal import Decimal
 import os
 import sys
+from pprint import pprint
 
 from API.objects import Alternative, Analysis, Bcn, Sensitivity, Input, Edges
 from compute.sensitivity.accuracyTestTemp import run, runCF
 from API.tasks import analyze
+from API.serializers import EdgesSerializer
 # from django.core.exceptions import ValidationError
 
 """
@@ -21,7 +23,7 @@ class SensitivityTest(TestCase):
         self.analysis = Analysis(
             analysisType="LCCA",
             projectType="Infrastructure",
-            objToReport=["IRRSummary", "EdgesSummary"],
+            objToReport=["IRRSummary", "EdgesSummary", "EdgesSensitivitySummary"],
             studyPeriod=50,
             baseDate=datetime.strptime('2012-04-23T18:25:43.511Z', '%Y-%m-%dT%H:%M:%S.511Z'),
             serviceDate=datetime.strptime('2013-04-23T18:25:43.511Z', '%Y-%m-%dT%H:%M:%S.511Z'),
@@ -103,7 +105,7 @@ class SensitivityTest(TestCase):
             recurVarValue=None,
             recurEndDate=None,
             valuePerQ=625086,
-            quant=Decimal(1),
+            quant=1,
             quantVarRate=None,
             quantVarValue=None,
             quantUnit=None,
@@ -342,27 +344,27 @@ class SensitivityTest(TestCase):
             bcnObj=None,
             varName='discountRate',
             diffType='Percent',
-            diffValue=0,
+            diffValue=1,
         )
 
         self.sensitivity2 = Sensitivity(
             globalVarBool=False,
             altID=1,
-            bcnID=9,
-            bcnObj="River Health (Watershed)",
-            varName='initialOcc',
+            bcnID=5,
+            bcnObj="Water Treatment Chemical Cost",
+            varName='valuePerQ',
             diffType='Gross',
-            diffValue=0.5,
+            diffValue=1000,
         )
 
         self.sensitivity3 = Sensitivity(
             globalVarBool=False,
             altID=1,
-            bcnID=9,
-            bcnObj="River Health (Watershed)",
-            varName='recurInterval',
+            bcnID=6,
+            bcnObj="Reseeding",
+            varName='quant',
             diffType='Percent',
-            diffValue=50,
+            diffValue=2,
         )
 
         logger.info("Success!: %s", "Setup tests passed.")
@@ -370,22 +372,6 @@ class SensitivityTest(TestCase):
         return
 
     def test_output_accuracy(self):
-        self.sensitivityObjects = None # [self.sensitivity1, self.sensitivity2, self.sensitivity3]
-        self.analysisObject = self.analysis
-        self.bcnObjects = [self.bcn0, self.bcn1, self.bcn2, self.bcn3, self.bcn4, self.bcn5, self.bcn6, self.bcn7,
-                           self.bcn8, self.bcn9, self.bcn10]
-        self.alternativeObjects = [self.alternative1, self.alternative2]
-        self.edgesObject = self.edges
-
-        self.input = Input(
-            sensitivityObjects=self.sensitivityObjects,
-            analysisObject=self.analysisObject,
-            bcnObjects=self.bcnObjects,
-            alternativeObjects=self.alternativeObjects,
-            edgesObject=self.edgesObject,
-            scenarioObject=None
-        )
-
         os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'e3_django.settings')
         try:
             from django.core.management import execute_from_command_line
@@ -396,6 +382,50 @@ class SensitivityTest(TestCase):
                 "forget to activate a virtual environment?"
             ) from exc
         execute_from_command_line(sys.argv)
+
+        self.sensitivityObjects = [self.sensitivity1, self.sensitivity2, self.sensitivity3]
+        self.analysisObject = self.analysis
+        self.bcnObjects = [self.bcn0, self.bcn1, self.bcn2, self.bcn3, self.bcn4, self.bcn5, self.bcn6, self.bcn7,
+                           self.bcn8, self.bcn9, self.bcn10]
+        self.alternativeObjects = [self.alternative1, self.alternative2]
+        self.edgesObject = self.edges
+
+        analysisData = vars(self.analysisObject)
+
+        bcnData = []
+        for i in range(len(self.bcnObjects)):
+            bcnData.append(vars(self.bcnObjects[i]))
+
+        alternativeData = []
+        for i in range(len(self.alternativeObjects)):
+            alternativeData.append(vars(self.alternativeObjects[i]))
+
+        if self.sensitivityObjects:
+            sensitivityData = []
+            for i in range(len(self.sensitivityObjects)):
+                sensitivityData.append(vars(self.sensitivityObjects[i]))
+        else:
+            sensitivityData = None
+
+        edgesData = vars(self.edgesObject)
+
+        inputData = {"analysisObject": analysisData,
+                     "bcnObjects": bcnData,
+                     "alternativeObjects": alternativeData,
+                     "sensitivityObjects": sensitivityData,
+                     "edgesObject": edgesData}
+
+        data = EdgesSerializer(data=inputData)
+        data.validate(inputData)
+
+        self.input = Input(
+            sensitivityObjects=self.sensitivityObjects,
+            analysisObject=self.analysisObject,
+            bcnObjects=self.bcnObjects,
+            alternativeObjects=self.alternativeObjects,
+            edgesObject=self.edgesObject,
+            scenarioObject=None
+        )
 
         results = analyze(self.input)
 

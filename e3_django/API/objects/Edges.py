@@ -8,45 +8,52 @@ logger = logging.getLogger(__name__)
 
 
 def drb_future_value(value, disaster_rate, discount_rate, horizon, initial_occurrence):
+    # Define the lambda parameter for disaster recurrence
     lambda_param = 1 / disaster_rate
 
+    # Calculate the future value numerator and denominator
     fv_numerator = math.exp(-(discount_rate + lambda_param) * horizon) - math.exp(-(discount_rate + lambda_param) *
                                                                                   initial_occurrence)
     fv_denominator = math.exp(-(discount_rate + lambda_param) * initial_occurrence) - \
                      math.exp(-(discount_rate + lambda_param) * horizon) - \
                      (discount_rate + lambda_param) / lambda_param
-    # print(value * Decimal(fv_numerator) / Decimal(fv_denominator))
+
+    # Return the future value of the disaster related event
     return value * Decimal(fv_numerator) / Decimal(fv_denominator)
 
 
 def drb_annualized(future_value, discount_rate, horizon, initial_occurrence):
+    # Calculate the numerator and denominator required to get the annualized value from the future value
     av_denom_1 = (math.exp(-discount_rate * (initial_occurrence - 1)) - math.exp(-discount_rate * horizon))
     av_denom_2 = 1 / (math.exp(discount_rate) - 1)
-    # print(future_value * 1 / (Decimal(av_denom_1) * Decimal(av_denom_2)))
+
+    # Return the annualized value
     return future_value * 1 / (Decimal(av_denom_1) * Decimal(av_denom_2))
 
 
 def sens_adjustment(sens_object, bcn_object, original_values, disaster_rate, discount_rate, horizon,
                     initial_occurrence):
-    if sens_object.diffType == "Gross":
-        if sens_object.varName == "valuePerQ":
-            new_value = original_values[1] * (original_values[2] + sens_object.diffValue)
-        else:
-            new_value = (original_values[1] + sens_object.diffValue) * original_values[2]
+    # Update the value based on the type of change
+    if sens_object.varName == "valuePerQ":
+        new_value = original_values[1] * (original_values[2] + sens_object.diffValue)
+    else:
+        new_value = (original_values[1] + sens_object.diffValue) * original_values[2]
 
+    # Determine the future value of the base analysis and the value when the sensitivity alterations are applied
     base_future_value = drb_future_value(original_values[1] * original_values[2], disaster_rate, discount_rate,
                                          horizon, initial_occurrence)
     sens_future_value = drb_future_value(new_value, disaster_rate, discount_rate, horizon, initial_occurrence)
 
+    # Find the difference between the future values
     diff_value = sens_future_value - base_future_value
 
-    if sens_object.diffType == "Gross":
-        if sens_object.varName == "valuePerQ":
-            sens_object.diffValue = drb_annualized(diff_value, discount_rate, horizon, initial_occurrence) / \
-                                    bcn_object.quant
-        else:
-            sens_object.diffValue = drb_annualized(diff_value, discount_rate, horizon, initial_occurrence) / \
-                                    bcn_object.valuePerQ
+    # Obtain the annualized value of the difference and update the sensitivity object with the new value
+    if sens_object.varName == "valuePerQ":
+        sens_object.diffValue = drb_annualized(diff_value, discount_rate, horizon, initial_occurrence) / \
+                                bcn_object.quant
+    else:
+        sens_object.diffValue = drb_annualized(diff_value, discount_rate, horizon, initial_occurrence) / \
+                                bcn_object.valuePerQ
 
     return None
 
@@ -78,6 +85,9 @@ class Edges:
         self.confInt = confInt
 
     def override_input(self, base_input):
+        # I know I could do this in the serializer, but that file was getting cluttered. Should move this to serializer
+        # as part of getting Sensitivity calculations into the module. This will keep any unnecessary changes to tasks
+        # that might make the code Edges specific
         # edges = base_input.edgesObject
 
         # 1. Collect necessary values
@@ -115,7 +125,7 @@ class Edges:
                     # Note: These values need not be None if the change is percentage based. Making this work for gross
                     # changes per year is feasible, but would require more code. Right now I'm only trying to copy
                     # Edges capabilities so all escalations are set to None since that's not supported in Edges. This
-                    # should be caught in the validation. The definition are remaining here in the event we want to do
+                    # should be caught in the validation. The definitions are remaining here in the event we want to do
                     # something with them in the future.
                     bcn.quantVarRate = None
                     bcn.quantVarValue = [0 for _ in range(horizon + 1)]
@@ -127,17 +137,19 @@ class Edges:
         if "EdgesSensitivitySummary" in base_input.analysisObject.objToReport:
             for sens_object in base_input.sensitivityObjects:
                 bcn_id = sens_object.bcnID
-                for bcn in bcn_list:
-                    if bcn.bcnID == bcn_id:
-                        bcn_object = bcn
-                        break
-                for item in original_values:
-                    if item[0] == bcn_id:
-                        bcn_values = item
-                        break
-                for drb_id in self.drbList:
-                    if drb_id == bcn_id:
-                        sens_adjustment(sens_object, bcn_object, bcn_values, disaster_rate, discount_rate, horizon,
-                                        bcn_object.initialOcc)
+                if sens_object.diffType == "Gross":
+                    for bcn in bcn_list:
+                        if bcn.bcnID == bcn_id:
+                            bcn_object = bcn
+                            break
+                    for item in original_values:
+                        if item[0] == bcn_id:
+                            bcn_values = item
+                            break
+                    for drb_id in self.drbList:
+                        if drb_id == bcn_id:
+                            sens_adjustment(sens_object, bcn_object, bcn_values, disaster_rate, discount_rate, horizon,
+                                            bcn_object.initialOcc)
+                            break
 
         return None

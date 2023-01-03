@@ -19,15 +19,16 @@ class EdgesSerializer(Serializer):
     def validate(self, data):
         errors = []
         study_period = data["analysisObject"]["studyPeriod"]
+        edges = data["edgesObject"]
 
-        if not data["mri"] or data["mri"] <= 0:
+        if not edges["mri"] or edges["mri"] <= 0:
             errors.append(
                 ValidationError(
                     "MRI must be a positive numeric value."
                 )
             )
 
-        if not data["drbList"]:
+        if not edges["drbList"]:
             errors.append(
                 ValidationError(
                     "There must be at least one disaster related benefit for an EDGe$ analysis to be performed."
@@ -43,14 +44,14 @@ class EdgesSerializer(Serializer):
 
         if "IRRSummary" not in data["analysisObject"]["objToReport"]:
             data["analysisObject"]["objToReport"].append("IRRSummary")
-            logger.info("IRR calculations is required for an Edge$ analysis. IRRSummary has been added to reportable"
+            logger.info("IRR calculations are required for an Edge$ analysis. IRRSummary has been added to reportable"
                         "objects")
 
         alt_list = []
         for x in data["alternativeObjects"]:
             alt_list += x["altBCNList"]
 
-        for bcnID in data["drbList"]:
+        for bcnID in edges["drbList"]:
             if bcnID not in alt_list:
                 errors.append(
                     ValidationError(
@@ -63,13 +64,13 @@ class EdgesSerializer(Serializer):
         bcn_list = data["bcnObjects"]
         for bcn in bcn_list:
             if "DRB" in bcn["bcnTag"] and "NDRB" not in bcn["bcnTag"]:
-                if bcn["subType"] == "Externality":
+                if bcn["bcnSubType"] == "Externality":
                     errors.append(
                         ValidationError(
                             "Disaster Related Benefits may not be treated as Externalities in the analysis."
                         )
                     )
-                if bcn["subType"] == "Cost":
+                if bcn["bcnSubType"] == "Cost":
                     errors.append(
                         ValidationError(
                             "Disaster Related Benefits may not be treated as Costs in the analysis."
@@ -112,7 +113,7 @@ class EdgesSerializer(Serializer):
                             "Disaster Related Benefits must be recurring with an interval of 1."
                         )
                     )
-                if bcn["EndDate"] not in [study_period, None]:
+                if bcn["recurEndDate"] not in [study_period, None]:
                     errors.append(
                         ValidationError(
                             "Disaster Related Benefits cannot terminate before the end of the study period."
@@ -142,8 +143,8 @@ class EdgesSerializer(Serializer):
                         "OMR costs must be tagged as \"OMR One-Time\" or \"OMR Recurring\" for output purposes"
                     )
                 )
-            if bcn["bcnType"] != "Cost" and "OMR" in bcn["bcnTag"] or "OMR One-Time" in bcn["bcnTag"] \
-                    or "OMR Recurring" in bcn["bcnTag"]:
+            if bcn["bcnType"] != "Cost" and ("OMR" in bcn["bcnTag"] or "OMR One-Time" in bcn["bcnTag"] \
+                    or "OMR Recurring" in bcn["bcnTag"]):
                 errors.append(
                     ValidationError(
                         "OMR must be a Cost type BCN"
@@ -168,16 +169,22 @@ class EdgesSerializer(Serializer):
                         "NDRBs may not have the Externality SubType"
                     )
                 )
-            if bcn["bcnType"] != "Benefit" and "NDRB" in bcn["bcnTag"] or "NDRB One-Time" in bcn["bcnTag"] \
-                    or "NDRB Recurring" in bcn["bcnTag"]:
+            if bcn["bcnType"] != "Benefit" and ("NDRB" in bcn["bcnTag"] or "NDRB One-Time" in bcn["bcnTag"] \
+                    or "NDRB Recurring" in bcn["bcnTag"]):
                 errors.append(
                     ValidationError(
                         "NDRBs must be a Benefit type BCN"
                     )
                 )
 
-        if data["disMag"] or data["riskPref"] or data["confInt"]:
-            logger.info("Disaster Magnitude, Risk Preference and Confidence Interval are currently not implemented."
+            if bcn["bcnSubType"] == "Externality" and ("Negative One-Time" in bcn["bcnTag"] or "Negative Recurring" in bcn["bcnTag"]):
+                if bcn["valuePerQ"] > 0:
+                    bcn["valuePerQ"] = -bcn["valuePerQ"]
+                    logger.info("Negative Externalities should be input with negative valuePerQ. The entered positive "
+                                "value has been converted to a negative value for calculation purposes")
+
+        if edges["disMag"] or edges["riskPref"] or edges["confInt"]:
+            logger.info("Disaster Magnitude, Risk Preference and Confidence Interval are currently not implemented. "
                         "These inputs will have no impact on calculations")
 
         if errors:
