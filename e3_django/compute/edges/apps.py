@@ -14,7 +14,7 @@ from API.objects import Analysis, Alternative
 
 class EdgesConfig(E3ModuleConfig):
     """
-    This module updates BCNs and Sensitivity objects for disaster related benefits.
+    This module generates EDGe$ summary objects.
     """
 
     name = "compute.edges"
@@ -35,16 +35,34 @@ class EdgesConfig(E3ModuleConfig):
 
 
 def elementwise_subtract(x, y):
+    """
+    Does elementwise subtraction of two lists
+
+    :param x: List to be subtracted from
+    :param y: List of values to be subtracted
+    :return: A list containing the results of an elementwise subtractions
+    """
     return list(map(operator.sub, x, y))
 
 
 def calculate_edges_summary(horizon, baseline_id, alternatives: Iterable[Alternative],
                             required_flows: Iterable[RequiredCashFlow], optional_flows: Iterable[OptionalCashFlow],
-                            alternative_summaries: Iterable[AlternativeSummary],
-                            sensitivity_summaries: Iterable[SensitivitySummary] = None):
+                            alternative_summaries: Iterable[AlternativeSummary]):
+    """
+    Generates the EDGe$ summary objects for an EDGe$ analysis
+
+    :param horizon: The study period for the analysis
+    :param baseline_id: The bcn_id for the baseline alternative
+    :param alternatives: List of all alternative objects
+    :param required_flows: List of all required flow objects
+    :param optional_flows: List of all optional flow objects
+    :param alternative_summaries: List of all alternative summary objects
+    :return: Listo of EDGe$ summary objects
+    """
 
     # Variable definitions, "nb" - net benefits, "wd" or "d" - with disaster, "wod" - without disaster, "we" - with
-    # externalities, "woe" - without externalities, "drb" - disaster related benefits
+    # externalities, "woe" - without externalities, "drb" - disaster related benefits, "roi" - return on investment
+    # Should probably clean up
 
     # 1. Find baseline and reorder list so that it is first in list. Prevents re-looping in order for calculations to
     # run properly
@@ -185,16 +203,17 @@ def calculate_edges_summary(horizon, baseline_id, alternatives: Iterable[Alterna
         res.append(EdgesSummary(alt.altID, alt_summ, total_ext, fat_avert, roi_wd_we, roi_wod_we, nb_wd_woe_disc,
                                 bcr_wd_woe, irr_wd_woe, roi_wd_woe, roi_wod_woe))
     return res
-    # 6. Repeat for Sensitivity calculations (make functions to clean up repeated calculations)
-    # Check if sensitivity objects exist
-    # Loop through BCNs, look for externalities and DRB tagged variables
-    # Use calls to cash_flows(bcn, analysis.studyPeriod, discount_rate, timestep_comp) to generate the dictionary
-    # needed to sum necessary flows for calculations w/o DRBs and w/o Externalities
-    # Option 2: break into multiple alternatives in the input override section of code in task.py. May not work
-    # for uncertainty
 
 
 def annualized_roi(net_benefit, inv_cost, horizon):
+    """
+    Calculates annualized return on investment
+
+    :param net_benefit: Net benefit of the current alternative
+    :param inv_cost: Total investment costs for the current alternative
+    :param horizon: The study period for the analysis
+    :return: THe annualized ROI
+    """
     # Calculate ROI (Move to measures if this is going to be used by more than just Edges)
     try:
         return (net_benefit/inv_cost) * 100 * 1/Decimal(horizon)

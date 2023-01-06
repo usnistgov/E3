@@ -38,10 +38,12 @@ class SensitivityConfig(E3ModuleConfig):
             cash_flow = dependencies["internal:cash-flows"]
             bcn_objects = base_input.bcnObjects
 
+            # Generate new cash flow with updated results. Also collect values needed for new calculations
             cash_flow, global_var, new_bcn, bcn_obj, discount_rate = make_cash_flows(sensitivity_object, analysis,
                                                                                      bcn_objects, cash_flow, base_input,
                                                                                      timestep_comp)
 
+            # Create new summaries
             new_optional_summary, new_required_summary = make_new_summaries(cash_flow, cash_flow.keys(), study_period,
                                                                             base_input)
 
@@ -67,6 +69,17 @@ class SensitivityConfig(E3ModuleConfig):
 
 
 def make_cash_flows(sensitivity_object, analysis_object, bcn_objects, cash_flow, base_input, timestep_comp):
+    """
+    Code to generate cash flows adjusted according to the sensitivity object
+
+    :param sensitivity_object: The sensitivity object being examined
+    :param analysis_object: The analysis object
+    :param bcn_objects: List of all BCN objects
+    :param cash_flow: The cash flows from the base analysis
+    :param base_input: User input data
+    :param timestep_comp: The compounding type for the analysis
+    :return: Updated cash flow, the global variable boolean, the new bcn object and the discount rate
+    """
     if sensitivity_object.globalVarBool is False or not sensitivity_object.globalVarBool:
         # Get discount rate and generate updated BCN object for altered variable
         discount_rate = analysis_object.dRateReal if analysis_object.outputRealBool else analysis_object.dRateNom
@@ -98,6 +111,16 @@ def make_cash_flows(sensitivity_object, analysis_object, bcn_objects, cash_flow,
 
 
 def make_new_summaries(cash_flow, cash_flow_keys, study_period, base_input):
+    """
+    Generates new summaries for the sensitivity analysis
+
+    :param cash_flow: The adjusted cash flows
+    :param cash_flow_keys: Dictionary keys to pull cash flow values
+    :param study_period: The study period for the analysis
+    :param base_input:  User input data
+    :return: The optional and required summaries for the sensitivity object
+    """
+
     # Calculate updated OptionalSummary
     new_optional_summary = calculate_tag_flows(cash_flow, base_input, cash_flow_keys)
 
@@ -109,6 +132,20 @@ def make_new_summaries(cash_flow, cash_flow_keys, study_period, base_input):
 
 def reset_cash_flow(sensitivity_object, cash_flow, analysis_object, bcn_objects, discount_rate, timestep_comp,
                     new_bcn=None, bcn_obj=None):
+    """
+    Reverts sensitivity changes to the base anlaysis values
+
+    :param sensitivity_object: The sensitivity object being examined
+    :param cash_flow: The adjusted cash flow
+    :param analysis_object: The analysis object
+    :param bcn_objects: List of all BCN objects
+    :param discount_rate: The discount rate for the analysis
+    :param timestep_comp: The compounding type for the analysis
+    :param new_bcn: The BCN updated for the sensitivity adjustment (if adjustment is not global)
+    :param bcn_obj: The bcn object that was adjusted (if adjustment is not global)
+    :return: The cash flow reverted to pre-sensitivity changes
+    """
+
     if sensitivity_object.globalVarBool is False or not sensitivity_object.globalVarBool:
         # Remove updated BCN, recalculate original BCN and add back to cash_flow
         cash_flow.pop(new_bcn)

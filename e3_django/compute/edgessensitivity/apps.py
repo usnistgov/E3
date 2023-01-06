@@ -12,7 +12,6 @@ from compute.sensitivity.apps import make_cash_flows, make_new_summaries, reset_
 from compute.measures.apps import calculate_alternative_summaries
 from compute.edges.apps import calculate_edges_summary
 
-
 from compute.objects import RequiredCashFlow, OptionalCashFlow, EdgesSummary, AlternativeSummary, SensitivitySummary
 from compute.objects.AlternativeSummary import bcr, irrMeas
 from API.objects import Analysis, Alternative
@@ -20,7 +19,7 @@ from API.objects import Analysis, Alternative
 
 class EdgesSensitivityConfig(E3ModuleConfig):
     """
-    This module updates BCNs and Sensitivity objects for disaster related benefits.
+    This module generates Edges Sensitivity objects.
     """
 
     name = "compute.edgessensitivity"
@@ -44,10 +43,12 @@ class EdgesSensitivityConfig(E3ModuleConfig):
             cash_flow = dependencies["internal:cash-flows"]
             bcn_objects = base_input.bcnObjects
 
+            # Generate new cash flow with updated results. Also collect values needed for new calculations
             cash_flow, global_var, new_bcn, bcn_obj, discount_rate = make_cash_flows(sensitivity_object, analysis,
                                                                                      bcn_objects, cash_flow, base_input,
                                                                                      timestep_comp)
 
+            # Create new summaries
             new_optional_summary, new_required_summary = make_new_summaries(cash_flow, cash_flow.keys(), study_period,
                                                                             base_input)
 
@@ -60,12 +61,15 @@ class EdgesSensitivityConfig(E3ModuleConfig):
             edges_summaries = calculate_edges_summary(horizon, baseline_id, base_input.alternativeObjects,
                                                       new_required_summary, new_optional_summary, new_measure_summary)
 
+            # Generate EDGe$ summaries
             edgesSensSumm = EdgesSensitivitySummary(global_var, sensitivity_object.bcnObj, sensitivity_object.varName,
                                                     sensitivity_object.diffType, sensitivity_object.diffValue,
                                                     numpy.sign(sensitivity_object.diffValue), edges_summaries)
 
+            # Append to results
             res.append(edgesSensSumm)
 
+            # Reset cash flows
             cash_flow = reset_cash_flow(sensitivity_object, cash_flow, analysis, bcn_objects, discount_rate,
                                         timestep_comp, new_bcn, bcn_obj)
 

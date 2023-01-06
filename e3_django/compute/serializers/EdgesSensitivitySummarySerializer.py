@@ -7,7 +7,7 @@ from API.variables import MAX_DIGITS, DECIMAL_PLACES
 
 class EdgesSensitivitySummarySerializer(Serializer):
     """
-    Object serializer for edges summary.
+    Object serializer for edges sensitivity summary.
     """
     globalVarBool = BooleanField(required=False)
     bcnObj = CharField(required=True, allow_null=True)

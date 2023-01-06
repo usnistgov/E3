@@ -8,6 +8,16 @@ logger = logging.getLogger(__name__)
 
 
 def drb_future_value(value, disaster_rate, discount_rate, horizon, initial_occurrence):
+    """
+    Finds the future value of a disaster related benefit
+
+    :param value: The monetary value of the DRB
+    :param disaster_rate: The mean recurrence interval of the disaster
+    :param discount_rate: The discount rate used in the analysis
+    :param horizon: The planning horizon of the analysis
+    :param initial_occurrence: The first occurrence of the DRB
+    :return: Future value of the DRB
+    """
     # Define the lambda parameter for disaster recurrence
     lambda_param = 1 / disaster_rate
 
@@ -23,6 +33,15 @@ def drb_future_value(value, disaster_rate, discount_rate, horizon, initial_occur
 
 
 def drb_annualized(future_value, discount_rate, horizon, initial_occurrence):
+    """
+    Uses the future value of the DRB to generate an annualized value
+
+    :param future_value: The future value of the DRB (calculated in drb_future_value())
+    :param discount_rate: The discount rate used in the analysis
+    :param horizon: The planning horizon of the analysis
+    :param initial_occurrence: The first occurrence of the DRB
+    :return: Annualized DRB value
+    """
     # Calculate the numerator and denominator required to get the annualized value from the future value
     av_denom_1 = (math.exp(-discount_rate * (initial_occurrence - 1)) - math.exp(-discount_rate * horizon))
     av_denom_2 = 1 / (math.exp(discount_rate) - 1)
@@ -33,6 +52,18 @@ def drb_annualized(future_value, discount_rate, horizon, initial_occurrence):
 
 def sens_adjustment(sens_object, bcn_object, original_values, disaster_rate, discount_rate, horizon,
                     initial_occurrence):
+    """
+    The calculations required to adjust the sensitivity inputs to account for the probabilistic nature of DRBs
+
+    :param sens_object: The sensitivity object being examined
+    :param bcn_object: The bcn object related to the sensitivity object
+    :param original_values: The original values from the BCN (i.e. before adjustment occurs)
+    :param disaster_rate: The mean recurrence interval of the disaster
+    :param discount_rate: The discount rate used in the analysis
+    :param horizon: The planning horizon of the analysis
+    :param initial_occurrence: The first occurrence of the DRB
+    :return: Sensitivity object updated for DRBs
+    """
     # Update the value based on the type of change
     if sens_object.varName == "valuePerQ":
         new_value = original_values[1] * (original_values[2] + sens_object.diffValue)
@@ -85,9 +116,13 @@ class Edges:
         self.confInt = confInt
 
     def override_input(self, base_input):
-        # I know I could do this in the serializer, but that file was getting cluttered. Should move this to serializer
-        # as part of getting Sensitivity calculations into the module. This will keep any unnecessary changes to tasks
-        # that might make the code Edges specific
+        """
+        Overrides user input to make DRB values suitable for use in E3. If EDGe$ eventually uses E3 this code should
+        be moved to the front end.
+
+        :param base_input: User input data
+        :return:
+        """
         # edges = base_input.edgesObject
 
         # 1. Collect necessary values

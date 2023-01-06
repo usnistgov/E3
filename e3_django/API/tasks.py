@@ -21,6 +21,9 @@ def analyze(user_input: Input):
     # EdgesSummary should be last item in clean_module_list
     if "EdgesSummary" in clean_module_list:
         user_input.edgesObject.override_input(user_input)
+        if "SensitivitySummary" in clean_module_list:
+            clean_module_list.remove("SensitivitySummary")
+            clean_module_list.append("EdgesSensitivitySummary")
 
     if "IRRSummary" in clean_module_list:
         clean_module_list.remove("IRRSummary")

@@ -1,6 +1,13 @@
 from decimal import Decimal
 
 def filter_tags(tagged_bcn_dict, altID):
+    """
+    Filters tags out for the otherTags variable
+
+    :param tagged_bcn_dict: The dictionary containing tagged BCNs
+    :param altID: Current alternatives alt_id
+    :return: Dictionary of tagged BCNs that are not represented by name in the EdgesSummary object
+    """
     tagged_bcn_dict_editable = tagged_bcn_dict.copy()
     key_list = list(tagged_bcn_dict_editable.keys())
     key_filter = ["Cost-Direct", "Cost-Indirect", "OMR Recurring", "OMR One-Time", "Positive Recurring",
