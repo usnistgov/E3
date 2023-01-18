@@ -15,7 +15,7 @@ def drb_future_value(value, disaster_rate, discount_rate, horizon, initial_occur
     :param disaster_rate: The mean recurrence interval of the disaster
     :param discount_rate: The discount rate used in the analysis
     :param horizon: The planning horizon of the analysis
-    :param initial_occurrence: The first occurrence of the DRB
+    :param initial_occurrence: The first occurrence of the DRB+
     :return: Future value of the DRB
     """
     # Define the lambda parameter for disaster recurrence
@@ -99,6 +99,7 @@ class Edges:
         drbList,
         # fatList,
         disMag,
+        vosl,
         riskPref,
         confInt
     ):
@@ -110,6 +111,8 @@ class Edges:
         # self.fatList = fatList
         # Disaster Magnitude
         self.disMag = disMag
+        # Value of a statistical life
+        self.vosl = vosl
         # Risk Preference
         self.riskPref = riskPref
         # Value of Confidence Interval

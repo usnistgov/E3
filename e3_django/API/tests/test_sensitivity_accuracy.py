@@ -2,12 +2,13 @@ from unittest import TestCase
 from datetime import datetime
 import logging
 from decimal import Decimal
+import os
+import sys
 from pprint import pprint
 
-from API.objects import Alternative, Analysis, Bcn, Sensitivity
+from API.objects import Alternative, Analysis, Bcn, Sensitivity, Input, Edges
+from API.tasks import analyze
 from API.serializers import SensitivitySerializer
-from compute.sensitivity.accuracyTestTemp import run, runCF
-from base_input import BaseInput
 # from django.core.exceptions import ValidationError
 
 """
@@ -168,32 +169,58 @@ class SensitivityTest(TestCase):
         return
 
     def test_output_accuracy(self):
+        os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'e3_django.settings')
+        try:
+            from django.core.management import execute_from_command_line
+        except ImportError as exc:
+            raise ImportError(
+                "Couldn't import Django. Are you sure it's installed and "
+                "available on your PYTHONPATH environment variable? Did you "
+                "forget to activate a virtual environment?"
+            ) from exc
+        execute_from_command_line(sys.argv)
+
         self.sensitivityObjects = [self.sensitivity1]
         self.analysisObject = self.analysis
         self.bcnObjects = [self.bcn0, self.bcn1, self.bcn2, self.bcn3]
         self.alternativeObjects = [self.alternative1, self.alternative2]
+        self.edgesObject = None
 
-        self.base_input = BaseInput(
+        analysisData = vars(self.analysisObject)
+
+        bcnData = []
+        for i in range(len(self.bcnObjects)):
+            bcnData.append(vars(self.bcnObjects[i]))
+
+        alternativeData = []
+        for i in range(len(self.alternativeObjects)):
+            alternativeData.append(vars(self.alternativeObjects[i]))
+
+        if self.sensitivityObjects:
+            sensitivityData = []
+            for i in range(len(self.sensitivityObjects)):
+                sensitivityData.append(vars(self.sensitivityObjects[i]))
+        else:
+            sensitivityData = None
+
+        if self.edgesObject:
+            edgesData = vars(self.edgesObject)
+        else:
+            edgesData = None
+
+        inputData = {"analysisObject": analysisData,
+                     "bcnObjects": bcnData,
+                     "alternativeObjects": alternativeData,
+                     "sensitivityObjects": sensitivityData,
+                     "edgesObject": edgesData}
+
+        self.input = Input(
             sensitivityObjects=self.sensitivityObjects,
             analysisObject=self.analysisObject,
             bcnObjects=self.bcnObjects,
             alternativeObjects=self.alternativeObjects,
+            edgesObject=self.edgesObject,
+            scenarioObject=None
         )
-        timestep_comp = self.analysis.timestepComp
-        cash_flow = runCF(self.base_input, timestep_comp)
 
-        res = run(self.base_input, cash_flow)
-        for sens in res:
-            print(sens)
-
-        # data = {
-        #         "globalVarBool": True,
-        #         "altID": None,
-        #         "bcnID": None,
-        #         "bcnObj": None,
-        #         "varName":"discountRate",
-        #         "diffType": "Gross",
-        #         "diffValue": 0.03
-        #         }
-        #
-        # SensitivitySerializer.validate(self, data)
+        results = analyze(self.input)

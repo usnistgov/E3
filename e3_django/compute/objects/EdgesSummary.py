@@ -1,6 +1,7 @@
 from decimal import Decimal
 
-def filter_tags(tagged_bcn_dict, altID):
+
+def filter_tags(tagged_bcn_dict):
     """
     Filters tags out for the otherTags variable
 
@@ -53,7 +54,7 @@ class EdgesSummary():
         self.irrNoExts = irrNoExts
         self.roiNoExts = roiNoExts
         self.nonDisRoiNoExts = nonDisRoiNoExts
-        self.otherTags = filter_tags(alternativeSummary.totTagFlows, alternativeSummary.altID)
+        self.otherTags = filter_tags(alternativeSummary.totTagFlows)
 
     # Allows for object to be directly printed out to console when testing, has no use in final code
     def __str__(self):

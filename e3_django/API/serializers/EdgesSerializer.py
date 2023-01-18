@@ -13,6 +13,7 @@ class EdgesSerializer(Serializer):
     mri = InfinityDecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES, required=True)
     drbList = ListField(child=IntegerField(), required=True, allow_null=True)
     disMag = InfinityDecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES, required=False)
+    vosl = InfinityDecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES, required=False)
     riskPref = ChoiceField(["Averse", "Neutral", "Accepting"], required=False)
     confInt = InfinityDecimalField(max_digits=MAX_DIGITS, decimal_places=DECIMAL_PLACES, required=False)
 
@@ -123,17 +124,26 @@ class EdgesSerializer(Serializer):
                         and "Indirect Loss Reduction" not in bcn["bcnTag"] and "Fatalities Averted" not in bcn["bcnTag"]:
                     errors.append(
                         ValidationError(
-                            "DRBs must be tagged as \"Response and Recovery\", \"Direct Loss Reduction\", \"Indirect Loss Reduction\" or \"Fatalities Averted\" for output purposes"
+                            "DRBs must be tagged as \"Response and Recovery\", \"Direct Loss Reduction\", "
+                            "\"Indirect Loss Reduction\" or \"Fatalities Averted\" for output purposes"
                         )
                     )
-                    # End remove block
+                if "Fatalities Averted" in bcn["bcnTag"]:
+                    if float(bcn["valuePerQ"]) != float(edges["vosl"]):
+                        bcn["valuePerQ"] = edges["vosl"]
+                        logger.info("The valuePerQ for fatalities averted must be equal to the value of statistical"
+                                    "life provided in the Edges object. The value per quantity has been changed to the"
+                                    "value of statistical life. The quant must be the expected number of statistical "
+                                    "lives saved per disaster occurrence. The quant value has been left unaltered.")
+                # End remove block
             if bcn["bcnSubType"] == "Externality" and ("Positive One-Time" not in bcn["bcnTag"]
                                                        and "Positive Recurring" not in bcn["bcnTag"]
                                                        and "Negative One-Time" not in bcn["bcnTag"]
                                                        and "Negative Recurring" not in bcn["bcnTag"]):
                 errors.append(
                     ValidationError(
-                        "Externalities must be tagged as \"Positive One-time\", \"Positive Recurring\", \"Negative One-time\" or \"Negative Recurring\" for output purposes"
+                        "Externalities must be tagged as \"Positive One-time\", \"Positive Recurring\", "
+                        "\"Negative One-time\" or \"Negative Recurring\" for output purposes"
                     )
                 )
             if bcn["bcnType"] == "Cost" and "OMR" in bcn["bcnTag"] and ("OMR One-Time" not in bcn["bcnTag"]

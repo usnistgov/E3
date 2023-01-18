@@ -4,13 +4,11 @@ import logging
 from decimal import Decimal
 import os
 import sys
-from pprint import pprint
 
+# from django.core.exceptions import ValidationError
 from API.objects import Alternative, Analysis, Bcn, Sensitivity, Input, Edges
-from compute.sensitivity.accuracyTestTemp import run, runCF
 from API.tasks import analyze
 from API.serializers import EdgesSerializer
-# from django.core.exceptions import ValidationError
 
 """
 Sensitivity tests
@@ -58,6 +56,7 @@ class SensitivityTest(TestCase):
             mri=25,
             drbList=[3, 4, 5, 6],
             disMag=None,
+            vosl=7500000,
             riskPref="Neutral",
             confInt=0.95
         )
@@ -428,25 +427,3 @@ class SensitivityTest(TestCase):
         )
 
         results = analyze(self.input)
-
-        # for item in results["EdgesSummary"]:
-        #     print(item)
-
-        # timestep_comp = self.analysis.timestepComp
-        # cash_flow = runCF(self.base_input, timestep_comp)
-        #
-        # res = run(self.base_input, cash_flow)
-        # for sens in res:
-        #     print(sens)
-
-        # data = {
-        #         "globalVarBool": True,
-        #         "altID": None,
-        #         "bcnID": None,
-        #         "bcnObj": None,
-        #         "varName":"discountRate",
-        #         "diffType": "Gross",
-        #         "diffValue": 0.03
-        #         }
-        #
-        # SensitivitySerializer.validate(self, data)
