@@ -1,4 +1,4 @@
-Django==3.2.15
+Django==3.2.17
 djangorestframework==3.12.4
 numpy==1.22.0
 celery==5.2.2
