@@ -187,12 +187,14 @@ class EdgesSerializer(Serializer):
                     )
                 )
 
+            # Update.
             if bcn["bcnSubType"] == "Externality" and ("Negative One-Time" in bcn["bcnTag"] or "Negative Recurring" in bcn["bcnTag"]):
                 if bcn["valuePerQ"] > 0:
                     bcn["valuePerQ"] = -bcn["valuePerQ"]
                     logger.info("Negative Externalities should be input with negative valuePerQ. The entered positive "
                                 "value has been converted to a negative value for calculation purposes")
 
+            # End update
         if edges["disMag"] or edges["riskPref"] or edges["confInt"]:
             logger.info("Disaster Magnitude, Risk Preference and Confidence Interval are currently not implemented. "
                         "These inputs will have no impact on calculations")

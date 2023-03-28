@@ -24,7 +24,7 @@ class SensitivityConfig(E3ModuleConfig):
 
     def run(self, base_input, dependencies=None):
         """
-        Purpose: Re-runs Analysis with updated values, store output, returns list
+        Purpose: Re-runs Analysis with updated values, stores output, returns list
         of sensitivity summaries.
         """
 
@@ -143,7 +143,7 @@ def reset_cash_flow(sensitivity_object, cash_flow, analysis_object, bcn_objects,
     :param timestep_comp: The compounding type for the analysis
     :param new_bcn: The BCN updated for the sensitivity adjustment (if adjustment is not global)
     :param bcn_obj: The bcn object that was adjusted (if adjustment is not global)
-    :return: The cash flow reverted to pre-sensitivity changes
+    :return: The cash flow reverted to pre-sensitivity values
     """
 
     if sensitivity_object.globalVarBool is False or not sensitivity_object.globalVarBool:

@@ -267,7 +267,10 @@ def cash_flows(bcn: Bcn, study_period: int, rate: CostType, timestep_comp: str) 
         rate = CostType(rate)
 
     quantities = list(calculate_quantities(bcn, study_period))
-    values = list(calculate_values(bcn, study_period, quantities))
+    if bcn.bcnType == "Non-Monetary":
+        values = [0] * (study_period + 1)
+    else:
+        values = list(calculate_values(bcn, study_period, quantities))
 
     if bcn.rvBool:
         values = residual_value(bcn, study_period, values)

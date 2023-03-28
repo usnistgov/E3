@@ -57,12 +57,12 @@ def calculate_edges_summary(horizon, baseline_id, alternatives: Iterable[Alterna
     :param required_flows: List of all required flow objects
     :param optional_flows: List of all optional flow objects
     :param alternative_summaries: List of all alternative summary objects
-    :return: Listo of EDGe$ summary objects
+    :return: List of EDGe$ summary objects
     """
 
     # Variable definitions, "nb" - net benefits, "wd" or "d" - with disaster, "wod" - without disaster, "we" - with
     # externalities, "woe" - without externalities, "drb" - disaster related benefits, "roi" - return on investment
-    # Should probably clean up
+    # Should probably clean up. Break this into separate importable functions if uncertainty is added.
 
     # 1. Find baseline and reorder list so that it is first in list. Prevents re-looping in order for calculations to
     # run properly
@@ -150,7 +150,7 @@ def calculate_edges_summary(horizon, baseline_id, alternatives: Iterable[Alterna
 
             total_costs = alt_summ.totalCosts
 
-        # 4. Calculate new outputs for EDGe$ analysis
+        # 4. Calculate new outputs for EDGe$ analysis. Some of these are not outputs in current EDGe$.
         if alt.altID != baseline_id:
             total_ext = numpy.sum(tot_ext_disc)
             nb_wd_woe_disc = nb_wd_we_disc - (total_ext - baseline_ext)

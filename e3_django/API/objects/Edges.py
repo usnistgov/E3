@@ -15,21 +15,17 @@ def drb_future_value(value, disaster_rate, discount_rate, horizon, initial_occur
     :param disaster_rate: The mean recurrence interval of the disaster
     :param discount_rate: The discount rate used in the analysis
     :param horizon: The planning horizon of the analysis
-    :param initial_occurrence: The first occurrence of the DRB+
+    :param initial_occurrence: The first occurrence of the DRB
     :return: Future value of the DRB
     """
     # Define the lambda parameter for disaster recurrence
-    lambda_param = 1 / disaster_rate
-
-    # Calculate the future value numerator and denominator
-    fv_numerator = math.exp(-(discount_rate + lambda_param) * horizon) - math.exp(-(discount_rate + lambda_param) *
-                                                                                  initial_occurrence)
-    fv_denominator = math.exp(-(discount_rate + lambda_param) * initial_occurrence) - \
-                     math.exp(-(discount_rate + lambda_param) * horizon) - \
-                     (discount_rate + lambda_param) / lambda_param
+    lambda_param = Decimal(1 / disaster_rate)
+    discount_rate = Decimal(discount_rate)
+    diff = Decimal(math.exp(-discount_rate * initial_occurrence) - math.exp(-discount_rate * horizon))
+    value = Decimal(value)
 
     # Return the future value of the disaster related event
-    return value * Decimal(fv_numerator) / Decimal(fv_denominator)
+    return value * lambda_param/discount_rate * diff
 
 
 def drb_annualized(future_value, discount_rate, horizon, initial_occurrence):
@@ -124,7 +120,7 @@ class Edges:
         be moved to the front end.
 
         :param base_input: User input data
-        :return:
+        :return: None
         """
         # edges = base_input.edgesObject
 
@@ -134,7 +130,7 @@ class Edges:
         discount_rate = base_input.analysisObject.dRateReal if base_input.analysisObject.outputRealBool else base_input.analysisObject.dRateNom
         horizon = base_input.analysisObject.studyPeriod
 
-        # 2. Initialize list to store unaltered values
+        # 2. Initialize list to store unaltered values. For use in reset in the case of multiple sensitivity objects
         original_values = []
 
         # 3. Loop through bcns and the drb list to find bcns that need to be adjusted
