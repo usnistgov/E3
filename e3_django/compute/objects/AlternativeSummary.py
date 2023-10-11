@@ -343,7 +343,7 @@ def payback_period(benefits, baseline_benefits, baseline_costs, costs):
     accumulator = 0
     for i, (benefit, baseline_benefit, baseline_cost, cost) in \
             enumerate(zip(benefits, baseline_benefits, baseline_costs, costs)):
-        accumulator += (benefit - baseline_benefit) - (baseline_cost - cost)
+        accumulator += (baseline_benefit - benefit) - (baseline_cost - cost)
 
         if accumulator <= 0:
             return CostType(i)
