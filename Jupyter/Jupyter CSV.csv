@@ -1,0 +1,111 @@
+analysisObject,{
+type,BCA
+projectType,Infrastructure
+outputObjects,[measure]
+studyPeriod,50
+timestepValue,Year
+timestepComp,End_Of_Year
+outputReal,TRUE
+intereseRate,0.03
+discountRateReal,0.03
+inflationRate,0.023
+marr,0.03
+reinvestRate,0.03
+federalIncomeRate,0.22
+otherIncomeRate,0.05
+numberOfAlternatives,2
+baseAlternative,0
+},
+alternativeObjects,[
+{,
+id,0
+name,Alt 0 Status Quo
+bcns,[0]
+},{
+id,1
+name,Alt 1 Build Monument
+bcns,[1;2;3;4]
+},]
+},
+bcnObjects,[
+{,
+id,0
+altIds,[0]
+type,Cost
+subType,Direct
+name,Investment Cost - Status Quo
+tags,Initial Investment
+initialOccurrence,0
+real,TRUE
+invest,TRUE
+residualValue,FALSE
+residualValueOnly,FALSE
+quantityValue,0
+quantity,1
+},{
+id,1
+altIds,[1]
+type,Cost
+subType,Direct
+name,Construct Monument
+tags,Investment Cost
+initialOccurrence,0
+real,TRUE
+invest,TRUE
+residualValue,FALSE
+residualValueOnly,FALSE
+quantityValue,100000
+quantity,1
+},{
+id,2
+altIds,[1]
+type,Cost
+subType,Direct
+name,Maintain Monument
+tags,OMR Costs
+initialOccurrence,1
+real,TRUE
+invest,FALSE
+life,50
+residualValue,FALSE
+residualValueOnly,FALSE
+recur,{
+interval,1
+varRate,Percent_Delta
+varValue,0
+},
+quantityValue,1000
+quantity,1
+},{
+id,3
+altIds,[1]
+type,Benefit
+subType,Direct
+name,Free Publicity
+tags,Publicity
+initialOccurrence,1
+real,TRUE
+invest,FALSE
+residualValue,FALSE
+residualValueOnly,FALSE
+quantityValue,50000
+quantity,1
+},{
+id,4
+altIds,[1]
+type,Benefit
+subType,Externality
+name,Increased Tourism
+tags,Tourism
+initialOccurrence,1
+real,TRUE
+invest,FALSE
+residualValue,FALSE
+residualValueOnly,FALSE
+recur,{
+interval,1
+},
+quantityValue,5000
+quantity,1
+},]
+},
