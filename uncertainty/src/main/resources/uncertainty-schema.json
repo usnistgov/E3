@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2019-09/schema",
+  "title": "E3 Sensitivity Request Schema",
+  "description": "Schema description for the JSON request file that is accepted by E3 for sensitivity analysis.",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "id": {
+        "description": "ID of this uncertainty analysis. Must be non-negative.",
+        "type": "integer",
+        "minimum": 0
+      },
+      "variables": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "variable": {
+              "description": "The variable to change in the uncertainty analysis",
+              "type": "string"
+            },
+            "distribution": {
+              "description": "The mathematical distribution to use for this variable.",
+              "type": "string",
+              "pattern": "^([n|N][o|O][r|R][m|M][a|A][l|L]|[g|G][a|A][u|U][s|S][s|S][i|I][a|A][n|N]|[e|E][x|X][p|P][o|O][n|N][e|E][n|N][t|T][i|I][a|A][l|L]|[t|T][r|R][i|I][a|A][n|N][g|G][u|U][l|L][a|A][r|R]|[u|U][n|N][i|I][f|F][o|O][r|R][m|M]|[r|R][e|E][c|C][t|T][a|A][n|N][g|G][u|U][l|L][a|A][r|R]|[e|E][n|N][u|U][m|M][e|E][r|R][a|A][t|T][e|E][d|D]|[d|D][i|I][s|S][c|C][r|R][e|E][t|T][e|E]|[b|B][e|E][t|T][a|A]|[l|L][o|O][g|G]_[n|N][o|O][r|R][m|M][a|A][l|L]|[w|W][e|E][i|I][b|B][u|U][l|L][l|L]|[e|E][x|X][t|T][r|R][e|E][m|M][e|E]_[v|V][a|A][l|L][u|U][e|E]_[t|T][y|Y][p|P][e|E]_[i|I][i|I][i|I]|[b|B][i|I][n|N][o|O][m|M][i|I][a|A][l|L])$"
+            },
+            "distributionArgs": {
+              "description": "The arguments to be passed into the distribution. Refer to commons math",
+              "type": "array",
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "array",
+                    "items": {
+                      "type": "number"
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "required": [
+            "variable",
+            "distribution",
+            "distributionArgs"
+          ]
+        }
+      },
+      "seed": {
+        "description": "Optional seed for the randomness.",
+        "type": "integer"
+      }
+    },
+    "required": [
+      "id",
+      "variables"
+    ]
+  }
+}

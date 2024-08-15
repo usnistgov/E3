@@ -1,0 +1,209 @@
+meta {
+  name: Inflation Rate Error
+  type: http
+  seq: 1
+}
+
+post {
+  url: http://e3test.el.nist.gov/api/v2/analysis
+  body: json
+  auth: none
+}
+
+headers {
+  Authorization: Api-Key: DqhbpzAiCT2W.cfd82432-c8d9-4a1d-a277-a26faa1e83c1
+}
+
+body:json {
+  {
+    "bcnObjects": [
+      {
+        "id": 0,
+        "type": "Cost",
+        "subType": "Direct",
+        "name": "base",
+        "tags": [],
+        "quantity": 1,
+        "quantityValue": 1,
+        "quantityVarRate": "Year_By_Year",
+        "quantityVarValue": [
+          0,
+          2046,
+          2093.06
+        ]
+      },
+      {
+        "id": 1,
+        "type": "Cost",
+        "subType": "Direct",
+        "name": "base",
+        "tags": [],
+        "invest": true,
+        "quantity": 1,
+        "quantityValue": 1,
+        "quantityVarRate": "Year_By_Year",
+        "quantityVarValue": [
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "id": 2,
+        "type": "Benefit",
+        "subType": "Direct",
+        "name": "base",
+        "tags": [],
+        "quantity": 1,
+        "quantityValue": 1,
+        "quantityVarRate": "Year_By_Year",
+        "quantityVarValue": [
+          0,
+          2557.5,
+          2616.32
+        ]
+      },
+      {
+        "id": 3,
+        "type": "Cost",
+        "subType": "Direct",
+        "name": "alt1",
+        "tags": [],
+        "quantity": 1,
+        "quantityValue": 1,
+        "quantityVarRate": "Year_By_Year",
+        "quantityVarValue": [
+          0,
+          1227.6,
+          1255.83
+        ]
+      },
+      {
+        "id": 4,
+        "type": "Cost",
+        "subType": "Direct",
+        "name": "alt1",
+        "tags": [],
+        "invest": true,
+        "quantity": 1,
+        "quantityValue": 1,
+        "quantityVarRate": "Year_By_Year",
+        "quantityVarValue": [
+          1000,
+          0,
+          0
+        ]
+      },
+      {
+        "id": 5,
+        "type": "Benefit",
+        "subType": "Direct",
+        "name": "alt1",
+        "tags": [],
+        "quantity": 1,
+        "quantityValue": 1,
+        "quantityVarRate": "Year_By_Year",
+        "quantityVarValue": [
+          0,
+          2557.5,
+          2616.32
+        ]
+      },
+      {
+        "id": 6,
+        "type": "Cost",
+        "subType": "Direct",
+        "name": "alt2",
+        "tags": [],
+        "quantity": 1,
+        "quantityValue": 1,
+        "quantityVarRate": "Year_By_Year",
+        "quantityVarValue": [
+          0,
+          1023,
+          1046.53
+        ]
+      },
+      {
+        "id": 7,
+        "type": "Cost",
+        "subType": "Direct",
+        "name": "alt2",
+        "tags": [],
+        "invest": true,
+        "quantity": 1,
+        "quantityValue": 1,
+        "quantityVarRate": "Year_By_Year",
+        "quantityVarValue": [
+          3000,
+          0,
+          0
+        ]
+      },
+      {
+        "id": 8,
+        "type": "Benefit",
+        "subType": "Direct",
+        "name": "alt2",
+        "tags": [],
+        "quantity": 1,
+        "quantityValue": 1,
+        "quantityVarRate": "Year_By_Year",
+        "quantityVarValue": [
+          0,
+          3069,
+          3139.59
+        ]
+      }
+    ],
+    "analysisObject": {
+      "type": "LCCA",
+      "projectType": "Other",
+      "outputObjects": [
+        "measure",
+        "optional",
+        "required"
+      ],
+      "studyPeriod": 2,
+      "timestepValue": "Year",
+      "timestepComp": "End_Of_Year",
+      "outputReal": false,
+      "discountRateReal": 0,
+      "discountRateNominal": 0.053,
+      "inflationRate": 0.023,
+      "reinvestRate": 0.023,
+      "numberOfAlternatives": 3,
+      "baseAlternative": 0
+    },
+    "alternativeObjects": [
+      {
+        "id": 0,
+        "name": "base",
+        "bcns": [
+          0,
+          1,
+          2
+        ],
+        "baseline": true
+      },
+      {
+        "id": 1,
+        "name": "alt1",
+        "bcns": [
+          3,
+          4,
+          5
+        ]
+      },
+      {
+        "id": 2,
+        "name": "alt2",
+        "bcns": [
+          6,
+          7,
+          8
+        ]
+      }
+    ]
+  }
+}

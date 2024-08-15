@@ -1,18 +1,32 @@
 version: "3.9"
 services:
   api_java:
-    build: ./
+    image: dockreg.el.nist.gov/e3/api:java
     restart: always
     ports:
       - "8080:8080"
     networks:
       - default
+    configs:
+      - source: e3-config
+        target: /app/application.properties
+      - source: e3-oauth-config
+        target: /app/oauth2.properties
+
   postgres:
-    image: postgres:14.2
+    image: postgres:16.2
     ports:
       - "5432:5432"
+    networks:
+      - default
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
       POSTGRES_DB: testdb
     hostname: postgres
+
+configs:
+  e3-config:
+    file: ./web/src/main/resources/application.properties
+  e3-oauth-config:
+    file: ./web/src/main/resources/oauth2.properties

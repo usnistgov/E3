@@ -1,0 +1,301 @@
+{
+  "$schema": "https://json-schema.org/draft/2019-09/schema",
+  "title": "E3 Request Schema",
+  "description": "Schema description for the JSON request file that is accepted by E3.",
+  "type": "object",
+  "properties": {
+    "analysisObject": {
+      "description": "Defines general analysis request variables.",
+      "type": "object",
+      "properties": {
+        "type": {
+          "description": "Analysis type. Can be one of \"LCCA\", \"BCA\", \"COST_LOSS\", \"PROFIT_MAXIMIZATION\", \"OTHER\" case insensitive.",
+          "type": "string",
+          "pattern": "^([lL][cC][cC][aA]|[bB][cC][aA]|[cC][oO][sS][tT]_[lL][oO][sS][sS]|[pP][rR][oO][fF][iI][tT]_[mM][aA][xX][iI][mM][iI][zZ][aA][tT][iI][oO][nN]|[oO][tT][hH][eE][rR])$"
+        },
+        "projectType": {
+          "description": "Project category type. Must be one of \"BUILDING\", \"INFRASTRUCTURE\", \"RESILIENCE\", \"MANUFACTURING\", \"OTHER\" case insensitive.",
+          "type": "string",
+          "pattern": "^([bB][uU][iI][lL][dD][iI][nN][gG]|[iI][nN][fF][rR][aA][sS][tT][rR][uU][cC][tT][uU][rR][eE]|[rR][eE][sS][iI][lL][iI][eE][nN][cC][eE]|[mM][aA][nN][uU][fF][aA][cC][tT][uU][rR][iI][nN][gG]|[oO][tT][hH][eE][rR])$"
+        },
+        "outputObjects": {
+          "description": "Objects to report after the analysis is complete. Some objects may take longer than others to create. Can be any combination of \"REQUIRED\", \"OPTIONAL\", \"MEASURES\", \"SENSITIVITY\", \"UNCERTAINTY\" case insensitive.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "studyPeriod": {
+          "description": "Amount of time the analysis will be covering. The initial time-step (0) is included automatically, e.g. a study period of 10 will report 11 values, time-steps 0-10.",
+          "type": "integer"
+        },
+        "timestepValue": {
+          "description": "Defines what the time-steps of this analysis are. NOTE: currently no values besides \"YEAR\" are implemented. Can be one of \"YEAR\", \"QUARTER\", \"MONTH\", \"DAY\" case insensitive.",
+          "type": "string",
+          "pattern": "^([yY][eE][aA][rR]|[qQ][uU][aA][rR][tT][eE][rR]|[mM][oO][nN][tT][hH]|[dD][aA][yY])$",
+          "default": "YEAR"
+        },
+        "timestepComp": {
+          "description": "Defines when the discounting will be applied on monetary values. Can be one of \"END_OF_YEAR\", \"MID_YEAR\", \"CONTINUOUS\" case insensitive.",
+          "type": "string",
+          "pattern": "^([eE][nN][dD]_[oO][fF]_[yY][eE][aA][rR]|[mM][iI][dD]_[yY][eE][aA][rR]|[cC][oO][nN][tT][iI][nN][uU][oO][uU][sS])$",
+          "default": "END_OF_YEAR"
+        },
+        "outputReal": {
+          "description": "TODO: add description",
+          "type": "boolean",
+          "default": true
+        },
+        "discountRateReal": {
+          "description": "Real discount rate for the analysis.",
+          "type": "number"
+        },
+        "discountRateNominal": {
+          "description": "Nominal discount rate for the analysis.",
+          "type": "number"
+        },
+        "interestRate": {
+          "description": "Interest rate for the analysis.",
+          "type": "number"
+        },
+        "reinvestRate": {
+          "description": "Reinvestment rate for the analysis.",
+          "type": "number"
+        },
+        "marr": {
+          "description": "TODO: add description",
+          "type": "number"
+        },
+        "federalIncomeRate": {
+          "description": "TODO: add description",
+          "type": "number"
+        },
+        "otherIncomeRate": {
+          "description": "TODO: add description",
+          "type": "number"
+        },
+        "location": {
+          "description": "Location where analysis is taking place.",
+          "type": "object",
+          "properties": {
+            "address": {
+              "description": "Address where analysis is located.",
+              "type": "string"
+            },
+            "city": {
+              "description": "City where analysis is located.",
+              "type": "string"
+            },
+            "state": {
+              "description": "State where analysis is located.",
+              "type": "string"
+            },
+            "zip": {
+              "description": "ZIP code where analysis is located",
+              "type": "string"
+            }
+          }
+        },
+        "numberOfAlternatives": {
+          "description": "Number of alternatives in this analysis.",
+          "type": "integer",
+          "minimum": 0
+        },
+        "baseAlternative": {
+          "description": "ID for the baseline alternative",
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "required": [
+        "outputObjects",
+        "studyPeriod",
+        "numberOfAlternatives",
+        "baseAlternative",
+        "reinvestRate"
+      ]
+    },
+    "alternativeObjects": {
+      "description": "Array of JSON alternative object descriptions that group BCNs into alternatives.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "description": "Integer ID of this alternative.",
+            "type": "integer",
+            "minimum": 0
+          },
+          "name": {
+            "description": "Name of this alternative.",
+            "type": "string"
+          },
+          "bcns": {
+            "description": "Array of BCN IDs that are included in the alternative. BCN IDs can be shared with other alternatives.",
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "minItems": 1,
+            "uniqueItems": true
+          }
+        },
+        "required": [
+          "id",
+          "bcns"
+        ]
+      },
+      "minItems": 1
+    },
+    "bcnObjects": {
+      "description": "Array of JSON BCN object descriptions. Must be the same as the number defined in analysis.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "description": "Integer ID of this BCN.",
+            "type": "integer",
+            "minimum": 0
+          },
+          "type": {
+            "description": "Defined the BCN type. Can be on of \"COST\", \"BENEFIT\", \"NON_MONETARY\" case insensitive.",
+            "type": "string",
+            "pattern": "^([cC][oO][sS][tT]|[bB][eE][nN][eE][fF][iI][tT]|[nN][oO][nN]_[mM][oO][nN][eE][tT][aA][rR][yY])$"
+          },
+          "name": {
+            "description": "Name of this BCN.",
+            "type": "string"
+          },
+          "tags": {
+            "description": "Tag of this BCN that is used for reporting purposes and as a way to report a subset of BCNs within an alternative.",
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            ]
+          },
+          "initialOccurrence": {
+            "description": "The time-step in which the BCN begins.",
+            "type": "integer",
+            "minimum": 0,
+            "default": 0
+          },
+          "real": {
+            "description": "TODO: add description",
+            "type": "boolean",
+            "default": false
+          },
+          "invest": {
+            "description": "TODO: add description",
+            "type": "boolean",
+            "default": false
+          },
+          "residualValue": {
+            "description": "Determines if residual value will be calculated and added to the end of this BCN.",
+            "type": "boolean",
+            "default": false
+          },
+          "residualValueOnly": {
+            "description": "Determines if this BCN is a manually calculated residual value that does not include any other BNC values.",
+            "type": "boolean",
+            "default": false
+          },
+          "life": {
+            "description": "Lifetime of this BCN. Can be greater than the study period. TODO: add constraint on default value if recur is defined",
+            "type": "integer",
+            "minimum": 0,
+            "default": 0
+          },
+          "recur": {
+            "description": "Defines the options for when a BCN is applied multiple times throughout the study period.",
+            "type": "object",
+            "properties": {
+              "interval": {
+                "description": "Number of time-steps between each recurrence of this BCN. i.e. interval of 1 means BCN is applied for every time step, interval of 2 means BCN is applied for every OTHER time-step, etc.",
+                "type": "integer",
+                "minimum": 1
+              },
+              "varRate": {
+                "description": "Determines how values are modified by their var values. Can be one of \"PERCENT_DELTA\", \"YEAR_BY_YEAR\" case insensitive. TODO: define differences",
+                "type": "string",
+                "pattern": "^([pP][eE][rR][cC][eE][nN][tT]_[dD][eE][lL][tT][aA]|[yY][eE][aA][rR]_[bB][yY]_[yY][eE][aA][rR])$"
+              },
+              "varValue": {
+                "description": "Values to alter BCN by while it recurs. Must be equal to the study period even if the BCN does not recur every time-step.",
+                "oneOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "array",
+                    "items": {
+                      "type": "number"
+                    }
+                  }
+                ]
+              },
+              "end": {
+                "description": "The end time-step of the recurrence. Can be after the study period. Defaults to the end of the study period",
+                "type": "number"
+              }
+            },
+            "default": null
+          },
+          "quantity": {
+            "description": "Number of non-monetary assets included in this BCN. e.g. for a BCN which defines an energy consumption of 100MW, the quantity would be 100.",
+            "type": "number"
+          },
+          "quantityValue": {
+            "description": "Monetary value of the BCN asset. e.g. for a BCN which defines an energy consumption of 100MW at $0.05/MW, quantityValue would be 0.05 which would generate a total value in the analysis as 100MW × $0.05/MW = $5",
+            "type": "number"
+          },
+          "quantityVarRate": {
+            "description": "Determines how quantities are modified by their var values. Can be one of \"PERCENT_DELTA\", \"YEAR_BY_YEAR\" case insensitive. TODO: define differences",
+            "type": "string",
+            "pattern": "^([pP][eE][rR][cC][eE][nN][tT]_[dD][eE][lL][tT][aA]|[yY][eE][aA][rR]_[bB][yY]_[yY][eE][aA][rR])$",
+            "default": null
+          },
+          "quantityVarValue": {
+            "description": "Values to alter quantity throughout the study period. Must be equal to the study period even if the BCN does not last through the study period.",
+            "oneOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "array",
+                "items": {
+                  "type": "number"
+                }
+              }
+            ],
+            "default": null
+          },
+          "quantityUnit": {
+            "description": "Unit of BCN which is used to group together similar BCNs for reporting purposes. e.g. for a BCN defining an energy consumption of 100MW, unit would be \"MW\".",
+            "type": "string",
+            "default": null
+          }
+        },
+        "required": [
+          "id",
+          "type",
+          "quantity",
+          "quantityValue"
+        ]
+      }
+    }
+  },
+  "required": [
+    "analysisObject",
+    "alternativeObjects",
+    "bcnObjects"
+  ]
+}

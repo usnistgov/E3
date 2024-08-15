@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2019-09/schema",
+  "title": "E3 Sensitivity Request Schema",
+  "description": "Schema description for the JSON request file that is accepted by E3 for sensitivity analysis.",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "id": {
+        "description": "ID of this sensitivity analysis. Must be non-negative.",
+        "type": "integer",
+        "minimum": 0
+      },
+      "altIds": {
+        "description": "ID of the alternative that this sensitivity analysis is associated with.",
+        "anyOf": [
+          {
+            "type": "integer",
+            "minimum": 0
+          },
+          {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "minimum": 0
+            }
+          }
+        ]
+      },
+      "variable": {
+        "description": "Path of the variable to alter for sensitivity. Dot-notation or bracket notation are valid. For example, altering the quantityValue in BCN 1 could be \"bcnObjects.1.quantityValue\" or \"bcnObjects[1].quantityValue\".",
+        "type": "string"
+      },
+      "diffType": {
+        "description": "Defines how to alter the specified variable.",
+        "type": "string",
+        "pattern": "[pP][eE][rR][cC][eE][nN][tT]|[pP][oO][sS][iI][tT][iI][vV][eE]_[pP][eE][rR][cC][eE][nN][tT]|[nN][eE][gG][aA][tT][iI][vV][eE]_[pP][eE][rR][cC][eE][nN][tT]|[gG][rR][oO][sS][sS]"
+      },
+      "diffValue": {
+        "description": "The amount of change to pass into the specified alter function.",
+        "type": "number"
+      }
+    },
+    "required": [
+      "id",
+      "altIds",
+      "variable",
+      "diffType",
+      "diffValue"
+    ]
+  }
+}

@@ -1,0 +1,9 @@
+core:
+  pluginDirectory: ../plugins/
+sensitivity:
+  maxIterations: 10000
+uncertainty:
+  minIterations: 500
+  maxIterations: 10000
+  stride: 100
+  tolerance: 0.0001

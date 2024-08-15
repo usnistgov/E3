@@ -1,0 +1,46 @@
+plugins {
+    id 'java'
+    id 'com.github.johnrengelman.shadow' version '7.1.2'
+}
+
+group 'org.example'
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compileOnly project(":core")
+    compileOnly project(':measures')
+    compileOnly project(':discounted')
+
+    // https://mvnrepository.com/artifact/ch.qos.logback/logback-classic
+    compileOnly group: 'ch.qos.logback', name: 'logback-classic', version: '1.3.0-alpha16'
+    // https://mvnrepository.com/artifact/org.atteo.classindex/classindex
+    compileOnly group: 'org.atteo.classindex', name: 'classindex', version: '3.13'
+    annotationProcessor group: 'org.atteo.classindex', name: 'classindex', version: '3.13'
+
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
+
+    testImplementation "net.jqwik:jqwik:1.7.0"
+    testImplementation(testFixtures(project(":core")))
+}
+
+compileTestJava {
+    // To enable argument names in reporting and debugging
+    options.compilerArgs += '-parameters'
+}
+
+test {
+    useJUnitPlatform {
+        includeEngines 'jqwik', 'junit-jupiter'
+    }
+}
+
+var pluginDirectory = file("$buildDir/../../plugins")
+
+jar {
+    destinationDirectory.set(pluginDirectory)
+}

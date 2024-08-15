@@ -1,0 +1,159 @@
+openapi: 3.0.3
+info:
+  title: E3
+  description: Title
+  version: 1.0.0
+servers:
+  - url: 'http://e3test.el.nist.gov'
+paths:
+  /api/v2/analysis:
+    post:
+      summary: "POST api/v2/analysis"
+      operationId: "analysis"
+      parameters:
+        - name: "authorization"
+          in: "header"
+          required: true
+          schema:
+            type: "string"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: "string"
+        required: true
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/DeferredResult"
+  /login:
+    get:
+      summary: "GET login"
+      operationId: "login"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                type: "string"
+  /:
+    get:
+      summary: "GET "
+      operationId: "index"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                type: "string"
+  /index:
+    get:
+      summary: "GET index"
+      operationId: "index"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                type: "string"
+  /token/create:
+    get:
+      summary: "GET token/create"
+      operationId: "createToken"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                type: "string"
+    post:
+      summary: "POST token/create"
+      operationId: "createApiToken"
+      parameters:
+        - name: "name"
+          in: "query"
+          required: true
+          schema:
+            type: "string"
+        - name: "expiry-date"
+          in: "query"
+          required: false
+          schema:
+            type: "string"
+            format: "date"
+        - name: "expiry-time"
+          in: "query"
+          required: false
+          schema:
+            type: "string"
+            format: "partial-time"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                type: "string"
+  /token/delete:
+    post:
+      summary: "POST token/delete"
+      operationId: "deleteApiToken"
+      parameters:
+        - name: "prefix"
+          in: "query"
+          required: true
+          schema:
+            type: "string"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                type: "string"
+  /token/revoke:
+    post:
+      summary: "POST token/revoke"
+      operationId: "revokeApiToken"
+      parameters:
+        - name: "prefix"
+          in: "query"
+          required: true
+          schema:
+            type: "string"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                type: "string"
+  /account/delete:
+    get:
+      summary: "GET account/delete"
+      operationId: "deleteAccount"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                type: "string"
+  /dashboard:
+    get:
+      summary: "GET dashboard"
+      operationId: "dashboard"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                type: "string"

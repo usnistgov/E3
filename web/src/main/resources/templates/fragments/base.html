@@ -1,0 +1,47 @@
+<!DOCTYPE HTML>
+<html lang=en>
+<head th:fragment="head(title, links, scripts)">
+    <meta charset="UTF-8"/>
+    <title th:replace="${title}">Title</title>
+
+    <!--NIST Styles-->
+    <link rel="stylesheet" href="https://pages.nist.gov/nist-header-footer/css/nist-combined.css">
+
+    <!--USWDS Styles-->
+    <link rel="stylesheet" type="text/css" href="/uswds-2.13.2/css/uswds.min.css"/>
+    <script type="text/javascript" src="/uswds-2.13.2/js/uswds-init.min.js"></script>
+
+    <link rel="stylesheet" type="text/css" href="/css/base.css"/>
+    <link rel="stylesheet" type="text/css" href="/css/nav.css"/>
+
+    <th:block th:replace="${links}"/>
+    <th:block th:replace="${scripts}"/>
+</head>
+<body>
+<nav th:fragment="nav(rightContent)" id="navigation" class="site-nav position-sticky top-0 radius-top-md padding-x-5">
+    <ul>
+        <li><a href="/">Home</a></li>
+        <li>
+            <a href="https://doi.org/10.6028/NIST.TN.2225" target="_blank">
+                Technical Manual
+                <img class="usa-icon margin-left-05 text-base-dark" src="/img/open-in-new.svg"
+                     alt="open in new tab"/>
+            </a>
+        </li>
+        <li>
+            <a href="https://github.com/usnistgov/E3">
+                Github
+                <img class="usa-icon margin-left-05 text-base-dark" src="/img/github.svg" alt="Github icon"/>
+            </a>
+        </li>
+        <script th:attr="nonce=${cspNonce}">
+            document.querySelectorAll("#navigation a").forEach(anchor => {
+                if (window.location.pathname === anchor.getAttribute("href"))
+                    anchor.classList.add("current")
+            })
+        </script>
+    </ul>
+    <th:block th:replace="${rightContent}"/>
+</nav>
+</body>
+</html>

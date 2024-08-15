@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/product.schema.json",
+  "title": "Test",
+  "type": "object",
+  "properties": {
+    "property1": {
+      "type": "integer"
+    },
+    "property2": {
+      "type": "string"
+    }
+  },
+  "required": [ "property1" ]
+}
